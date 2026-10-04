@@ -20,7 +20,7 @@ Seluruh script eksekusi berada di direktori `ml/`:
 
 ### A. Persiapan Virtual Environment
 ```powershell
-cd d:\casptone\sistem\ml
+cd ml
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
@@ -67,7 +67,7 @@ MAX_UPLOAD_SIZE_MB=10
 
 ### B. Menjalankan Server Uvicorn
 ```powershell
-cd d:\casptone\sistem\fastapi
+cd fastapi
 ..\ml\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
@@ -85,7 +85,7 @@ Seluruh 6 skenario pengujian harus berstatus `PASS`.
 Aplikasi Laravel bertindak sebagai orkestrator antarmuka pengguna, session tracking, dan integrasi cloud.
 
 ### A. Konfigurasi (`laravel/.env`)
-Pastikan variabel berikut terisi dengan benar:
+Pastikan variabel berikut terisi dengan konfigurasi project Anda:
 ```env
 APP_NAME=TomatCare
 APP_ENV=local
@@ -93,8 +93,8 @@ APP_KEY=base64:...
 APP_DEBUG=true
 APP_URL=http://localhost:8000
 
-SUPABASE_URL=https://javokwknogblagzvchyo.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_URL=https://<your-project-id>.supabase.co
+SUPABASE_ANON_KEY=<your-supabase-anon-key>
 SUPABASE_STORAGE_BUCKET=detection-images
 
 FASTAPI_URL=http://127.0.0.1:8001
@@ -104,7 +104,7 @@ FASTAPI_TIMEOUT=60
 
 ### B. Menjalankan Server Laravel
 ```powershell
-cd d:\casptone\sistem\laravel
+cd laravel
 php artisan serve --port 8000
 ```
 Buka browser dan navigasikan ke `http://localhost:8000`.
@@ -176,4 +176,4 @@ Pastikan bucket `detection-images` memiliki opsi `public: true` dan policy uploa
 
 ### Kasus 3: Riwayat tidak muncul setelah refresh browser
 * **Penyebab**: Cookie `tomato_session_id` terhapus atau dibersihkan oleh browser.
-* **Solusi**: Sesuai desain PRD Bab 21, riwayat terikat pada cookie sesi browser. Jika cookie dibersihkan, browser memperoleh session ID baru sehingga riwayat lama terisolasi demi menjaga privasi pseudonim.
+* **Solusi**: Sesuai spesifikasi arsitektur privasi sistem, riwayat terikat pada cookie sesi browser (`tomato_session_id`). Jika cookie dibersihkan, browser memperoleh session ID baru sehingga riwayat lama terisolasi demi menjaga privasi pseudonim.

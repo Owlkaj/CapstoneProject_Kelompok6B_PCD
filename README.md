@@ -76,7 +76,7 @@ Browser Klien (Tampilan Hasil Diagnosa & Riwayat Sesi)
 ## 📂 Struktur Repositori
 
 ```text
-d:/casptone/sistem/
+TomatCare/
 ├── ml/                           # Pipeline Machine Learning & Eksperimen
 │   ├── dataset/splits/           # Manifest dataset (manifest.csv) & split 80/10/10
 │   ├── models/                   # final_model.pt, label_mapping.json, preprocessing.json
@@ -89,7 +89,7 @@ d:/casptone/sistem/
 │   ├── models/                   # Bobot model final & mapping konfigurasi
 │   ├── requirements.txt          # Dependency API (FastAPI, uvicorn, Pillow)
 │   ├── test_api.py               # Test suite contract FastAPI
-│   └── .env                      # Konfigurasi port, path model, device
+│   └── .env.example              # Template konfigurasi port, path model, device
 │
 ├── laravel/                      # Web Application Utama (Laravel 12)
 │   ├── app/Http/Controllers/     # DetectionController & HistoryController
@@ -98,10 +98,10 @@ d:/casptone/sistem/
 │   ├── app/Helpers/              # DiseaseCatalog (Data agronomis 10 penyakit)
 │   ├── resources/views/          # Blade views (layouts, detection, history, about)
 │   ├── routes/web.php            # Route web & API history
-│   └── .env                      # Konfigurasi Supabase & FastAPI
+│   └── .env.example              # Template konfigurasi Supabase & FastAPI
 │
 ├── README.md                     # Dokumentasi arsitektur & cara penggunaan
-├── RUNBOOK.md                    # Panduan operasional developer & eksekusi service
+└── RUNBOOK.md                    # Panduan operasional developer & eksekusi service
 ```
 
 ---
@@ -112,8 +112,8 @@ d:/casptone/sistem/
 
 Buka terminal di direktori `fastapi/`:
 ```bash
-cd d:/casptone/sistem/fastapi
-..\ml\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
+cd fastapi
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
 *Health Check*: Buka `http://127.0.0.1:8001/health` di browser. Respons: `{"status":"ok","model_loaded":true}`.
 
@@ -121,7 +121,7 @@ cd d:/casptone/sistem/fastapi
 
 Buka terminal di direktori `laravel/`:
 ```bash
-cd d:/casptone/sistem/laravel
+cd laravel
 php artisan serve --port 8000
 ```
 Akses aplikasi melalui browser: **`http://localhost:8000`** atau **`http://127.0.0.1:8000`**.
