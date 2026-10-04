@@ -102,6 +102,15 @@
                 <span id="btnIcon">🔍</span>
                 <span id="btnText">Deteksi Penyakit Daun</span>
             </button>
+
+            <!-- Quick Tips Notice -->
+            <div class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-amber-900">
+                <span class="text-base leading-none">💡</span>
+                <div>
+                    <strong>Tips Foto Akurat:</strong> Foto 1 helai daun dari jarak 10–20 cm dengan fokus tajam. Hindari foto buram atau terhalang buah.
+                    <a href="#panduan-foto" class="underline font-semibold hover:text-amber-950 ml-1">Lihat syarat lengkap ↓</a>
+                </div>
+            </div>
         </div>
 
         <!-- Right Column: Hasil Diagnosis (6 cols) -->
@@ -210,6 +219,127 @@
             <div class="pt-4 border-t border-gray-100 text-[11px] text-gray-400 flex items-center justify-between">
                 <span>🍃 TomatCare AI Assistant</span>
                 <span>Cookie sesi: {{ substr(request()->attributes->get('tomato_session_id', 'Active'), 0, 8) }}...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Guidelines Section (SOP Pengambilan Foto) -->
+    <div id="panduan-foto" class="mt-12 bg-white rounded-3xl border border-gray-200/80 shadow-sm overflow-hidden scroll-mt-6">
+        <div class="bg-gradient-to-r from-emerald-800 to-teal-900 p-6 sm:p-8 text-white">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700/60 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-2 border border-emerald-500/30">
+                        📋 SOP Pengambilan Foto di Lapangan
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                        Syarat & Panduan Foto Agar Hasil Diagnosa Akurat
+                    </h2>
+                    <p class="mt-2 text-emerald-100/90 text-sm sm:text-base max-w-2xl leading-relaxed">
+                        Model AI bekerja paling optimal jika fitur visual lesi terekam jelas. Ikuti panduan berikut saat memotret langsung di kebun atau mengunggah gambar:
+                    </p>
+                </div>
+                <div class="hidden md:flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-3xl">
+                    📸
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Grid Cards -->
+        <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card 1 -->
+            <div class="bg-emerald-50/50 rounded-2xl p-5 border border-emerald-100/80 flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
+                        1
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Jarak Dekat (Close-Up)</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Ambil foto dari jarak <strong>10–20 cm</strong>. Daun harus memenuhi <strong>70%–80%</strong> layar agar tekstur lesi tidak hilang terkompresi.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
+                    <span>✅ Jarak ideal: 15 cm</span>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-emerald-50/50 rounded-2xl p-5 border border-emerald-100/80 flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
+                        2
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">1 Helai Daun Tunggal</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Fokuskan kamera hanya pada <strong>satu helai daun</strong> yang bergejala. Hindari memotret seluruh pohon tomat dari kejauhan.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
+                    <span>✅ Subjek terfokus</span>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-emerald-50/50 rounded-2xl p-5 border border-emerald-100/80 flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
+                        3
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Pencahayaan Rata</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Gunakan cahaya alami yang cukup. Hindari <em>backlight</em> (silau matahari dari belakang daun) dan bayangan tubuh yang menutupi daun.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
+                    <span>✅ Bebas bayangan gelap</span>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="bg-emerald-50/50 rounded-2xl p-5 border border-emerald-100/80 flex flex-col justify-between">
+                <div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
+                        4
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Fokus Tajam (Anti-Blur)</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Ketuk layar HP (<em>tap to focus</em>) tepat pada bercak daun. Pastikan daun tidak bergoyang tertiup angin saat tombol jepret ditekan.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
+                    <span>✅ Tepi bercak tajam</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Comparison Checklist -->
+        <div class="px-6 pb-8 sm:px-8">
+            <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-200/80">
+                <h4 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span>📌</span> Checklist Cepat Sebelum Menekan Tombol Deteksi
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-emerald-600 text-base leading-none">✔</span>
+                        <div>
+                            <span class="font-bold text-gray-900 block">Bebas Objek Asing:</span>
+                            <span class="text-gray-500">Tidak tertutup buah tomat, tanah, tiang bambu, atau jari tangan.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-emerald-600 text-base leading-none">✔</span>
+                        <div>
+                            <span class="font-bold text-gray-900 block">Kondisi Daun Alami:</span>
+                            <span class="text-gray-500">Permukaan daun kering alami (bukan basah kuyup tersiram semprotan air).</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-emerald-600 text-base leading-none">✔</span>
+                        <div>
+                            <span class="font-bold text-gray-900 block">Indikator Keyakinan:</span>
+                            <span class="text-gray-500">Skor > 70% menandakan model sangat yakin dengan ciri visual daun.</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
