@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Evaluasi Model — TomatCare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen p-6 md:p-10">
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-8 text-white shadow-xl shadow-emerald-900/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-wider mb-2">Evaluasi Independen</span>
+                <h1 class="text-3xl font-extrabold">TomatCare — Hasil Uji Model AI</h1>
+                <p class="text-emerald-100 text-sm mt-1">Evaluasi pada 2.000 Citra Daun Tomat Unseen (EfficientNet-B0 Fine-Tuned)</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 text-center">
+                <span class="text-xs uppercase tracking-wider opacity-80 block font-semibold">Overall Test Accuracy</span>
+                <span class="text-4xl font-black text-white">96.6%</span>
+            </div>
+        </div>
+
+        <!-- 4 Metric Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Akurasi Keseluruhan</span>
+                <span class="text-2xl md:text-3xl font-black text-emerald-600 mt-1 block">96.6%</span>
+                <span class="text-xs text-slate-500 mt-1 block">1.932 dari 2.000 citra tepat</span>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Macro Precision</span>
+                <span class="text-2xl md:text-3xl font-black text-blue-600 mt-1 block">96.65%</span>
+                <span class="text-xs text-slate-500 mt-1 block">Tingkat ketepatan tebakan</span>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Macro Recall</span>
+                <span class="text-2xl md:text-3xl font-black text-teal-600 mt-1 block">96.6%</span>
+                <span class="text-xs text-slate-500 mt-1 block">Daya jaring penyakit daun</span>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Macro F1-Score</span>
+                <span class="text-2xl md:text-3xl font-black text-purple-600 mt-1 block">96.6%</span>
+                <span class="text-xs text-slate-500 mt-1 block">Keseimbangan harmonis model</span>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Perbandingan Metrik Tiap Kelas Daun</h2>
+                    <p class="text-xs text-slate-500">Visualisasi Precision, Recall, dan F1-Score untuk 10 kelas penyakit</p>
+                </div>
+            </div>
+            <div class="h-80 w-full">
+                <canvas id="metricsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Tabel Rincian Lengkap Performa</h2>
+                    <p class="text-xs text-slate-500">Daftar lengkap 10 kelas patologi daun tomat beserta hasil evaluasi kuantitatif</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-xs tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3 px-4">Penyakit Daun</th>
+                            <th class="py-3 px-4 text-center">Precision</th>
+                            <th class="py-3 px-4 text-center">Recall</th>
+                            <th class="py-3 px-4 text-center">F1-Score</th>
+                            <th class="py-3 px-4 text-center">Sampel Uji</th>
+                            <th class="py-3 px-4 text-center">Performa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">1</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Bercak Bakteri <span class="text-xs text-slate-400 block font-mono">Bacterial Spot</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">92.42%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">97.50%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">94.89%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Sangat Baik</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">2</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Bercak Kering <span class="text-xs text-slate-400 block font-mono">Early Blight</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">95.92%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">94.00%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">94.95%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Sangat Baik</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">3</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Daun Sehat <span class="text-xs text-slate-400 block font-mono">Healthy</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">95.65%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">99.00%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">97.30%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Luar Biasa</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">4</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Hawar Daun <span class="text-xs text-slate-400 block font-mono">Late Blight</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">97.41%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">94.00%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">95.67%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Sangat Baik</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">5</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Kapang Daun <span class="text-xs text-slate-400 block font-mono">Leaf Mold</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">94.61%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">96.50%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">95.54%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Sangat Baik</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">6</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Virus Mosaik <span class="text-xs text-slate-400 block font-mono">Tomato Mosaic Virus</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">98.50%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">98.50%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">98.50%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Luar Biasa</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">7</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Bercak Septoria <span class="text-xs text-slate-400 block font-mono">Septoria Leaf Spot</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">96.46%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">95.50%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">95.98%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Sangat Baik</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">8</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Tungau Laba-laba <span class="text-xs text-slate-400 block font-mono">Spider Mites</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">97.06%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">99.00%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">98.02%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Luar Biasa</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">9</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Bercak Sasaran <span class="text-xs text-slate-400 block font-mono">Target Spot</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">99.47%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">94.00%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">96.66%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Sangat Baik</span></td>
+        </tr>
+        
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-3 px-4 font-semibold text-slate-700">10</td>
+            <td class="py-3 px-4 font-medium text-slate-900">Virus Kuning Keriting <span class="text-xs text-slate-400 block font-mono">Tomato Yellow Leaf Curl Virus (TYLCV)</span></td>
+            <td class="py-3 px-4 text-center font-mono text-blue-600 font-semibold">98.99%</td>
+            <td class="py-3 px-4 text-center font-mono text-emerald-600 font-semibold">98.00%</td>
+            <td class="py-3 px-4 text-center font-mono text-purple-700 font-bold">98.49%</td>
+            <td class="py-3 px-4 text-center text-slate-600">200</td>
+            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Luar Biasa</span></td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const ctx = document.getElementById('metricsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["Bercak Bakteri", "Bercak Kering", "Daun Sehat", "Hawar Daun", "Kapang Daun", "Virus Mosaik", "Bercak Septoria", "Tungau Laba-laba", "Bercak Sasaran", "Virus Kuning Keriting"],
+                datasets: [
+                    {
+                        label: 'Precision (%)',
+                        data: [92.42, 95.92, 95.65, 97.41, 94.61, 98.5, 96.46, 97.06, 99.47, 98.99],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Recall (%)',
+                        data: [97.5, 94.0, 99.0, 94.0, 96.5, 98.5, 95.5, 99.0, 94.0, 98.0],
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'F1-Score (%)',
+                        data: [94.89, 94.95, 97.3, 95.67, 95.54, 98.5, 95.98, 98.02, 96.66, 98.49],
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 88,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) { return value + '%'; }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

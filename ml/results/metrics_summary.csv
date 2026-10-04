@@ -1,0 +1,11 @@
+﻿No,Kelas Teknis,Nama Indonesia,Precision (%),Recall (%),F1-Score (%),Jumlah Sampel Uji
+1,Bacterial Spot,Bercak Bakteri,92.42,97.5,94.89,200
+2,Early Blight,Bercak Kering,95.92,94.0,94.95,200
+3,Healthy,Daun Sehat,95.65,99.0,97.3,200
+4,Late Blight,Hawar Daun,97.41,94.0,95.67,200
+5,Leaf Mold,Kapang Daun,94.61,96.5,95.54,200
+6,Tomato Mosaic Virus,Virus Mosaik,98.5,98.5,98.5,200
+7,Septoria Leaf Spot,Bercak Septoria,96.46,95.5,95.98,200
+8,Spider Mites,Tungau Laba-laba,97.06,99.0,98.02,200
+9,Target Spot,Bercak Sasaran,99.47,94.0,96.66,200
+10,Tomato Yellow Leaf Curl Virus (TYLCV),Virus Kuning Keriting,98.99,98.0,98.49,200
