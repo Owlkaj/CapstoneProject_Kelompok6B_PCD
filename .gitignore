@@ -113,9 +113,6 @@ PRD_Machine_Learning_Tomat_AgentReady_v3.md
 *PRD*.md
 ui.md
 
-# Hugging Face deployment workspace
-hf_space/
-
 
 # IDE & OS Specific Files
 .DS_Store
