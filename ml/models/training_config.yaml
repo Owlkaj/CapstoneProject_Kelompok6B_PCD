@@ -1,0 +1,37 @@
+seed: 42
+
+dataset:
+  manifest_path: ml/dataset/splits/manifest.csv
+  total_images: 20000
+  images_per_class: 2000
+  train_ratio: 0.8
+  validation_ratio: 0.1
+  test_ratio: 0.1
+
+model:
+  name: efficientnet_b0
+  num_classes: 10
+  pretrained: true
+  input_size: 224
+
+experiments:
+  E01:
+    name: Transfer_Learning_Baseline
+    backbone_frozen: true
+    optimizer: AdamW
+    batch_size: 16
+    learning_rate: 0.001
+    epochs: 10
+    early_stopping_patience: 3
+    weight_decay: 0.01
+
+  E02:
+    name: Fine_Tuning
+    backbone_frozen: false
+    unfrozen_stages: 2
+    optimizer: AdamW
+    batch_size: 16
+    learning_rate: 0.00002
+    epochs: 10
+    early_stopping_patience: 3
+    weight_decay: 0.01

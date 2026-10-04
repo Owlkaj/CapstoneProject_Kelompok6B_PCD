@@ -1,0 +1,66 @@
+{
+  "total_images": 20000,
+  "target_working_dataset": 20000,
+  "seed": 42,
+  "classes": [
+    "Bacterial Spot",
+    "Early Blight",
+    "Healthy",
+    "Late Blight",
+    "Leaf Mold",
+    "Tomato Mosaic Virus",
+    "Septoria Leaf Spot",
+    "Spider Mites",
+    "Target Spot",
+    "Tomato Yellow Leaf Curl Virus (TYLCV)"
+  ],
+  "num_classes": 10,
+  "split_counts": {
+    "train": 16000,
+    "val": 2000,
+    "test": 2000
+  },
+  "split_ratios": {
+    "train": 0.8,
+    "val": 0.1,
+    "test": 0.1
+  },
+  "per_class_summary": {
+    "test": {
+      "Bacterial Spot": 200,
+      "Early Blight": 200,
+      "Healthy": 200,
+      "Late Blight": 200,
+      "Leaf Mold": 200,
+      "Septoria Leaf Spot": 200,
+      "Spider Mites": 200,
+      "Target Spot": 200,
+      "Tomato Mosaic Virus": 200,
+      "Tomato Yellow Leaf Curl Virus (TYLCV)": 200
+    },
+    "train": {
+      "Bacterial Spot": 1600,
+      "Early Blight": 1600,
+      "Healthy": 1600,
+      "Late Blight": 1600,
+      "Leaf Mold": 1600,
+      "Septoria Leaf Spot": 1600,
+      "Spider Mites": 1600,
+      "Target Spot": 1600,
+      "Tomato Mosaic Virus": 1600,
+      "Tomato Yellow Leaf Curl Virus (TYLCV)": 1600
+    },
+    "val": {
+      "Bacterial Spot": 200,
+      "Early Blight": 200,
+      "Healthy": 200,
+      "Late Blight": 200,
+      "Leaf Mold": 200,
+      "Septoria Leaf Spot": 200,
+      "Spider Mites": 200,
+      "Target Spot": 200,
+      "Tomato Mosaic Virus": 200,
+      "Tomato Yellow Leaf Curl Virus (TYLCV)": 200
+    }
+  }
+}

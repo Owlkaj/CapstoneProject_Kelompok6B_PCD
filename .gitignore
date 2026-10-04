@@ -1,0 +1,131 @@
+# ==============================================================================
+# TomatCare — Root .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment & Credentials (CRITICAL - DO NOT COMMIT TO PUBLIC REPO)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+*.env
+*.env.local
+*.env.backup
+*.env.production
+
+# Keep example files
+!.env.example
+!laravel/.env.example
+!fastapi/.env.example
+
+# ------------------------------------------------------------------------------
+# 2. Python & Machine Learning Virtual Environments & Caches
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.pyc
+
+# Virtual Environments
+.venv/
+*/.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# ML/PyTorch Cache & Checkpoints
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Intermediate Training Checkpoints (Uncomment if you don't want to push ~60MB of best checkpoints)
+# ml/models/E01_best.pt
+# ml/models/E02_best.pt
+
+# Datasets (Raw bulk image files - manifest.csv and splits are kept)
+ml/dataset/raw/
+ml/dataset/processed/
+ml/dataset/clean/
+
+# ------------------------------------------------------------------------------
+# 3. Laravel / PHP Dependencies & Generated Caches
+# ------------------------------------------------------------------------------
+laravel/vendor/
+vendor/
+
+# Laravel Storage & Framework Caches
+laravel/storage/framework/cache/data/*
+laravel/storage/framework/sessions/*
+laravel/storage/framework/testing/*
+laravel/storage/framework/views/*
+laravel/storage/logs/*.log
+laravel/storage/app/private/*
+laravel/storage/app/public/*
+laravel/public/storage
+laravel/public/build
+laravel/public/hot
+
+# Keep directory structure .gitignore files inside storage
+!laravel/storage/framework/cache/data/.gitignore
+!laravel/storage/framework/sessions/.gitignore
+!laravel/storage/framework/testing/.gitignore
+!laravel/storage/framework/views/.gitignore
+!laravel/storage/logs/.gitignore
+!laravel/storage/app/.gitignore
+!laravel/storage/app/private/.gitignore
+!laravel/storage/app/public/.gitignore
+
+# Laravel Bootstrap Cache
+laravel/bootstrap/cache/*.php
+!laravel/bootstrap/cache/.gitignore
+
+# Database files
+laravel/database/*.sqlite
+laravel/database/*.sqlite-journal
+
+# ------------------------------------------------------------------------------
+# 4. Frontend & Node.js Dependencies
+# ------------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vite/
+dist/
+
+# ------------------------------------------------------------------------------
+# 5. Local Tools, Machine Paths & Temporary Scratch Files
+# ------------------------------------------------------------------------------
+scratch/
+tmp/
+temp/
+*.tmp
+
+# Graphify machine-specific absolute path files (e.g. C:\Users\...)
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+graphify-out/cache/
+graphify-out/.graphify_detect.json
+graphify-out/.graphify_extract.json
+
+# IDE & OS Specific Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
