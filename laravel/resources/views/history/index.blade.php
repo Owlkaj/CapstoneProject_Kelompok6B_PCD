@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             try {
-                const res = await fetch(`{{ url('/history') }}/${id}`, {
+                const res = await fetch(`/history/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
