@@ -1,0 +1,17 @@
+{
+  "venvPath": "ml",
+  "venv": ".venv",
+  "extraPaths": [
+    "fastapi",
+    "ml",
+    "ml/.venv/Lib/site-packages"
+  ],
+  "include": [
+    "fastapi",
+    "ml"
+  ],
+  "pythonVersion": "3.10",
+  "pythonPlatform": "Windows",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning"
+}

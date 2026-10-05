@@ -6,6 +6,8 @@ class PredictionResponse(BaseModel):
     confidence: float = Field(..., description="Softmax confidence score (0.0 to 1.0)")
     class_id: int = Field(..., ge=0, description="Integer class identifier matching label mapping (0 to 9)")
     inference_time_ms: float = Field(..., description="Inference time in milliseconds")
+    probabilities: dict[str, float] | None = Field(default=None, description="Full dictionary of class probabilities")
+    top_predictions: list[dict] | None = Field(default=None, description="Ranked top-k predictions with class and confidence")
 
     class Config:
         populate_by_name = True

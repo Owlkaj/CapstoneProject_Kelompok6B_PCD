@@ -107,7 +107,7 @@
             <div class="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-amber-900">
                 <span class="text-base leading-none">💡</span>
                 <div>
-                    <strong>Tips Foto Akurat:</strong> Foto 1 helai daun dari jarak 10–20 cm dengan fokus tajam. Hindari foto buram atau terhalang buah.
+                    <strong>Standar Foto Model (PlantVillage):</strong> Letakkan 1 helai daun di atas latar polos (kertas putih/abu-abu netral) dengan pencahayaan merata.
                     <a href="#panduan-foto" class="underline font-semibold hover:text-amber-950 ml-1">Lihat syarat lengkap ↓</a>
                 </div>
             </div>
@@ -184,6 +184,25 @@
                     <p id="resConfidenceCategory" class="text-[11px] text-gray-500 font-medium">Sangat Yakin (&ge; 90%)</p>
                 </div>
 
+                <!-- Alternatif Diagnosa (Top-K Predictions / Differential Diagnosis) -->
+                <div id="resAlternativesWrap" class="hidden space-y-2.5 bg-gray-50/90 p-4 rounded-xl border border-gray-200/90">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-sm">🔍</span>
+                            <span class="text-xs font-bold text-gray-800 uppercase tracking-wider font-heading">
+                                Kemungkinan Alternatif (Diagnosis Banding)
+                            </span>
+                        </div>
+                        <span class="text-[11px] text-gray-500 font-medium">Prediksi Lainnya</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500 leading-snug">
+                        Jika visual daun memiliki kemiripan gejala, model AI juga mengestimasi kemungkinan alternatif berikut:
+                    </p>
+                    <div id="resAlternativesList" class="space-y-2 pt-1">
+                        <!-- Rendered via JavaScript -->
+                    </div>
+                </div>
+
                 <!-- Tab Informasi / Rekomendasi -->
                 <div class="space-y-3">
                     <div class="flex border-b border-gray-200 text-xs font-semibold">
@@ -223,19 +242,19 @@
         </div>
     </div>
 
-    <!-- Photo Guidelines Section (SOP Pengambilan Foto) -->
+    <!-- Photo Guidelines Section (Standar Dataset PlantVillage) -->
     <div id="panduan-foto" class="mt-12 bg-white rounded-3xl border border-gray-200/80 shadow-sm overflow-hidden scroll-mt-6">
         <div class="bg-gradient-to-r from-emerald-800 to-teal-900 p-6 sm:p-8 text-white">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700/60 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-2 border border-emerald-500/30">
-                        📋 SOP Pengambilan Foto di Lapangan
+                        📋 SOP Standar Dataset PlantVillage
                     </span>
                     <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                        Syarat & Panduan Foto Agar Hasil Diagnosa Akurat
+                        Syarat & Panduan Foto Daun (Karakteristik PlantVillage)
                     </h2>
                     <p class="mt-2 text-emerald-100/90 text-sm sm:text-base max-w-2xl leading-relaxed">
-                        Model AI bekerja paling optimal jika fitur visual lesi terekam jelas. Ikuti panduan berikut saat memotret langsung di kebun atau mengunggah gambar:
+                        Model AI EfficientNetB0 TomatCare dilatih menggunakan dataset patologi tanaman <strong>PlantVillage</strong>. Agar hasil deteksi memiliki akurasi optimal (&gt;96%), pastikan foto yang Anda ambil atau unggah memenuhi 4 karakteristik standar berikut:
                     </p>
                 </div>
                 <div class="hidden md:flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-3xl">
@@ -252,13 +271,13 @@
                     <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
                         1
                     </div>
-                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Jarak Dekat (Close-Up)</h3>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Latar Belakang Netral / Polos</h3>
                     <p class="text-xs text-gray-600 leading-relaxed">
-                        Ambil foto dari jarak <strong>10–20 cm</strong>. Daun harus memenuhi <strong>70%–80%</strong> layar agar tekstur lesi tidak hilang terkompresi.
+                        Letakkan daun di atas permukaan datar polos (kertas HVS putih, lembaran abu-abu, atau alas netral). Hindari latar belakang tanah kebun, pot, dedaunan lain, atau jari tangan.
                     </p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
-                    <span>✅ Jarak ideal: 15 cm</span>
+                    <span>✅ Trik: Selipkan kertas putih di belakang daun</span>
                 </div>
             </div>
 
@@ -268,13 +287,13 @@
                     <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
                         2
                     </div>
-                    <h3 class="font-bold text-gray-900 text-base mb-1.5">1 Helai Daun Tunggal</h3>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">1 Helai Daun Terbentang Rata</h3>
                     <p class="text-xs text-gray-600 leading-relaxed">
-                        Fokuskan kamera hanya pada <strong>satu helai daun</strong> yang bergejala. Hindari memotret seluruh pohon tomat dari kejauhan.
+                        Pilih <strong>satu helai daun tunggal</strong> yang bergejala dan bentangkan menghadap kamera. Hindari daun yang terlipat, tergulung rapat, atau bertumpuk dengan ranting lain.
                     </p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
-                    <span>✅ Subjek terfokus</span>
+                    <span>✅ Daun tunggal terisolasi</span>
                 </div>
             </div>
 
@@ -284,13 +303,13 @@
                     <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
                         3
                     </div>
-                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Pencahayaan Rata</h3>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Pencahayaan Studio Merata</h3>
                     <p class="text-xs text-gray-600 leading-relaxed">
-                        Gunakan cahaya alami yang cukup. Hindari <em>backlight</em> (silau matahari dari belakang daun) dan bayangan tubuh yang menutupi daun.
+                        Gunakan cahaya menyebar yang terang. Hindari pantulan silau matahari langsung (<em>glare</em>) dan bayangan gelap tubuh atau HP yang menutupi lesi bercak.
                     </p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
-                    <span>✅ Bebas bayangan gelap</span>
+                    <span>✅ Bebas silau & bayangan tajam</span>
                 </div>
             </div>
 
@@ -300,43 +319,54 @@
                     <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-lg mb-3 shadow-xs">
                         4
                     </div>
-                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Fokus Tajam (Anti-Blur)</h3>
+                    <h3 class="font-bold text-gray-900 text-base mb-1.5">Framing Penuh & Fokus Tajam</h3>
                     <p class="text-xs text-gray-600 leading-relaxed">
-                        Ketuk layar HP (<em>tap to focus</em>) tepat pada bercak daun. Pastikan daun tidak bergoyang tertiup angin saat tombol jepret ditekan.
+                        Posisikan daun di tengah hingga mengisi <strong>70%–80% layar</strong>. Pastikan seluruh helai daun masuk dalam frame (tidak terpotong) dengan ketajaman fokus tinggi.
                     </p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-emerald-100/80 text-[11px] text-emerald-800 font-semibold flex items-center gap-1">
-                    <span>✅ Tepi bercak tajam</span>
+                    <span>✅ Daun utuh & fokus tajam</span>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Comparison Checklist -->
-        <div class="px-6 pb-8 sm:px-8">
+        <!-- Quick Comparison Checklist & Educational Callout -->
+        <div class="px-6 pb-8 sm:px-8 space-y-4">
+            <!-- Educational Callout -->
+            <div class="bg-blue-50/80 rounded-2xl p-4 sm:p-5 border border-blue-200/80 flex items-start gap-3 text-xs text-blue-900">
+                <span class="text-xl leading-none">🔬</span>
+                <div class="space-y-1">
+                    <strong class="font-bold text-blue-950 block font-heading">Mengapa Mengikuti Karakteristik PlantVillage Sangat Penting?</strong>
+                    <p class="text-blue-800 leading-relaxed">
+                        Dataset <strong>PlantVillage</strong> dibuat di laboratorium dengan memotret daun terpisah di atas latar belakang netral abu-abu/putih. Model <em>Convolutional Neural Network</em> (CNN) mengenali pola lesi penyakit secara optimal ketika tidak ada gangguan visual latar belakang (<em>noise</em>) seperti tanah kebun, batang pohon, atau dedaunan lain. Mengisolasi daun dengan latar polos memastikan fitur visual yang diekstraksi model 100% akurat.
+                    </p>
+                </div>
+            </div>
+
             <div class="bg-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-200/80">
-                <h4 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <h4 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 flex items-center gap-2 font-heading">
                     <span>📌</span> Checklist Cepat Sebelum Menekan Tombol Deteksi
                 </h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
                     <div class="flex items-start gap-2.5">
                         <span class="text-emerald-600 text-base leading-none">✔</span>
                         <div>
-                            <span class="font-bold text-gray-900 block">Bebas Objek Asing:</span>
-                            <span class="text-gray-500">Tidak tertutup buah tomat, tanah, tiang bambu, atau jari tangan.</span>
+                            <span class="font-bold text-gray-900 block">Latar Polos Bersih:</span>
+                            <span class="text-gray-500">Kertas putih atau alas datar netral tanpa objek asing di sekitarnya.</span>
                         </div>
                     </div>
                     <div class="flex items-start gap-2.5">
                         <span class="text-emerald-600 text-base leading-none">✔</span>
                         <div>
                             <span class="font-bold text-gray-900 block">Kondisi Daun Alami:</span>
-                            <span class="text-gray-500">Permukaan daun kering alami (bukan basah kuyup tersiram semprotan air).</span>
+                            <span class="text-gray-500">Permukaan daun kering alami (bebas lumpur atau genangan tetesan air semprotan).</span>
                         </div>
                     </div>
                     <div class="flex items-start gap-2.5">
                         <span class="text-emerald-600 text-base leading-none">✔</span>
                         <div>
-                            <span class="font-bold text-gray-900 block">Indikator Keyakinan:</span>
-                            <span class="text-gray-500">Skor > 70% menandakan model sangat yakin dengan ciri visual daun.</span>
+                            <span class="font-bold text-gray-900 block">Tingkat Keyakinan & Alternatif:</span>
+                            <span class="text-gray-500">Skor &gt; 70% menandakan model sangat yakin; cek daftar alternatif jika bercak tampak mirip.</span>
                         </div>
                     </div>
                 </div>
@@ -569,6 +599,36 @@ document.addEventListener('DOMContentLoaded', function () {
         resTreatment.textContent = data.treatment;
         resModelName.textContent = data.model || 'EfficientNetB0';
         resInferenceTime.textContent = `${data.inference_time_ms} ms`;
+
+        // Render Alternatives / Differential Diagnosis (Top-K)
+        const alternativesWrap = document.getElementById('resAlternativesWrap');
+        const alternativesList = document.getElementById('resAlternativesList');
+        
+        if (data.alternatives && data.alternatives.length > 0) {
+            alternativesList.innerHTML = '';
+            data.alternatives.slice(0, 3).forEach((alt, idx) => {
+                const altTheme = colorMap[alt.color] || colorMap['emerald'];
+                const item = document.createElement('div');
+                item.className = "p-2.5 bg-white rounded-lg border border-gray-200/90 shadow-2xs hover:border-gray-300 transition-all";
+                item.innerHTML = `
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-4 h-4 rounded-full bg-gray-100 text-gray-700 text-[10px] font-bold flex items-center justify-center">${idx + 2}</span>
+                            <span class="font-bold text-gray-900">${alt.disease}</span>
+                            <span class="text-gray-400 italic text-[11px] hidden sm:inline">(${alt.diseaseEn})</span>
+                        </div>
+                        <span class="font-extrabold text-gray-800 font-heading">${alt.confidence}%</span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div class="h-1.5 rounded-full ${altTheme.bar} transition-all duration-500" style="width: ${Math.max(alt.confidence, 2)}%"></div>
+                    </div>
+                `;
+                alternativesList.appendChild(item);
+            });
+            alternativesWrap.classList.remove('hidden');
+        } else {
+            alternativesWrap.classList.add('hidden');
+        }
     }
 
     // Camera Mode Implementation

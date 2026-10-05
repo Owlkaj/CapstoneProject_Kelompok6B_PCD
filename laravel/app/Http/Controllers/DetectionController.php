@@ -85,6 +85,52 @@ class DetectionController extends Controller
             // 6. Enrich with Indonesian agronomy advice from catalog
             $info = DiseaseCatalog::getInfo($className);
 
+            // 7. Parse Top-K predictions and alternative differential diagnoses
+            $topPredictions = [];
+            if (!empty($prediction['top_predictions']) && is_array($prediction['top_predictions'])) {
+                foreach ($prediction['top_predictions'] as $predItem) {
+                    $cName = $predItem['class'];
+                    $cConf = (float) $predItem['confidence'];
+                    $catInfo = DiseaseCatalog::getInfo($cName);
+                    $topPredictions[] = [
+                        'disease' => $catInfo['name_id'],
+                        'diseaseEn' => $cName,
+                        'class_id' => $predItem['class_id'] ?? null,
+                        'confidence' => round($cConf * 100, 2),
+                        'confidence_raw' => $cConf,
+                        'color' => $catInfo['color'] ?? 'emerald',
+                        'description' => $catInfo['description'] ?? '',
+                    ];
+                }
+            } elseif (!empty($prediction['probabilities']) && is_array($prediction['probabilities'])) {
+                $probs = $prediction['probabilities'];
+                arsort($probs);
+                foreach (array_slice($probs, 0, 5, true) as $cName => $prob) {
+                    $catInfo = DiseaseCatalog::getInfo($cName);
+                    $cConf = (float) $prob;
+                    $topPredictions[] = [
+                        'disease' => $catInfo['name_id'],
+                        'diseaseEn' => $cName,
+                        'confidence' => round($cConf * 100, 2),
+                        'confidence_raw' => $cConf,
+                        'color' => $catInfo['color'] ?? 'emerald',
+                        'description' => $catInfo['description'] ?? '',
+                    ];
+                }
+            } else {
+                $topPredictions[] = [
+                    'disease' => $info['name_id'],
+                    'diseaseEn' => $className,
+                    'class_id' => $prediction['class_id'] ?? null,
+                    'confidence' => round($confidence * 100, 2),
+                    'confidence_raw' => $confidence,
+                    'color' => $info['color'],
+                    'description' => $info['description'],
+                ];
+            }
+
+            $alternatives = array_slice($topPredictions, 1);
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -100,6 +146,8 @@ class DetectionController extends Controller
                     'color' => $info['color'],
                     'model' => $modelName,
                     'date' => now()->format('Y-m-d H:i'),
+                    'top_predictions' => $topPredictions,
+                    'alternatives' => $alternatives,
                 ]
             ]);
         } catch (\Throwable $e) {

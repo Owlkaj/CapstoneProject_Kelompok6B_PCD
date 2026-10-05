@@ -89,8 +89,8 @@ class InferenceService:
 
         with torch.no_grad():
             logits = self.model(tensor)
-            probs = torch.softmax(logits, dim=1)
-            confidence, pred_idx = torch.max(probs, dim=1)
+            probs = torch.softmax(logits, dim=1)[0]
+            confidence, pred_idx = torch.max(probs, dim=0)
 
         t_elapsed_ms = (time.perf_counter() - t_start) * 1000.0
 
@@ -98,9 +98,29 @@ class InferenceService:
         class_name = self.idx_to_class.get(idx, "Unknown")
         conf_score = float(confidence.item())
 
+        # Extract top-k predictions (top 5)
+        k = min(5, len(self.idx_to_class))
+        topk_probs, topk_indices = torch.topk(probs, k=k)
+        top_predictions = []
+        for p, i in zip(topk_probs, topk_indices):
+            c_idx = i.item()
+            top_predictions.append({
+                "class": self.idx_to_class.get(c_idx, "Unknown"),
+                "class_id": c_idx,
+                "confidence": round(float(p.item()), 4),
+                "percentage": round(float(p.item()) * 100, 2)
+            })
+
+        all_probabilities = {
+            self.idx_to_class.get(i, f"Class_{i}"): round(float(p.item()), 4)
+            for i, p in enumerate(probs)
+        }
+
         return {
             "class": class_name,
             "confidence": round(conf_score, 4),
             "class_id": idx,
-            "inference_time_ms": round(t_elapsed_ms, 2)
+            "inference_time_ms": round(t_elapsed_ms, 2),
+            "probabilities": all_probabilities,
+            "top_predictions": top_predictions
         }
