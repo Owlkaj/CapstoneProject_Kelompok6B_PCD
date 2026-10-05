@@ -153,10 +153,24 @@ CREATE INDEX IF NOT EXISTS idx_riwayat_session ON public.riwayat_deteksi(session
 CREATE INDEX IF NOT EXISTS idx_riwayat_tanggal ON public.riwayat_deteksi(tanggal_deteksi DESC);
 CREATE INDEX IF NOT EXISTS idx_riwayat_penyakit ON public.riwayat_deteksi(id_penyakit);
 CREATE INDEX IF NOT EXISTS idx_riwayat_model ON public.riwayat_deteksi(id_model);
+
+-- Keamanan & Row Level Security (RLS) - Wajib untuk menyelesaikan Supabase Advisor Warnings:
+ALTER TABLE public.penyakit ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.model_cnn ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.riwayat_deteksi ENABLE ROW LEVEL SECURITY;
+
+-- Master data: READ ONLY untuk publik/anon
+CREATE POLICY "Allow read penyakit" ON public.penyakit FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "Allow read model_cnn" ON public.model_cnn FOR SELECT TO anon, authenticated USING (true);
+
+-- User session & riwayat: Akses scoped untuk aplikasi
+CREATE POLICY "Allow session manage" ON public.user_sessions FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow riwayat manage" ON public.riwayat_deteksi FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 ```
 
 ### B. Storage Bucket
-Pastikan bucket `detection-images` memiliki opsi `public: true` dan policy upload diizinkan untuk peran `anon`.
+Pastikan bucket `detection-images` memiliki opsi `public: true` dan policy upload/view diizinkan untuk peran `anon` (bisa menjalankan script `supabase_security_hardening.sql`).
 
 ---
 
