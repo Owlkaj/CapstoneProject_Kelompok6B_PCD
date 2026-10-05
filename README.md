@@ -130,10 +130,12 @@ Akses aplikasi melalui browser: **`http://localhost:8000`** atau **`http://127.0
 
 ## 🧪 Validasi Pengujian Sistem
 
-Proyek ini dilengkapi dengan skrip pengujian otomatis di setiap lapisan:
-- **FastAPI Contract**: `python fastapi/test_api.py` (Menguji `/health`, 4-field contract `/predict`, validasi tensor, dan error handling).
-- **Session & Cookie**: `php laravel/test_session.php` (Menguji penerbitan cookie `tomato_session_id`, UUID v4, dan upsert `user_sessions`).
-- **End-to-End Pipeline**: `php laravel/test_phase11.php` (Menguji alur deteksi, storage upload, insert database, dan pembuktian isolasi data antar sesi).
+Proyek ini dilengkapi dengan skrip pengujian otomatis dan test suite formal di setiap lapisan:
+- **FastAPI Contract & Multi-Class Sampling**: `python fastapi/test_api.py` (Menguji `/health`, 4-field contract `/predict`, validasi tipe `class_id: int`, evaluasi akurasi sampling 10 kelas dari dataset test sesungguhnya, dan handling error).
+- **Laravel PHPUnit Feature Tests**: `cd laravel && php artisan test` (Menguji pipeline deteksi tanpa fallback diam-diam, validasi request citra, pembuatan session UUID v4, dan penanganan error).
+- **Session & Cookie Verification**: `php laravel/test_session.php` (Menguji penerbitan cookie `tomato_session_id`, UUID v4, dan upsert `user_sessions`).
+- **End-to-End Pipeline & Isolation**: `php laravel/test_phase11.php` (Menguji alur deteksi, kelengkapan DiseaseCatalog, dan pembuktian isolasi data antar sesi).
+- **CI/CD Automation**: GitHub Actions workflow (`.github/workflows/ci.yml`) menjalankan pengujian FastAPI dan Laravel secara otomatis pada setiap pull request/push.
 
 ---
 

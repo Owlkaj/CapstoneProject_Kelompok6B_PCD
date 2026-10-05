@@ -44,10 +44,17 @@ app = FastAPI(
 )
 
 # CORS middleware for Laravel or browser interactions
+cors_origins_env = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:8000,http://127.0.0.1:8000,http://localhost:3000,http://127.0.0.1:3000"
+)
+allowed_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+allow_credentials = "*" not in allowed_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

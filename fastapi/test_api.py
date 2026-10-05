@@ -19,83 +19,120 @@ def create_dummy_image(format="JPEG", size=(256, 256), color=(100, 150, 200)):
     buf.seek(0)
     return buf.read()
 
-def run_api_tests():
-    print("=" * 60)
-    print("PHASE 6 - FASTAPI INTEGRATION & CONTRACT TESTING")
-    print("=" * 60)
+def test_health_check(client: TestClient):
+    print("\n[1/6] Testing GET /health...")
+    res = client.get("/health")
+    assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
+    data = res.json()
+    assert data["status"] == "ok", f"Unexpected status: {data}"
+    assert data["model_loaded"] is True, f"Model not loaded: {data}"
+    print(f"  -> Health Response: {data} [PASS]")
 
-    # Use TestClient with lifespan context
-    with TestClient(app) as client:
-        # 1. Health check
-        print("\n[1/6] Testing GET /health...")
-        res = client.get("/health")
-        assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
-        data = res.json()
-        assert data["status"] == "ok", f"Unexpected status: {data}"
-        assert data["model_loaded"] is True, f"Model not loaded: {data}"
-        print(f"  -> Response: {data} [PASS]")
+def test_predict_synthetic_contract(client: TestClient):
+    print("\n[2/6] Testing POST /predict contract with Synthetic JPEG...")
+    jpg_bytes = create_dummy_image(format="JPEG")
+    res = client.post("/predict", files={"image": ("test_leaf.jpg", jpg_bytes, "image/jpeg")})
+    assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
+    pred = res.json()
+    print(f"  -> Prediction Response: {pred}")
 
-        # 2. POST /predict with Synthetic JPEG
-        print("\n[2/6] Testing POST /predict with Synthetic JPEG...")
-        jpg_bytes = create_dummy_image(format="JPEG")
-        res = client.post("/predict", files={"image": ("test_leaf.jpg", jpg_bytes, "image/jpeg")})
-        assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
+    # Verify 4-field contract and exact data types
+    for field in ["class", "confidence", "class_id", "inference_time_ms"]:
+        assert field in pred, f"Missing required contract field '{field}' in response!"
+
+    assert isinstance(pred["class"], str) and len(pred["class"]) > 0, "Field 'class' must be non-empty string"
+    assert isinstance(pred["class_id"], int), f"Field 'class_id' must be integer, got {type(pred['class_id'])}"
+    assert 0 <= pred["class_id"] <= 9, f"class_id out of range 0-9: {pred['class_id']}"
+    assert isinstance(pred["confidence"], (int, float)) and 0.0 <= pred["confidence"] <= 1.0, f"Invalid confidence range: {pred['confidence']}"
+    assert isinstance(pred["inference_time_ms"], (int, float)) and pred["inference_time_ms"] > 0, f"Invalid inference time: {pred['inference_time_ms']}"
+    print("  -> 4-field contract (with integer class_id) validated successfully [PASS]")
+
+def test_predict_real_dataset_sampling(client: TestClient):
+    print("\n[3/6] Testing POST /predict accuracy on REAL Tomato Leaf Images (Multi-Class Sampling)...")
+    manifest_file = project_root / "ml" / "dataset" / "splits" / "manifest.csv"
+    assert manifest_file.exists(), f"Critical: Test manifest file not found at {manifest_file}"
+
+    df = pd.read_csv(manifest_file)
+    test_df = df[df["split"] == "test"]
+    assert len(test_df) > 0, "No test rows found in manifest.csv"
+
+    classes = test_df["class_name"].unique()
+    assert len(classes) == 10, f"Expected 10 classes in test split, found {len(classes)}"
+
+    correct = 0
+    total = 0
+
+    # Sample 1 image per class from test split to rigorously verify classification
+    for class_name in sorted(classes):
+        class_rows = test_df[test_df["class_name"] == class_name]
+        sampled_row = None
+        for _, row in class_rows.iterrows():
+            img_path = Path(row["image_path"])
+            if img_path.exists():
+                sampled_row = row
+                break
+
+        assert sampled_row is not None, f"No existing image file found on disk for class '{class_name}'"
+
+        real_img_path = Path(sampled_row["image_path"])
+        with open(real_img_path, "rb") as f:
+            real_bytes = f.read()
+
+        res = client.post("/predict", files={"image": (real_img_path.name, real_bytes, "image/jpeg")})
+        assert res.status_code == 200, f"Inference request failed for {real_img_path.name}: {res.text}"
         pred = res.json()
-        print(f"  -> Prediction Response: {pred}")
-        for field in ["class", "confidence", "class_id", "inference_time_ms"]:
-            assert field in pred, f"Missing required contract field '{field}' in response!"
-        assert 0.0 <= pred["confidence"] <= 1.0, f"Invalid confidence range: {pred['confidence']}"
-        assert pred["inference_time_ms"] > 0, f"Invalid inference time: {pred['inference_time_ms']}"
-        print("  -> 4-field contract validated successfully [PASS]")
 
-        # 3. POST /predict with Real Tomato Leaf from Dataset
-        print("\n[3/6] Testing POST /predict with REAL Tomato Leaf Image...")
-        manifest_file = project_root / "ml" / "dataset" / "splits" / "manifest.csv"
-        if manifest_file.exists():
-            df = pd.read_csv(manifest_file)
-            test_row = df[df["split"] == "test"].iloc[0]
-            real_img_path = Path(test_row["image_path"])
-            true_class = test_row["class_name"]
+        is_match = (pred["class"] == class_name)
+        if is_match:
+            correct += 1
+        total += 1
 
-            with open(real_img_path, "rb") as f:
-                real_bytes = f.read()
+        print(f"  [{total:02d}/10] Ground Truth: {class_name:<36} | Pred: {pred['class']:<36} (id={pred['class_id']}, conf={pred['confidence']*100:.1f}%) -> {'CORRECT' if is_match else 'MISMATCH'}")
 
-            res = client.post("/predict", files={"image": (real_img_path.name, real_bytes, "image/jpeg")})
-            assert res.status_code == 200, f"Failed on real image: {res.text}"
-            real_pred = res.json()
-            print(f"  -> Input Leaf File  : {real_img_path.name}")
-            print(f"  -> True Class       : {true_class}")
-            print(f"  -> Predicted Class  : {real_pred['class']}")
-            print(f"  -> Confidence Score : {real_pred['confidence']*100:.2f}%")
-            print(f"  -> Inference Time   : {real_pred['inference_time_ms']} ms")
-            assert real_pred["class"] == true_class, f"Prediction mismatch! Expected {true_class}, got {real_pred['class']}"
-            print("  -> Real Leaf Classification: ACCURATE [PASS]")
-        else:
-            print("  -> Manifest not found, skipping real image test.")
+    accuracy = (correct / total) * 100.0
+    print(f"\n  -> Sampling Evaluation Result: {correct}/{total} correct ({accuracy:.1f}%)")
+    # Strict validation: accuracy on clean samples should be at least 80% (model test accuracy is 96.6%)
+    assert accuracy >= 80.0, f"Sampling accuracy below required threshold (80.0%): got {accuracy:.1f}%"
+    print("  -> Multi-Class Real Leaf Accuracy Verification: [PASS]")
 
-        # 4. POST /predict with PNG format
-        print("\n[4/6] Testing POST /predict with PNG format...")
-        png_bytes = create_dummy_image(format="PNG")
-        res = client.post("/predict", files={"image": ("test_leaf.png", png_bytes, "image/png")})
-        assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
-        pred_png = res.json()
-        print(f"  -> PNG Prediction: {pred_png['class']} ({pred_png['confidence']*100:.2f}%) [PASS]")
+def test_predict_png_format(client: TestClient):
+    print("\n[4/6] Testing POST /predict with PNG format...")
+    png_bytes = create_dummy_image(format="PNG")
+    res = client.post("/predict", files={"image": ("test_leaf.png", png_bytes, "image/png")})
+    assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
+    pred_png = res.json()
+    assert "class" in pred_png and "class_id" in pred_png
+    assert isinstance(pred_png["class_id"], int)
+    print(f"  -> PNG Prediction: {pred_png['class']} ({pred_png['confidence']*100:.2f}%) [PASS]")
 
-        # 5. Error testing: Empty file rejection (400)
-        print("\n[5/6] Testing Empty File rejection (HTTP 400)...")
-        res = client.post("/predict", files={"image": ("empty.jpg", b"", "image/jpeg")})
-        assert res.status_code == 400, f"Expected 400 for empty file, got {res.status_code}"
-        print(f"  -> Empty file properly rejected: {res.json()} [PASS]")
+def test_empty_file_rejected(client: TestClient):
+    print("\n[5/6] Testing Empty File rejection (HTTP 400)...")
+    res = client.post("/predict", files={"image": ("empty.jpg", b"", "image/jpeg")})
+    assert res.status_code == 400, f"Expected 400 for empty file, got {res.status_code}"
+    print(f"  -> Empty file properly rejected: {res.json()} [PASS]")
 
-        # 6. Error testing: Unsupported format rejection (415)
-        print("\n[6/6] Testing Unsupported format rejection (HTTP 415)...")
-        res = client.post("/predict", files={"image": ("notes.txt", b"plain text data", "text/plain")})
-        assert res.status_code == 415, f"Expected 415 for text file, got {res.status_code}"
-        print(f"  -> Unsupported format rejected with 415: {res.json()} [PASS]")
+def test_unsupported_format_rejected(client: TestClient):
+    print("\n[6/6] Testing Unsupported format rejection (HTTP 415)...")
+    res = client.post("/predict", files={"image": ("notes.txt", b"plain text data", "text/plain")})
+    assert res.status_code == 415, f"Expected 415 for text file, got {res.status_code}"
+    print(f"  -> Unsupported format rejected with 415: {res.json()} [PASS]")
 
-    print("\n" + "=" * 60)
-    print("PHASE 6 - FASTAPI TEST SUITE: ALL PASSED (PASS)")
-    print("=" * 60)
+def run_api_tests():
+    print("=" * 70)
+    print("TOMATCARE FASTAPI TEST SUITE (CONTRACT, ACCURACY SAMPLING & ERRORS)")
+    print("=" * 70)
+
+    with TestClient(app) as client:
+        test_health_check(client)
+        test_predict_synthetic_contract(client)
+        test_predict_real_dataset_sampling(client)
+        test_predict_png_format(client)
+        test_empty_file_rejected(client)
+        test_unsupported_format_rejected(client)
+
+    print("\n" + "=" * 70)
+    print("FASTAPI TEST SUITE: ALL TESTS COMPLETED & VALIDATED [PASS]")
+    print("=" * 70)
 
 if __name__ == "__main__":
     run_api_tests()

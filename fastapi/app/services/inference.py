@@ -101,6 +101,6 @@ class InferenceService:
         return {
             "class": class_name,
             "confidence": round(conf_score, 4),
-            "class_id": class_name,
+            "class_id": idx,
             "inference_time_ms": round(t_elapsed_ms, 2)
         }

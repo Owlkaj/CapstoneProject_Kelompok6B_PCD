@@ -58,12 +58,20 @@ class DetectionController extends Controller
 
             // 3. Lookup disease in master penyakit table
             $penyakit = $this->supabaseService->getPenyakitByNama($className);
-            $idPenyakit = $penyakit ? (int) $penyakit['id_penyakit'] : 1;
+            if (!$penyakit || !isset($penyakit['id_penyakit'])) {
+                \Log::error("Disease lookup failed in master table for class: '{$className}'");
+                throw new \RuntimeException("Data penyakit '{$className}' tidak ditemukan dalam master data sistem.", 422);
+            }
+            $idPenyakit = (int) $penyakit['id_penyakit'];
 
             // 4. Lookup active model in master model_cnn table
             $activeModel = $this->supabaseService->getActiveModel();
-            $idModel = $activeModel ? (int) $activeModel['id_model'] : 1;
-            $modelName = $activeModel ? $activeModel['nama_model'] : 'EfficientNetB0';
+            if (!$activeModel || !isset($activeModel['id_model'])) {
+                \Log::error("Active CNN model lookup failed in master model_cnn table.");
+                throw new \RuntimeException("Model CNN aktif tidak ditemukan dalam konfigurasi sistem.", 500);
+            }
+            $idModel = (int) $activeModel['id_model'];
+            $modelName = $activeModel['nama_model'] ?? 'EfficientNetB0';
 
             // 5. Insert history record into riwayat_deteksi
             $riwayat = $this->supabaseService->createRiwayat(
@@ -95,11 +103,19 @@ class DetectionController extends Controller
                 ]
             ]);
         } catch (\Throwable $e) {
-            \Log::error("Prediction pipeline error: " . $e->getMessage());
+            \Log::error("Prediction pipeline error: " . $e->getMessage(), [
+                'exception' => $e
+            ]);
+
+            $statusCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? (int) $e->getCode() : 500;
+            $clientMessage = config('app.debug')
+                ? $e->getMessage()
+                : ($statusCode < 500 ? $e->getMessage() : 'Terjadi kendala saat memproses deteksi. Silakan coba beberapa saat lagi.');
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
-            ], $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500);
+                'message' => $clientMessage
+            ], $statusCode);
         }
     }
 }
