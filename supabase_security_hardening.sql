@@ -82,9 +82,9 @@ USING (true);
 
 -- ------------------------------------------------------------------------------
 -- 6. Storage Security: Policies for bucket 'detection-images'
+-- CATATAN: storage.objects SUDAH otomatis memiliki RLS dari Supabase.
+-- Jangan jalankan 'ALTER TABLE storage.objects' karena dimiliki oleh supabase_storage_admin.
 -- ------------------------------------------------------------------------------
--- Ensure RLS on storage.objects is enabled
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow public view detection-images" ON storage.objects;
 CREATE POLICY "Allow public view detection-images"
