@@ -115,6 +115,10 @@ ui.md
 LAPORAN_ARSITEKTUR_DAN_SISTEM.md
 *LAPORAN*.md
 
+# Database hardening & SQL scripts
+supabase_security_hardening.sql
+*.sql
+
 # Binary executables & Tunnel tools
 *.exe
 cloudflared*
