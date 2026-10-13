@@ -170,7 +170,7 @@ CREATE POLICY "Allow riwayat manage" ON public.riwayat_deteksi FOR ALL TO anon, 
 ```
 
 ### B. Storage Bucket
-Pastikan bucket `detection-images` memiliki opsi `public: true` dan policy upload/view diizinkan untuk peran `anon` (bisa menjalankan script `supabase_security_hardening.sql`).
+Pastikan bucket `detection-images` memiliki opsi `public: true` dan policy upload/view diizinkan untuk peran `anon`.
 
 ---
 
