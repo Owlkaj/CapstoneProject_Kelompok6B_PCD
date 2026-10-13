@@ -157,10 +157,6 @@
                     <h5 class="font-bold text-gray-900 text-xs uppercase tracking-wider text-emerald-800">Gejala Visual:</h5>
                     <p id="modalDescription" class="text-gray-600 mt-1 leading-relaxed"></p>
                 </div>
-                <div>
-                    <h5 class="font-bold text-gray-900 text-xs uppercase tracking-wider text-amber-800">Saran Penanganan:</h5>
-                    <p id="modalTreatment" class="text-gray-600 mt-1 leading-relaxed bg-amber-50/50 p-3 rounded-xl border border-amber-100/60"></p>
-                </div>
             </div>
 
             <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
@@ -226,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalTitleEn = document.getElementById('modalTitleEn');
     const modalConfidence = document.getElementById('modalConfidence');
     const modalDescription = document.getElementById('modalDescription');
-    const modalTreatment = document.getElementById('modalTreatment');
     const modalModel = document.getElementById('modalModel');
     const modalDate = document.getElementById('modalDate');
 
@@ -238,7 +233,6 @@ document.addEventListener('DOMContentLoaded', function () {
             modalTitleEn.textContent = data.diseaseEn;
             modalConfidence.textContent = `${data.confidence}%`;
             modalDescription.textContent = data.description;
-            modalTreatment.textContent = data.treatment;
             modalModel.textContent = data.model || 'EfficientNetB0';
             modalDate.textContent = data.date;
 

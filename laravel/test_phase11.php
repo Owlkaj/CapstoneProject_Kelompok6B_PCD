@@ -46,7 +46,7 @@ $classes = [
 $allValid = true;
 foreach ($classes as $c) {
     $info = DiseaseCatalog::getInfo($c);
-    if (empty($info['name_id']) || empty($info['treatment'])) {
+    if (empty($info['name_id']) || empty($info['description'])) {
         echo "  -> Incomplete catalog entry for: {$c} [FAIL]\n";
         $allValid = false;
     }

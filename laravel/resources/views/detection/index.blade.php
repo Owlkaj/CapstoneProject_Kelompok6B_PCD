@@ -14,7 +14,7 @@
             Mendeteksi Penyakit Daun Tomat Secara Akurat
         </h1>
         <p class="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed">
-            Unggah foto daun tomat tanaman Anda atau ambil langsung melalui kamera ponsel. Sistem cerdas kami menganalisis gejala visual dan memberikan rekomendasi penanganan agrikultur secara instan.
+            Unggah foto daun tomat tanaman Anda atau ambil langsung melalui kamera ponsel. Sistem cerdas kami mendiagnosis klasifikasi penyakit daun secara otomatis dan instan berbasis Deep Learning.
         </p>
     </div>
 
@@ -125,7 +125,7 @@
                     Belum Ada Hasil Analisis
                 </h3>
                 <p class="text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
-                    Pilih atau ambil foto daun tomat di sebelah kiri, kemudian klik tombol <strong>Deteksi Penyakit Daun</strong> untuk mendapatkan diagnosis cerdas serta rekomendasi penanganannya.
+                    Pilih atau ambil foto daun tomat di sebelah kiri, kemudian klik tombol <strong>Deteksi Penyakit Daun</strong> untuk mendapatkan hasil klasifikasi dan diagnosis cerdas.
                 </p>
             </div>
 
@@ -203,21 +203,16 @@
                     </div>
                 </div>
 
-                <!-- Tab Informasi / Rekomendasi -->
-                <div class="space-y-3">
-                    <div class="flex border-b border-gray-200 text-xs font-semibold">
-                        <button type="button" id="tabGejalaBtn" class="py-2 px-3 border-b-2 border-emerald-600 text-emerald-800">
-                            Gejala Visual
-                        </button>
-                        <button type="button" id="tabPenangananBtn" class="py-2 px-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-                            Rekomendasi Penanganan
-                        </button>
-                    </div>
-                    <div id="gejalaContent" class="text-sm text-gray-700 leading-relaxed bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/60">
+                <!-- Deskripsi & Gejala Visual Patologis -->
+                <div class="space-y-2">
+                    <h5 class="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Deskripsi & Gejala Visual
+                    </h5>
+                    <div class="text-sm text-gray-700 leading-relaxed bg-emerald-50/50 p-4 rounded-xl border border-emerald-100/60">
                         <p id="resDescription">-</p>
-                    </div>
-                    <div id="penangananContent" class="hidden text-sm text-gray-700 leading-relaxed bg-amber-50/50 p-4 rounded-xl border border-amber-100/60">
-                        <p id="resTreatment">-</p>
                     </div>
                 </div>
 
@@ -406,29 +401,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const resConfidenceBar = document.getElementById('resConfidenceBar');
     const resConfidenceCategory = document.getElementById('resConfidenceCategory');
     const resDescription = document.getElementById('resDescription');
-    const resTreatment = document.getElementById('resTreatment');
     const resModelName = document.getElementById('resModelName');
     const resInferenceTime = document.getElementById('resInferenceTime');
-
-    // Tabs inside Result
-    const tabGejalaBtn = document.getElementById('tabGejalaBtn');
-    const tabPenangananBtn = document.getElementById('tabPenangananBtn');
-    const gejalaContent = document.getElementById('gejalaContent');
-    const penangananContent = document.getElementById('penangananContent');
-
-    tabGejalaBtn.addEventListener('click', () => {
-        tabGejalaBtn.className = "py-2 px-3 border-b-2 border-emerald-600 text-emerald-800";
-        tabPenangananBtn.className = "py-2 px-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700";
-        gejalaContent.classList.remove('hidden');
-        penangananContent.classList.add('hidden');
-    });
-
-    tabPenangananBtn.addEventListener('click', () => {
-        tabPenangananBtn.className = "py-2 px-3 border-b-2 border-emerald-600 text-emerald-800";
-        tabGejalaBtn.className = "py-2 px-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700";
-        penangananContent.classList.remove('hidden');
-        gejalaContent.classList.add('hidden');
-    });
 
     let currentFile = null;
 
@@ -596,7 +570,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         resDescription.textContent = data.description;
-        resTreatment.textContent = data.treatment;
         resModelName.textContent = data.model || 'EfficientNetB0';
         resInferenceTime.textContent = `${data.inference_time_ms} ms`;
 

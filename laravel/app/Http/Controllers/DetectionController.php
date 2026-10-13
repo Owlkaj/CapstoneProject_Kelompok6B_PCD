@@ -142,7 +142,6 @@ class DetectionController extends Controller
                     'inference_time_ms' => $inferenceTimeMs,
                     'image' => $publicUrl,
                     'description' => $info['description'],
-                    'treatment' => $info['treatment'],
                     'color' => $info['color'],
                     'model' => $modelName,
                     'date' => now()->format('Y-m-d H:i'),
