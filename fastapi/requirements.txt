@@ -5,3 +5,12 @@ torch>=2.4.0
 torchvision>=0.19.0
 pillow>=10.0.0
 pydantic>=2.0.0
+python-dotenv>=1.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# --- Optional: better leaf segmentation (auto-detected at runtime) ---------
+# The inference service degrades gracefully to a NumPy/SciPy fallback
+# (Excess-Green + Otsu + largest-component) when these are not installed.
+#   rembg>=2.0.50                    # U^2-Net background removal (Strategy A)
+#   opencv-python-headless>=4.8.0    # GrabCut fallback (Strategy B)

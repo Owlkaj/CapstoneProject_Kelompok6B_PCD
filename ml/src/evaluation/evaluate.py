@@ -14,8 +14,107 @@ current_dir = Path(__file__).resolve().parent
 project_root = current_dir.parent.parent
 sys.path.append(str(project_root))
 
+ML_ROOT = Path(__file__).resolve().parent.parent.parent   # .../ml
+REPO_ROOT = ML_ROOT.parent
+
 from src.models.model import build_model
 from src.preprocessing.transforms import get_eval_transforms, TomatoDataset
+
+def _resolve(p) -> Path:
+    """Resolve a manifest path whether it is given relative to the repo root or to ml/."""
+    cand = Path(p)
+    if cand.exists():
+        return cand
+    for base in (REPO_ROOT, ML_ROOT):
+        alt = base / cand
+        if alt.exists():
+            return alt
+    return cand
+
+
+def evaluate_on_manifest(model_path: Path, manifest_path: Path, results_dir: Path, tag: str, split: str = "test"):
+    """Evaluate a given checkpoint on a given manifest and dump metrics + confusion matrix.
+
+    Used to measure the same model on BOTH domains (source/PlantVillage and
+    target/field) so the trade-off is visible instead of hidden.
+    """
+    print("=" * 60)
+    print(f"EVALUATION [{tag}] - model={model_path} manifest={manifest_path}")
+    print("=" * 60)
+
+    df = pd.read_csv(_resolve(manifest_path))
+    eval_df = df[df["split"] == split].reset_index(drop=True)
+    if len(eval_df) == 0:
+        print(f"[WARN] No rows with split='{split}'. Available: {df['split'].unique().tolist()}")
+        return None
+
+    device = torch.device("cpu")
+    try:
+        import torch_directml
+        if torch_directml.device_count() > 0:
+            device = torch_directml.device(0)
+    except Exception:
+        pass
+
+    model = build_model(num_classes=10, pretrained=False)
+    # Checkpoints come from our own training runs (possibly saved on DirectML),
+    # so weights_only=True cannot unpickle the device tensors.
+    model.load_state_dict(torch.load(model_path, map_location="cpu", weights_only=False))
+    model = model.to(device)
+    model.eval()
+
+    ds = TomatoDataset(eval_df, transform=get_eval_transforms())
+    dl = DataLoader(ds, batch_size=32, shuffle=False, num_workers=0)
+
+    all_preds, all_targets = [], []
+    with torch.no_grad():
+        for images, targets in dl:
+            images = images.to(device)
+            outputs = model(images)
+            _, preds = torch.max(outputs, 1)
+            all_preds.extend(preds.cpu().numpy())
+            all_targets.extend(targets.numpy())
+
+    all_preds = np.array(all_preds)
+    all_targets = np.array(all_targets)
+
+    accuracy = accuracy_score(all_targets, all_preds)
+    precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(all_targets, all_preds, average="macro")
+
+    label_data = json.loads((ML_ROOT / "models" / "label_mapping.json").read_text(encoding="utf-8"))
+    class_names = [label_data["idx_to_class"][str(i)] for i in range(10)]
+    report_text = classification_report(all_targets, all_preds, target_names=class_names, digits=4)
+
+    print(f"Samples            : {len(eval_df)}")
+    print(f"Overall Accuracy   : {accuracy*100:.2f}%")
+    print(f"Macro Precision    : {precision_macro*100:.2f}%")
+    print(f"Macro Recall       : {recall_macro*100:.2f}%")
+    print(f"Macro F1-Score     : {f1_macro*100:.2f}%")
+    print("\nClassification Report:\n" + report_text)
+
+    results_dir.mkdir(parents=True, exist_ok=True)
+    cm = confusion_matrix(all_targets, all_preds)
+    pd.DataFrame(cm, index=class_names, columns=class_names).to_csv(results_dir / f"confusion_matrix_{tag}.csv")
+
+    metrics = {
+        "tag": tag,
+        "model_path": str(model_path),
+        "manifest_path": str(manifest_path),
+        "split": split,
+        "samples": int(len(eval_df)),
+        "overall_accuracy": float(accuracy),
+        "macro_precision": float(precision_macro),
+        "macro_recall": float(recall_macro),
+        "macro_f1": float(f1_macro),
+        "per_class_metrics": {k: v for k, v in classification_report(
+            all_targets, all_preds, target_names=class_names, output_dict=True).items() if k in class_names},
+        "confusion_matrix": cm.tolist(),
+    }
+    out = results_dir / f"evaluation_metrics_{tag}.json"
+    out.write_text(json.dumps(metrics, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"Saved metrics to: {out}")
+    return metrics
+
 
 def evaluate_final_model():
     print("=" * 60)
@@ -187,4 +286,38 @@ def evaluate_final_model():
     print("=" * 60)
 
 if __name__ == "__main__":
-    evaluate_final_model()
+    import argparse
+
+    ap = argparse.ArgumentParser(description="TomatCare evaluation")
+    ap.add_argument("--model", default=None, help="Checkpoint path; if omitted the full E01/E02 selection is run")
+    ap.add_argument("--manifest", default="ml/dataset/splits/manifest.csv")
+    ap.add_argument("--tag", default=None, help="Tag for output files (e.g. pv, field)")
+    ap.add_argument("--split", default="test")
+    ap.add_argument("--compare-domains", action="store_true",
+                    help="Evaluate the model on both PlantVillage and field manifests")
+    args = ap.parse_args()
+
+    if args.compare_domains:
+        results_dir = ML_ROOT / "results"
+        model_path = _resolve(args.model or "ml/models/final_model_field.pt")
+        pairs = [
+            ("pv", REPO_ROOT / "ml" / "dataset" / "splits" / "manifest.csv"),
+            ("field", REPO_ROOT / "ml" / "dataset" / "splits" / "manifest_field_only.csv"),
+        ]
+        summary = {}
+        for tag, man in pairs:
+            if not man.exists():
+                print(f"[WARN] Manifest not found, skipping '{tag}': {man}")
+                continue
+            summary[tag] = evaluate_on_manifest(model_path, man, results_dir, tag, split=args.split)
+        if len(summary) == 2:
+            print("\n" + "=" * 60)
+            print("DOMAIN COMPARISON SUMMARY (same model, two domains)")
+            print("=" * 60)
+            for tag, m in summary.items():
+                print(f"  {tag:6}: acc={m['overall_accuracy']*100:6.2f}%  macroF1={m['macro_f1']*100:6.2f}%  n={m['samples']}")
+    elif args.model:
+        evaluate_on_manifest(_resolve(args.model), Path(args.manifest), ML_ROOT / "results",
+                             args.tag or "custom", split=args.split)
+    else:
+        evaluate_final_model()

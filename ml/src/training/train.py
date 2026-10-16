@@ -16,6 +16,11 @@ current_dir = Path(__file__).resolve().parent
 project_root = current_dir.parent.parent
 sys.path.append(str(project_root))
 
+# Repo-relative anchors so the script works whether it is launched from the repo
+# root or from inside ml/ (python -m src.training.train).
+ML_ROOT = Path(__file__).resolve().parent.parent.parent   # .../ml
+REPO_ROOT = ML_ROOT.parent
+
 from src.models.model import build_model, freeze_backbone, unfreeze_upper_layers
 from src.preprocessing.transforms import get_train_transforms, get_eval_transforms, TomatoDataset
 
@@ -112,7 +117,7 @@ def evaluate(model, dataloader, criterion, device):
     val_acc = correct / total
     return val_loss, val_acc
 
-def run_experiment(exp_id: str, config: dict, starting_model=None):
+def run_experiment(exp_id: str, config: dict, starting_model=None, manifest_override=None, source_mix_manifest=None):
     print("\n" + "=" * 60)
     print(f"RUNNING EXPERIMENT: {exp_id}")
     print("=" * 60)
@@ -125,11 +130,38 @@ def run_experiment(exp_id: str, config: dict, starting_model=None):
     weight_decay = float(exp_cfg.get("weight_decay", 0.01))
 
     # Data loaders
-    manifest_path = Path(config["dataset"]["manifest_path"])
+    def _resolve(p: str) -> Path:
+        cand = Path(p)
+        if cand.exists():
+            return cand
+        for base in (REPO_ROOT, ML_ROOT):
+            alt = base / cand
+            if alt.exists():
+                return alt
+        return cand
+
+    manifest_path = _resolve(manifest_override or config["dataset"]["manifest_path"])
     df = pd.read_csv(manifest_path)
 
     train_df = df[df["split"] == "train"]
     val_df = df[df["split"] == "val"]
+
+    # Optional: mix in a fraction of the source-domain images to limit
+    # catastrophic forgetting during target-domain fine-tuning (Skema B).
+    mix_ratio = float(exp_cfg.get("source_mix_ratio", 0.0) or 0.0)
+    if source_mix_manifest and mix_ratio > 0.0:
+        src_df = pd.read_csv(_resolve(source_mix_manifest))
+        src_train = src_df[src_df["split"] == "train"]
+        n_mix = int(round(len(train_df) * mix_ratio))
+        if n_mix > 0 and len(src_train) > 0:
+            src_train = src_train.sample(n=min(n_mix, len(src_train)), random_state=config.get("seed", 42))
+            train_df = pd.concat([train_df, src_train], ignore_index=True)
+            src_val = src_df[src_df["split"] == "val"]
+            n_val_mix = int(round(len(val_df) * mix_ratio))
+            if n_val_mix > 0 and len(src_val) > 0:
+                src_val = src_val.sample(n=min(n_val_mix, len(src_val)), random_state=config.get("seed", 42))
+                val_df = pd.concat([val_df, src_val], ignore_index=True)
+            print(f"Source mix enabled: +{len(src_train)} train / +{len(src_val)} val from {source_mix_manifest}")
 
     train_dataset = TomatoDataset(train_df, transform=get_train_transforms())
     val_dataset = TomatoDataset(val_df, transform=get_eval_transforms())
@@ -165,8 +197,8 @@ def run_experiment(exp_id: str, config: dict, starting_model=None):
     patience_counter = 0
 
     history = []
-    models_dir = Path("ml/models")
-    history_dir = Path("ml/results/training_history")
+    models_dir = ML_ROOT / "models"
+    history_dir = ML_ROOT / "results" / "training_history"
     models_dir.mkdir(parents=True, exist_ok=True)
     history_dir.mkdir(parents=True, exist_ok=True)
 
@@ -234,9 +266,65 @@ def run_experiment(exp_id: str, config: dict, starting_model=None):
     return model, best_val_loss, best_val_acc
 
 def main():
-    config_path = Path("ml/models/training_config.yaml")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="TomatCare training pipeline (Skema B)")
+    parser.add_argument("--stage", choices=["pv", "field"], default="pv",
+                        help="pv = E01->E02 on PlantVillage; field = E03 target-domain fine-tuning")
+    parser.add_argument("--field-manifest", default="ml/dataset/splits/manifest_field.csv",
+                        help="Manifest for the target-domain (field) fine-tuning stage")
+    parser.add_argument("--source-manifest", default=None,
+                        help="Optional source-domain manifest mixed into E03 (see source_mix_ratio)")
+    parser.add_argument("--mix-ratio", type=float, default=None,
+                        help="Override source_mix_ratio for E03 (e.g. 1.0 for a ~50/50 mix)")
+    parser.add_argument("--out-model", default="ml/models/final_model_field.pt",
+                        help="Path to save the fine-tuned model for --stage field")
+    parser.add_argument("--epochs", type=int, default=None, help="Override epoch count (smoke tests)")
+    args = parser.parse_args()
+
+    config_path = ML_ROOT / "models" / "training_config.yaml"
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
+
+    if args.epochs is not None:
+        for exp in config.get("experiments", {}).values():
+            exp["epochs"] = int(args.epochs)
+        print(f"[override] semua eksperimen disetel ke {args.epochs} epoch")
+
+    if args.stage == "field":
+        print(">>> Starting Stage 3: E03 Field / Target-Domain Fine-Tuning")
+        if args.mix_ratio is not None:
+            config["experiments"]["E03"]["source_mix_ratio"] = args.mix_ratio
+        ckpt_key = "checkpoint_e02"
+        e02_ckpt = Path(config.get("dataset", {}).get(ckpt_key, str(ML_ROOT / "models" / "E02_best.pt")))
+        if not e02_ckpt.exists():
+            raise SystemExit(f"[ERROR] E02 checkpoint not found: {e02_ckpt}. Run --stage pv first.")
+
+        model = build_model(num_classes=10, pretrained=False)
+        checkpoint = torch.load(e02_ckpt, map_location="cpu", weights_only=False)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        print(f"Bootstrapped from {e02_ckpt} (val_acc={checkpoint.get('val_acc', float('nan')):.4f})")
+        print(f"Mix ratio: {config['experiments']['E03'].get('source_mix_ratio', 0.0)} "
+              f"(source manifest: {args.source_manifest})")
+
+        model_e03, e03_loss, e03_acc = run_experiment(
+            "E03",
+            config,
+            starting_model=model,
+            manifest_override=args.field_manifest,
+            source_mix_manifest=args.source_manifest,
+        )
+
+        out_path = Path(args.out_model)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        # Save CPU tensors so downstream tools (FastAPI) can load with weights_only=True.
+        model_e03.to("cpu")
+        torch.save({k: v.detach().cpu() for k, v in model_e03.state_dict().items()}, out_path)
+        print("\n" + "=" * 60)
+        print(f"STAGE 3 FINISHED - E03 Best Val Acc: {e03_acc*100:.2f}% (Loss: {e03_loss:.4f})")
+        print(f"Saved target-domain weights to: {out_path}")
+        print("=" * 60)
+        return
 
     # 1. Run E01: Transfer Learning Baseline
     print(">>> Starting Step 1: E01 Transfer Learning Baseline")

@@ -41,14 +41,39 @@ venv.bak/
 .mypy_cache/
 .ruff_cache/
 
-# Intermediate Training Checkpoints (Uncomment if you don't want to push ~60MB of best checkpoints)
+# Intermediate Training Checkpoints (avoid pushing >50MB binary checkpoints)
 # ml/models/E01_best.pt
 # ml/models/E02_best.pt
+ml/models/E03_best.pt
+ml/models/E*_best.pt
 
 # Datasets (Raw bulk image files - manifest.csv and splits are kept)
 ml/dataset/raw/
 ml/dataset/processed/
 ml/dataset/clean/
+ml/dataset/augmented/
+
+# Target-domain (field) dataset given by the user - large image corpus, keep local
+dataset lapangan/
+dataset-lapangan/
+
+# Generated field manifests (large, reproducible from build_source_manifest.py)
+ml/dataset/splits/manifest_field.csv
+ml/dataset/splits/manifest_field2*.csv
+ml/dataset/splits/manifest_field_*.csv
+ml/dataset/splits/manifest_combined*.csv
+ml/dataset/splits/manifest_pv.csv
+ml/dataset/splits/_smoke.csv
+ml/dataset/splits/_build_*.log
+
+# Domain fine-tuning outputs (Skema B)
+ml/models/model_field_only.pt
+ml/models/model_field_mixed.pt
+ml/models/_smoke_model.pt
+
+# Model backups created by deploy_model.ps1
+fastapi/models/*.bak_*
+ml/models/*.bak_*
 
 # ------------------------------------------------------------------------------
 # 3. Laravel / PHP Dependencies & Generated Caches
@@ -111,6 +136,8 @@ graphify-out/
 # Planning, PRD & Internal UI specification files
 PRD_Machine_Learning_Tomat_AgentReady_v3.md
 *PRD*.md
+PERUBAHAN.md
+*PERUBAHAN*.md
 ui.md
 LAPORAN_ARSITEKTUR_DAN_SISTEM.md
 *LAPORAN*.md

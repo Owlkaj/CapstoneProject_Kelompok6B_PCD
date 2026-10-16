@@ -1,5 +1,6 @@
 import os
-from fastapi import APIRouter, File, UploadFile, HTTPException, Request, status
+from typing import Optional
+from fastapi import APIRouter, File, UploadFile, HTTPException, Request, status, Query
 from fastapi.responses import JSONResponse
 from app.schemas.predict import PredictionResponse, HealthResponse
 
@@ -19,7 +20,14 @@ async def health_check(request: Request):
     )
 
 @router.post("/predict", response_model=PredictionResponse, tags=["Inference"])
-async def predict_image(request: Request, image: UploadFile = File(...)):
+async def predict_image(
+    request: Request,
+    image: UploadFile = File(...),
+    preprocess: Optional[bool] = Query(
+        default=None,
+        description="Override leaf isolation preprocessing (true/false). Omit to use server default.",
+    ),
+):
     inference_service = request.app.state.inference_service
     if inference_service is None or not inference_service.is_ready:
         raise HTTPException(
@@ -64,7 +72,7 @@ async def predict_image(request: Request, image: UploadFile = File(...)):
 
     # 4. Run inference
     try:
-        result = inference_service.predict(contents)
+        result = inference_service.predict(contents, preprocess=preprocess)
         return PredictionResponse(
             **result
         )

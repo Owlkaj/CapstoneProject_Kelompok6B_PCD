@@ -51,6 +51,36 @@ python -m src.evaluation.evaluate --model-path ml/models/E02_best.pt --test-mani
 
 ---
 
+## 2B. Fine-Tuning Domain-Spesifik / Skema B (Opsional)
+
+Memindahkan model ke gaya pengambilan target (lapangan) dengan resep yang sama, hanya manifest dan learning rate berbeda. Detail lengkap: `PERUBAHAN.md` Bagian 8.
+
+```powershell
+# 1) Bangun manifest berlabel sumber dari dataset ImageFolder
+cd ml
+..\ml\.venv\Scripts\python.exe -m src.data.build_source_manifest `
+    --root "..\dataset lapangan" --out dataset\splits --tag field --test-ratio 0.15
+
+# 2) Tandai manifest PlantVillage dengan skema kolom yang sama
+..\ml\.venv\Scripts\python.exe -m src.data.tag_manifest_source `
+    --manifest dataset\splits\manifest.csv --out dataset\splits\manifest_pv.csv --source plantvillage
+cd ..
+
+# 3) Latih tahap target-domain (E03), bootstrap dari checkpoint E02
+..\ml\.venv\Scripts\python.exe -m src.training.train --stage field `
+    --field-manifest ml/dataset/splits/manifest_field.csv
+
+# 4) Evaluasi model yang sama pada KEDUA domain
+..\ml\.venv\Scripts\python.exe -m src.evaluation.evaluate --compare-domains `
+    --model ml/models/final_model_field.pt
+```
+
+Output: `ml/models/final_model_field.pt`, `ml/results/evaluation_metrics_pv.json`, `ml/results/evaluation_metrics_field.json`.
+
+> **Peringatan:** pastikan `--root` benar-benar menunjuk dataset foto lapangan. Dataset PlantVillage/variannya tidak akan memperbaiki performa lapangan.
+
+---
+
 ## 3. Menjalankan Microservice FastAPI
 
 Microservice bertugas menangani request inferensi dari Laravel.
@@ -63,7 +93,18 @@ LABEL_MAPPING_PATH=./models/label_mapping.json
 PREPROCESSING_CONFIG_PATH=./models/preprocessing.json
 DEVICE=cpu
 MAX_UPLOAD_SIZE_MB=10
+
+# Leaf isolation preprocessing (mitigasi domain shift)
+ENABLE_LEAF_PREPROCESSING=true
+LEAF_PREPROCESSING_POLICY=adaptive
+LEAF_SEGMENTATION_METHOD=auto
+LEAF_TARGET_FILL=0.75
+LEAF_BACKGROUND_GRAY=240
+LEAF_COLOR_NORMALIZATION=true
+LEAF_DEBUG_DIR=
 ```
+
+> Catatan: `.env` hanya dibaca jika `python-dotenv` terpasang (`pip install python-dotenv`). Bila tidak, nilai default di kode dipakai (identik dengan contoh di atas).
 
 ### B. Menjalankan Server Uvicorn
 ```powershell

@@ -1,0 +1,11 @@
+,Bacterial Spot,Early Blight,Healthy,Late Blight,Leaf Mold,Tomato Mosaic Virus,Septoria Leaf Spot,Spider Mites,Target Spot,Tomato Yellow Leaf Curl Virus (TYLCV)
+Bacterial Spot,15,0,0,1,0,1,6,0,0,0
+Early Blight,0,27,0,1,0,0,0,0,0,0
+Healthy,0,0,26,0,0,0,0,0,1,0
+Late Blight,1,1,1,25,1,1,0,0,0,0
+Leaf Mold,1,0,0,2,21,1,1,0,0,0
+Tomato Mosaic Virus,0,0,0,0,0,2,0,0,0,0
+Septoria Leaf Spot,3,0,2,1,2,2,16,0,0,1
+Spider Mites,0,0,0,0,0,0,0,11,0,0
+Target Spot,0,0,0,0,0,0,0,0,30,0
+Tomato Yellow Leaf Curl Virus (TYLCV),0,0,0,0,0,0,0,0,0,4

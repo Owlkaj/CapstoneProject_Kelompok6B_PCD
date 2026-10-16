@@ -1,0 +1,19 @@
+{
+  "root": "D:\\casptone\\sistem\\dataset lapangan",
+  "total": 31275,
+  "by_source": {
+    "plantvillage": 17760,
+    "field": 8920,
+    "unknown": 4595
+  },
+  "by_split": {
+    "train": 24844,
+    "val": 5466,
+    "test": 965
+  },
+  "thresholds": {
+    "sat": 0.3,
+    "std": 46.0
+  },
+  "seed": 42
+}

@@ -1,0 +1,217 @@
+{
+  "per_class_target": 300,
+  "augment_mode": "rows",
+  "total_rows": 22860,
+  "by_source": {
+    "plantvillage": 20000,
+    "field": 2860
+  },
+  "by_source_split": {
+    "test": {
+      "field": 230,
+      "plantvillage": 2000
+    },
+    "train": {
+      "field": 2400,
+      "plantvillage": 16000
+    },
+    "val": {
+      "field": 230,
+      "plantvillage": 2000
+    }
+  },
+  "field_report": {
+    "Bacterial Spot": {
+      "real_available": 395,
+      "real_train": 240,
+      "train_target": 240,
+      "trimmed": 95,
+      "augmented_needed": 0,
+      "augmented_written": 0,
+      "val_used": 30,
+      "test_used": 30,
+      "duplication_factor": 1.0
+    },
+    "Early Blight": {
+      "real_available": 819,
+      "real_train": 240,
+      "train_target": 240,
+      "trimmed": 519,
+      "augmented_needed": 0,
+      "augmented_written": 0,
+      "val_used": 30,
+      "test_used": 30,
+      "duplication_factor": 1.0
+    },
+    "Healthy": {
+      "real_available": 859,
+      "real_train": 240,
+      "train_target": 240,
+      "trimmed": 559,
+      "augmented_needed": 0,
+      "augmented_written": 0,
+      "val_used": 30,
+      "test_used": 30,
+      "duplication_factor": 1.0
+    },
+    "Late Blight": {
+      "real_available": 1052,
+      "real_train": 240,
+      "train_target": 240,
+      "trimmed": 752,
+      "augmented_needed": 0,
+      "augmented_written": 0,
+      "val_used": 30,
+      "test_used": 30,
+      "duplication_factor": 1.0
+    },
+    "Leaf Mold": {
+      "real_available": 867,
+      "real_train": 240,
+      "train_target": 240,
+      "trimmed": 567,
+      "augmented_needed": 0,
+      "augmented_written": 0,
+      "val_used": 30,
+      "test_used": 30,
+      "duplication_factor": 1.0
+    },
+    "Septoria Leaf Spot": {
+      "real_available": 602,
+      "real_train": 240,
+      "train_target": 240,
+      "trimmed": 302,
+      "augmented_needed": 0,
+      "augmented_written": 0,
+      "val_used": 30,
+      "test_used": 30,
+      "duplication_factor": 1.0
+    },
+    "Spider Mites": {
+      "real_available": 113,
+      "real_train": 91,
+      "train_target": 240,
+      "trimmed": 0,
+      "augmented_needed": 149,
+      "augmented_written": 0,
+      "val_used": 11,
+      "test_used": 11,
+      "duplication_factor": 2.64
+    },
+    "Target Spot": {
+      "real_available": 381,
+      "real_train": 240,
+      "train_target": 240,
+      "trimmed": 81,
+      "augmented_needed": 0,
+      "augmented_written": 0,
+      "val_used": 30,
+      "test_used": 30,
+      "duplication_factor": 1.0
+    },
+    "Tomato Mosaic Virus": {
+      "real_available": 54,
+      "real_train": 44,
+      "train_target": 240,
+      "trimmed": 0,
+      "augmented_needed": 196,
+      "augmented_written": 0,
+      "val_used": 5,
+      "test_used": 5,
+      "duplication_factor": 5.45
+    },
+    "Tomato Yellow Leaf Curl Virus (TYLCV)": {
+      "real_available": 36,
+      "real_train": 28,
+      "train_target": 240,
+      "trimmed": 0,
+      "augmented_needed": 212,
+      "augmented_written": 0,
+      "val_used": 4,
+      "test_used": 4,
+      "duplication_factor": 8.57
+    }
+  },
+  "pv_report": {
+    "Bacterial Spot": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Early Blight": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Healthy": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Late Blight": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Leaf Mold": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Septoria Leaf Spot": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Spider Mites": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Target Spot": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Tomato Mosaic Virus": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    },
+    "Tomato Yellow Leaf Curl Virus (TYLCV)": {
+      "real_available": 2000,
+      "by_split": {
+        "test": 200,
+        "train": 1600,
+        "val": 200
+      }
+    }
+  }
+}

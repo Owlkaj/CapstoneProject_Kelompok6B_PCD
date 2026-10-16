@@ -3,17 +3,27 @@ import json
 import time
 import io
 from pathlib import Path
-from PIL import Image
+from typing import Optional
+from PIL import Image, ImageOps
 import torch
 import torchvision.transforms as T
 from torchvision.models import efficientnet_b0
+from app.services.leaf_preprocessing import LeafPreprocessor
 
 class InferenceService:
-    def __init__(self, model_path: str, label_mapping_path: str, preprocessing_path: str, device_name: str = "cpu"):
+    def __init__(
+        self,
+        model_path: str,
+        label_mapping_path: str,
+        preprocessing_path: str,
+        device_name: str = "cpu",
+        preprocessor: Optional[LeafPreprocessor] = None,
+    ):
         self.model_path = Path(model_path)
         self.label_mapping_path = Path(label_mapping_path)
         self.preprocessing_path = Path(preprocessing_path)
         self.device_name = device_name
+        self.preprocessor = preprocessor or LeafPreprocessor(enabled=False)
         self.model = None
         self.idx_to_class = {}
         self.transform = None
@@ -68,8 +78,12 @@ class InferenceService:
         self.is_ready = True
         print(f"[FastAPI InferenceService] Model loaded successfully on device: {self.device}")
 
-    def predict(self, image_bytes: bytes) -> dict:
-        """Processes image bytes and returns prediction dictionary."""
+    def predict(self, image_bytes: bytes, preprocess: Optional[bool] = None) -> dict:
+        """Processes image bytes and returns prediction dictionary.
+
+        ``preprocess`` overrides the default leaf-isolation preprocessing:
+        ``None`` = use the service default, ``True``/``False`` = force on/off.
+        """
         if not self.is_ready or self.model is None:
             raise RuntimeError("Model is not initialized or ready for inference.")
 
@@ -77,12 +91,28 @@ class InferenceService:
 
         # Open and convert to RGB
         try:
-            image = Image.open(io.BytesIO(image_bytes))
-            image.verify()  # Verify integrity
-            # Reopen because verify() closes the file pointer
-            image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+            probe = Image.open(io.BytesIO(image_bytes))
+            probe.verify()  # Verify integrity
         except Exception as e:
             raise ValueError(f"Corrupt or unreadable image file: {str(e)}")
+
+        # Reopen (verify() closes the stream) and honour the EXIF orientation
+        # tag, otherwise phone photos may be fed to the model rotated.
+        image = ImageOps.exif_transpose(Image.open(io.BytesIO(image_bytes))).convert("RGB")
+
+        # Leaf isolation + colour normalisation (A/B toggle via `preprocess`)
+        pre_meta = {
+            "applied": False,
+            "method": "none",
+            "color_normalized": False,
+            "leaf_area_ratio": 0.0,
+        }
+        use_preprocessing = self.preprocessor.enabled if preprocess is None else bool(preprocess)
+        if use_preprocessing:
+            # Explicit `preprocess=true` forces the transform; the default
+            # (preprocess=None) lets the server policy decide adaptively.
+            forced_policy = "always" if preprocess is True else None
+            image, pre_meta = self.preprocessor.process(image, enabled=True, policy=forced_policy)
 
         # Transform to tensor
         tensor = self.transform(image).unsqueeze(0).to(self.device)
@@ -122,5 +152,7 @@ class InferenceService:
             "class_id": idx,
             "inference_time_ms": round(t_elapsed_ms, 2),
             "probabilities": all_probabilities,
-            "top_predictions": top_predictions
+            "top_predictions": top_predictions,
+            "preprocessing_applied": pre_meta.get("applied", False),
+            "preprocessing_method": pre_meta.get("method", "none"),
         }

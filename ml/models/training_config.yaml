@@ -35,3 +35,19 @@ experiments:
     epochs: 10
     early_stopping_patience: 3
     weight_decay: 0.01
+
+  # --- Skema B: domain adaptation on the target (field) capture style -------
+  # Bootstrap from the best E02 checkpoint, then fine-tune with a low learning
+  # rate on the target-domain manifest. Same recipe, different manifest.
+  E03:
+    name: Field_Domain_FineTuning
+    backbone_frozen: false
+    unfrozen_stages: 3
+    optimizer: AdamW
+    batch_size: 16
+    learning_rate: 0.00001
+    epochs: 5
+    early_stopping_patience: 2
+    weight_decay: 0.01
+    # Optional: mix a fraction of the source-domain images to limit forgetting.
+    source_mix_ratio: 0.0

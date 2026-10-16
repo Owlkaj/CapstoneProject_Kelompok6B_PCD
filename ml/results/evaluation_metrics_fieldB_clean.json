@@ -1,0 +1,195 @@
+{
+  "tag": "fieldB_clean",
+  "model_path": "models\\model_field_mixed.pt",
+  "manifest_path": "dataset\\splits\\manifest_field_only_clean.csv",
+  "split": "test",
+  "samples": 208,
+  "overall_accuracy": 0.8509615384615384,
+  "macro_precision": 0.8068279166868179,
+  "macro_recall": 0.8813040823910387,
+  "macro_f1": 0.8220804785505511,
+  "per_class_metrics": {
+    "Bacterial Spot": {
+      "precision": 0.75,
+      "recall": 0.6521739130434783,
+      "f1-score": 0.6976744186046512,
+      "support": 23.0
+    },
+    "Early Blight": {
+      "precision": 0.9642857142857143,
+      "recall": 0.9642857142857143,
+      "f1-score": 0.9642857142857143,
+      "support": 28.0
+    },
+    "Healthy": {
+      "precision": 0.896551724137931,
+      "recall": 0.9629629629629629,
+      "f1-score": 0.9285714285714286,
+      "support": 27.0
+    },
+    "Late Blight": {
+      "precision": 0.8333333333333334,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.8333333333333334,
+      "support": 30.0
+    },
+    "Leaf Mold": {
+      "precision": 0.875,
+      "recall": 0.8076923076923077,
+      "f1-score": 0.84,
+      "support": 26.0
+    },
+    "Tomato Mosaic Virus": {
+      "precision": 0.2857142857142857,
+      "recall": 1.0,
+      "f1-score": 0.4444444444444444,
+      "support": 2.0
+    },
+    "Septoria Leaf Spot": {
+      "precision": 0.6956521739130435,
+      "recall": 0.5925925925925926,
+      "f1-score": 0.64,
+      "support": 27.0
+    },
+    "Spider Mites": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 11.0
+    },
+    "Target Spot": {
+      "precision": 0.967741935483871,
+      "recall": 1.0,
+      "f1-score": 0.9836065573770492,
+      "support": 30.0
+    },
+    "Tomato Yellow Leaf Curl Virus (TYLCV)": {
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1-score": 0.8888888888888888,
+      "support": 4.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      15,
+      0,
+      0,
+      1,
+      0,
+      1,
+      6,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      27,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      26,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      25,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      2,
+      21,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      3,
+      0,
+      2,
+      1,
+      2,
+      2,
+      16,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      11,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4
+    ]
+  ]
+}

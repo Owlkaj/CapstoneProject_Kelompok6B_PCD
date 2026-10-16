@@ -25,6 +25,11 @@ jobs:
           pip install --extra-index-url https://download.pytorch.org/whl/cpu torch torchvision
           pip install -r ./fastapi/requirements.txt pandas httpx pytest
 
+      - name: Run FastAPI leaf preprocessing unit tests
+        working-directory: ./fastapi
+        run: |
+          python test_leaf_preprocessing.py
+
       - name: Run FastAPI Contract & API Tests
         working-directory: ./fastapi
         run: |

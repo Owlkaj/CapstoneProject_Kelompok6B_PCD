@@ -8,6 +8,8 @@ class PredictionResponse(BaseModel):
     inference_time_ms: float = Field(..., description="Inference time in milliseconds")
     probabilities: dict[str, float] | None = Field(default=None, description="Full dictionary of class probabilities")
     top_predictions: list[dict] | None = Field(default=None, description="Ranked top-k predictions with class and confidence")
+    preprocessing_applied: bool | None = Field(default=None, description="Whether leaf isolation preprocessing was applied")
+    preprocessing_method: str | None = Field(default=None, description="Segmentation strategy used (rembg/grabcut/numpy/none)")
 
     class Config:
         populate_by_name = True
