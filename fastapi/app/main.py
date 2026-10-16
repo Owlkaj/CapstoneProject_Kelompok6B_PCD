@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.inference import InferenceService
 from app.services.leaf_preprocessing import LeafPreprocessor
+from app.services.confidence_gating import ConfidenceGate
 from app.routes.predict import router as predict_router
 
 # Base directories
@@ -42,6 +43,9 @@ LEAF_COLOR_NORMALIZATION = _env_bool("LEAF_COLOR_NORMALIZATION", True)
 LEAF_PREPROCESSING_POLICY = os.getenv("LEAF_PREPROCESSING_POLICY", "adaptive")
 LEAF_DEBUG_DIR = os.getenv("LEAF_DEBUG_DIR") or None
 
+# Confidence gating: do not present a diagnosis the model is not sure about.
+GATE_ENABLED = _env_bool("ENABLE_CONFIDENCE_GATING", True)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Load EfficientNetB0 model and configurations once (PRD Bab 18.6)
@@ -65,12 +69,21 @@ async def lifespan(app: FastAPI):
         f"available={preprocessor.available_methods()}"
     )
 
+    gate = ConfidenceGate(enabled=GATE_ENABLED)
+    print(
+        f"Confidence gating: enabled={gate.enabled} "
+        f"min_conf={gate.min_confidence} min_margin={gate.min_margin} "
+        f"min_sharpness={gate.min_sharpness} brightness=[{gate.min_brightness},{gate.max_brightness}] "
+        f"min_side={gate.min_side}"
+    )
+
     inference_service = InferenceService(
         model_path=MODEL_PATH,
         label_mapping_path=LABEL_MAPPING_PATH,
         preprocessing_path=PREPROCESSING_PATH,
         device_name=DEVICE,
         preprocessor=preprocessor,
+        gate=gate,
     )
     inference_service.load()
     app.state.inference_service = inference_service

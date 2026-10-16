@@ -85,8 +85,7 @@ class DetectionController extends Controller
             // 6. Enrich with Indonesian agronomy advice from catalog
             $info = DiseaseCatalog::getInfo($className);
 
-            // 7. Parse Top-K predictions and alternative differential diagnoses
-            $topPredictions = [];
+            // 7. Parse Top-K predictions and alternative differential diagnoses            $topPredictions = [];
             if (!empty($prediction['top_predictions']) && is_array($prediction['top_predictions'])) {
                 foreach ($prediction['top_predictions'] as $predItem) {
                     $cName = $predItem['class'];
@@ -131,6 +130,14 @@ class DetectionController extends Controller
 
             $alternatives = array_slice($topPredictions, 1);
 
+            // 8. Confidence gating: decide whether this result is trustworthy
+            //    enough to present as a diagnosis (calibrated in FastAPI).
+            $gate = is_array($prediction['confidence_gate'] ?? null) ? $prediction['confidence_gate'] : [];
+            $accepted = $gate['passed'] ?? true;
+            $gateAction = $gate['action'] ?? 'accept';
+            $gateReasons = $gate['reasons'] ?? [];
+            $gateMessage = $gate['message'] ?? null;
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -147,6 +154,13 @@ class DetectionController extends Controller
                     'date' => now()->format('Y-m-d H:i'),
                     'top_predictions' => $topPredictions,
                     'alternatives' => $alternatives,
+                    // --- confidence gating ---
+                    'accepted' => (bool) $accepted,
+                    'gate_action' => $gateAction,
+                    'gate_reasons' => $gateReasons,
+                    'gate_message' => $gateMessage,
+                    'gate_threshold' => $gate['threshold'] ?? null,
+                    'gate_quality' => $gate['quality'] ?? null,
                 ]
             ]);
         } catch (\Throwable $e) {

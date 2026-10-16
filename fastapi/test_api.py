@@ -20,7 +20,7 @@ def create_dummy_image(format="JPEG", size=(256, 256), color=(100, 150, 200)):
     return buf.read()
 
 def test_health_check(client: TestClient):
-    print("\n[1/7] Testing GET /health...")
+    print("\n[1/8] Testing GET /health...")
     res = client.get("/health")
     assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
     data = res.json()
@@ -29,7 +29,7 @@ def test_health_check(client: TestClient):
     print(f"  -> Health Response: {data} [PASS]")
 
 def test_predict_synthetic_contract(client: TestClient):
-    print("\n[2/7] Testing POST /predict contract with Synthetic JPEG...")
+    print("\n[2/8] Testing POST /predict contract with Synthetic JPEG...")
     jpg_bytes = create_dummy_image(format="JPEG")
     res = client.post("/predict", files={"image": ("test_leaf.jpg", jpg_bytes, "image/jpeg")})
     assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
@@ -48,7 +48,7 @@ def test_predict_synthetic_contract(client: TestClient):
     print("  -> 4-field contract (with integer class_id) validated successfully [PASS]")
 
 def test_predict_real_dataset_sampling(client: TestClient):
-    print("\n[3/7] Testing POST /predict accuracy on REAL Tomato Leaf Images (Multi-Class Sampling)...")
+    print("\n[3/8] Testing POST /predict accuracy on REAL Tomato Leaf Images (Multi-Class Sampling)...")
     manifest_file = project_root / "ml" / "dataset" / "splits" / "manifest.csv"
     assert manifest_file.exists(), f"Critical: Test manifest file not found at {manifest_file}"
 
@@ -109,7 +109,7 @@ def test_predict_real_dataset_sampling(client: TestClient):
     print("  -> Multi-Class Real Leaf Accuracy Verification: [PASS]")
 
 def test_predict_png_format(client: TestClient):
-    print("\n[4/7] Testing POST /predict with PNG format...")
+    print("\n[4/8] Testing POST /predict with PNG format...")
     png_bytes = create_dummy_image(format="PNG")
     res = client.post("/predict", files={"image": ("test_leaf.png", png_bytes, "image/png")})
     assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
@@ -119,19 +119,19 @@ def test_predict_png_format(client: TestClient):
     print(f"  -> PNG Prediction: {pred_png['class']} ({pred_png['confidence']*100:.2f}%) [PASS]")
 
 def test_empty_file_rejected(client: TestClient):
-    print("\n[5/7] Testing Empty File rejection (HTTP 400)...")
+    print("\n[5/8] Testing Empty File rejection (HTTP 400)...")
     res = client.post("/predict", files={"image": ("empty.jpg", b"", "image/jpeg")})
     assert res.status_code == 400, f"Expected 400 for empty file, got {res.status_code}"
     print(f"  -> Empty file properly rejected: {res.json()} [PASS]")
 
 def test_unsupported_format_rejected(client: TestClient):
-    print("\n[6/7] Testing Unsupported format rejection (HTTP 415)...")
+    print("\n[6/8] Testing Unsupported format rejection (HTTP 415)...")
     res = client.post("/predict", files={"image": ("notes.txt", b"plain text data", "text/plain")})
     assert res.status_code == 415, f"Expected 415 for text file, got {res.status_code}"
     print(f"  -> Unsupported format rejected with 415: {res.json()} [PASS]")
 
 def test_leaf_preprocessing_ab_override(client: TestClient):
-    print("\n[7/7] Testing leaf-isolation preprocessing A/B override...")
+    print("\n[7/8] Testing leaf-isolation preprocessing A/B override...")
     manifest_file = project_root / "ml" / "dataset" / "splits" / "manifest.csv"
 
     payload = None
@@ -172,6 +172,31 @@ def test_leaf_preprocessing_ab_override(client: TestClient):
     print(f"  -> preprocess=false: {results[False]['class']} ({results[False]['confidence'] * 100:.1f}%)")
     print("  -> Both modes return a valid contract and correct flag [PASS]")
 
+def test_confidence_gating_contract(client: TestClient):
+    print("\n[8/8] Testing confidence gating contract...")
+    img = create_dummy_image(format="JPEG")
+    res = client.post("/predict", files={"image": ("gate.jpg", img, "image/jpeg")})
+    assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
+    body = res.json()
+
+    # Flattened gate fields exposed for the Laravel layer
+    for field in ["accepted", "gate_action", "gate_threshold", "confidence_gate"]:
+        assert field in body, f"Missing gating field '{field}'"
+    assert isinstance(body["accepted"], bool)
+    assert body["gate_action"] in ("accept", "review", "reject")
+    assert isinstance(body["confidence_gate"], dict)
+    assert "quality" in body["confidence_gate"]
+
+    # Forcing the gate off must always accept
+    res_off = client.post("/predict", files={"image": ("gate.jpg", img, "image/jpeg")},
+                          params={"gate": "false"})
+    assert res_off.status_code == 200
+    assert res_off.json()["accepted"] is True, "gate=false must always accept"
+    assert res_off.json()["gate_action"] == "accept"
+    print(f"  -> gate on : accepted={body['accepted']} action={body['gate_action']} "
+          f"reason={body.get('gate_reason')}")
+    print("  -> gate off: accepted=True (passthrough) [PASS]")
+
 def run_api_tests():
     print("=" * 70)
     print("TOMATCARE FASTAPI TEST SUITE (CONTRACT, ACCURACY SAMPLING & ERRORS)")
@@ -185,6 +210,7 @@ def run_api_tests():
         test_empty_file_rejected(client)
         test_unsupported_format_rejected(client)
         test_leaf_preprocessing_ab_override(client)
+        test_confidence_gating_contract(client)
 
     print("\n" + "=" * 70)
     print("FASTAPI TEST SUITE: ALL TESTS COMPLETED & VALIDATED [PASS]")

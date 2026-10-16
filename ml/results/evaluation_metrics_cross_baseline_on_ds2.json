@@ -1,0 +1,62 @@
+{
+  "tag": "cross_baseline_on_ds2",
+  "model_path": "D:\\casptone\\sistem\\ml\\models\\final_model.pt",
+  "manifest_path": "dataset\\splits\\manifest_yolo_clean.csv",
+  "split": "test",
+  "samples": 653,
+  "classes_present": [
+    "Healthy",
+    "Leaf Mold",
+    "Tomato Yellow Leaf Curl Virus (TYLCV)"
+  ],
+  "classes_absent": [
+    "Bacterial Spot",
+    "Early Blight",
+    "Late Blight",
+    "Tomato Mosaic Virus",
+    "Septoria Leaf Spot",
+    "Spider Mites",
+    "Target Spot"
+  ],
+  "overall_accuracy": 0.4670750382848392,
+  "macro_precision": 0.7360223490408125,
+  "macro_recall": 0.4987519255327026,
+  "macro_f1": 0.5247886884031532,
+  "per_class_metrics": {
+    "Healthy": {
+      "precision": 0.8163265306122449,
+      "recall": 0.1646090534979424,
+      "f1-score": 0.273972602739726,
+      "support": 243.0
+    },
+    "Leaf Mold": {
+      "precision": 0.7557251908396947,
+      "recall": 0.4439461883408072,
+      "f1-score": 0.559322033898305,
+      "support": 223.0
+    },
+    "Tomato Yellow Leaf Curl Virus (TYLCV)": {
+      "precision": 0.6360153256704981,
+      "recall": 0.8877005347593583,
+      "f1-score": 0.7410714285714286,
+      "support": 187.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      40,
+      29,
+      77
+    ],
+    [
+      4,
+      99,
+      18
+    ],
+    [
+      5,
+      3,
+      166
+    ]
+  ]
+}

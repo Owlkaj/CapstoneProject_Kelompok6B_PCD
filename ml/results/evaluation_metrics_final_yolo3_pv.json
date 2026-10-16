@@ -1,0 +1,208 @@
+{
+  "tag": "final_yolo3_pv",
+  "model_path": "models\\model_yolo3_mixed.pt",
+  "manifest_path": "dataset\\splits\\manifest.csv",
+  "split": "test",
+  "samples": 2000,
+  "classes_present": [
+    "Bacterial Spot",
+    "Early Blight",
+    "Healthy",
+    "Late Blight",
+    "Leaf Mold",
+    "Tomato Mosaic Virus",
+    "Septoria Leaf Spot",
+    "Spider Mites",
+    "Target Spot",
+    "Tomato Yellow Leaf Curl Virus (TYLCV)"
+  ],
+  "classes_absent": [],
+  "overall_accuracy": 0.967,
+  "macro_precision": 0.9677243514164294,
+  "macro_recall": 0.967,
+  "macro_f1": 0.966943047754439,
+  "per_class_metrics": {
+    "Bacterial Spot": {
+      "precision": 0.9842105263157894,
+      "recall": 0.935,
+      "f1-score": 0.958974358974359,
+      "support": 200.0
+    },
+    "Early Blight": {
+      "precision": 0.9597989949748744,
+      "recall": 0.955,
+      "f1-score": 0.9573934837092731,
+      "support": 200.0
+    },
+    "Healthy": {
+      "precision": 0.9209302325581395,
+      "recall": 0.99,
+      "f1-score": 0.9542168674698795,
+      "support": 200.0
+    },
+    "Late Blight": {
+      "precision": 0.9846153846153847,
+      "recall": 0.96,
+      "f1-score": 0.9721518987341772,
+      "support": 200.0
+    },
+    "Leaf Mold": {
+      "precision": 0.9655172413793104,
+      "recall": 0.98,
+      "f1-score": 0.9727047146401985,
+      "support": 200.0
+    },
+    "Tomato Mosaic Virus": {
+      "precision": 0.98,
+      "recall": 0.98,
+      "f1-score": 0.98,
+      "support": 200.0
+    },
+    "Septoria Leaf Spot": {
+      "precision": 0.9556650246305419,
+      "recall": 0.97,
+      "f1-score": 0.9627791563275434,
+      "support": 200.0
+    },
+    "Spider Mites": {
+      "precision": 0.961352657004831,
+      "recall": 0.995,
+      "f1-score": 0.9778869778869779,
+      "support": 200.0
+    },
+    "Target Spot": {
+      "precision": 0.9945652173913043,
+      "recall": 0.915,
+      "f1-score": 0.953125,
+      "support": 200.0
+    },
+    "Tomato Yellow Leaf Curl Virus (TYLCV)": {
+      "precision": 0.9705882352941176,
+      "recall": 0.99,
+      "f1-score": 0.9801980198019802,
+      "support": 200.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      187,
+      4,
+      3,
+      1,
+      1,
+      0,
+      3,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      191,
+      1,
+      1,
+      0,
+      0,
+      5,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      198,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      2,
+      192,
+      4,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      196,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      196,
+      0,
+      0,
+      0,
+      3
+    ],
+    [
+      1,
+      2,
+      1,
+      0,
+      2,
+      0,
+      194,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      199,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      8,
+      0,
+      0,
+      1,
+      0,
+      7,
+      183,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      198
+    ]
+  ]
+}

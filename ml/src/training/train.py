@@ -1,5 +1,6 @@
 import os
 import sys
+import gc
 import time
 import copy
 import yaml
@@ -193,7 +194,7 @@ def run_experiment(exp_id: str, config: dict, starting_model=None, manifest_over
 
     best_val_loss = float("inf")
     best_val_acc = 0.0
-    best_model_wts = copy.deepcopy(model.state_dict())
+    best_model_wts = None
     patience_counter = 0
 
     history = []
@@ -228,9 +229,12 @@ def run_experiment(exp_id: str, config: dict, starting_model=None, manifest_over
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_val_acc = val_acc
-            best_model_wts = copy.deepcopy(model.state_dict())
+            # Keep the best weights on CPU: DirectML video memory is limited
+            # (a 4 GB GPU OOMs after a few epochs if a GPU copy is retained),
+            # and CPU tensors are also what FastAPI expects downstream.
+            best_model_wts = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
             patience_counter = 0
-            
+
             # Save checkpoint
             torch.save({
                 "epoch": epoch,
@@ -249,6 +253,9 @@ def run_experiment(exp_id: str, config: dict, starting_model=None, manifest_over
                 print(f"\n[Early Stopping Triggered] Stopping training at epoch {epoch}.")
                 break
 
+        # Release transient allocations so DirectML memory does not creep up.
+        gc.collect()
+
     total_time = time.time() - start_time
     print(f"\nExperiment {exp_id} completed in {total_time/60:.2f} minutes.")
     print(f"Best Validation Loss: {best_val_loss:.4f} | Best Validation Accuracy: {best_val_acc*100:.2f}%")
@@ -262,7 +269,8 @@ def run_experiment(exp_id: str, config: dict, starting_model=None, manifest_over
     plot_history(history_df, exp_id, history_dir)
 
     # Reload best weights
-    model.load_state_dict(best_model_wts)
+    if best_model_wts is not None:
+        model.load_state_dict(best_model_wts)
     return model, best_val_loss, best_val_acc
 
 def main():
@@ -280,6 +288,10 @@ def main():
     parser.add_argument("--out-model", default="ml/models/final_model_field.pt",
                         help="Path to save the fine-tuned model for --stage field")
     parser.add_argument("--epochs", type=int, default=None, help="Override epoch count (smoke tests)")
+    parser.add_argument("--batch-size", type=int, default=None,
+                        help="Override batch size (reduce it when DirectML/GPU runs out of video memory)")
+    parser.add_argument("--unfrozen-stages", type=int, default=None,
+                        help="Override how many EfficientNet stages to unfreeze (fewer = less memory)")
     args = parser.parse_args()
 
     config_path = ML_ROOT / "models" / "training_config.yaml"
@@ -290,6 +302,15 @@ def main():
         for exp in config.get("experiments", {}).values():
             exp["epochs"] = int(args.epochs)
         print(f"[override] semua eksperimen disetel ke {args.epochs} epoch")
+
+    if args.batch_size is not None:
+        for exp in config.get("experiments", {}).values():
+            exp["batch_size"] = int(args.batch_size)
+        print(f"[override] batch_size = {args.batch_size}")
+
+    if args.unfrozen_stages is not None:
+        config["experiments"]["E03"]["unfrozen_stages"] = int(args.unfrozen_stages)
+        print(f"[override] unfrozen_stages = {args.unfrozen_stages}")
 
     if args.stage == "field":
         print(">>> Starting Stage 3: E03 Field / Target-Domain Fine-Tuning")

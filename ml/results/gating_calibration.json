@@ -1,0 +1,26 @@
+{
+  "n": 800,
+  "accuracy": 0.975,
+  "summary": {
+    "confidence": {
+      "correct_mean": 0.9696764102564104,
+      "wrong_mean": 0.65966
+    },
+    "margin": {
+      "correct_mean": 0.9492367948717949,
+      "wrong_mean": 0.44578500000000004
+    },
+    "sharpness": {
+      "correct_mean": 1167.512638653853,
+      "wrong_mean": 862.0834093093872
+    },
+    "brightness": {
+      "correct_mean": 116.57816903743634,
+      "wrong_mean": 109.82078054398846
+    },
+    "min_side": {
+      "correct_mean": 271.4217948717949,
+      "wrong_mean": 192.1
+    }
+  }
+}

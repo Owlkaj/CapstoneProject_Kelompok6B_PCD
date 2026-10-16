@@ -1,135 +1,113 @@
 {
-  "per_class_target": 300,
+  "per_class_target": 1500,
   "augment_mode": "rows",
-  "total_rows": 22860,
+  "total_rows": 32000,
   "by_source": {
     "plantvillage": 20000,
-    "field": 2860
+    "field": 12000
   },
   "by_source_split": {
     "test": {
-      "field": 230,
+      "field": 1200,
       "plantvillage": 2000
     },
     "train": {
-      "field": 2400,
+      "field": 9600,
       "plantvillage": 16000
     },
     "val": {
-      "field": 230,
+      "field": 1200,
       "plantvillage": 2000
     }
   },
   "field_report": {
-    "Bacterial Spot": {
-      "real_available": 395,
-      "real_train": 240,
-      "train_target": 240,
-      "trimmed": 95,
-      "augmented_needed": 0,
-      "augmented_written": 0,
-      "val_used": 30,
-      "test_used": 30,
-      "duplication_factor": 1.0
-    },
     "Early Blight": {
-      "real_available": 819,
-      "real_train": 240,
-      "train_target": 240,
-      "trimmed": 519,
+      "real_available": 1896,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 396,
       "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 30,
-      "test_used": 30,
+      "val_used": 150,
+      "test_used": 150,
       "duplication_factor": 1.0
     },
     "Healthy": {
-      "real_available": 859,
-      "real_train": 240,
-      "train_target": 240,
-      "trimmed": 559,
+      "real_available": 1899,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 399,
       "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 30,
-      "test_used": 30,
+      "val_used": 150,
+      "test_used": 150,
       "duplication_factor": 1.0
     },
     "Late Blight": {
-      "real_available": 1052,
-      "real_train": 240,
-      "train_target": 240,
-      "trimmed": 752,
+      "real_available": 2541,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 1041,
       "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 30,
-      "test_used": 30,
+      "val_used": 150,
+      "test_used": 150,
       "duplication_factor": 1.0
     },
     "Leaf Mold": {
-      "real_available": 867,
-      "real_train": 240,
-      "train_target": 240,
-      "trimmed": 567,
+      "real_available": 2479,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 979,
       "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 30,
-      "test_used": 30,
+      "val_used": 150,
+      "test_used": 150,
       "duplication_factor": 1.0
     },
     "Septoria Leaf Spot": {
-      "real_available": 602,
-      "real_train": 240,
-      "train_target": 240,
-      "trimmed": 302,
+      "real_available": 2328,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 828,
       "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 30,
-      "test_used": 30,
+      "val_used": 150,
+      "test_used": 150,
       "duplication_factor": 1.0
     },
     "Spider Mites": {
-      "real_available": 113,
-      "real_train": 91,
-      "train_target": 240,
-      "trimmed": 0,
-      "augmented_needed": 149,
-      "augmented_written": 0,
-      "val_used": 11,
-      "test_used": 11,
-      "duplication_factor": 2.64
-    },
-    "Target Spot": {
-      "real_available": 381,
-      "real_train": 240,
-      "train_target": 240,
-      "trimmed": 81,
+      "real_available": 1558,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 58,
       "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 30,
-      "test_used": 30,
+      "val_used": 150,
+      "test_used": 150,
       "duplication_factor": 1.0
     },
     "Tomato Mosaic Virus": {
-      "real_available": 54,
-      "real_train": 44,
-      "train_target": 240,
-      "trimmed": 0,
-      "augmented_needed": 196,
+      "real_available": 2360,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 860,
+      "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 5,
-      "test_used": 5,
-      "duplication_factor": 5.45
+      "val_used": 150,
+      "test_used": 150,
+      "duplication_factor": 1.0
     },
     "Tomato Yellow Leaf Curl Virus (TYLCV)": {
-      "real_available": 36,
-      "real_train": 28,
-      "train_target": 240,
-      "trimmed": 0,
-      "augmented_needed": 212,
+      "real_available": 2712,
+      "real_train": 1200,
+      "train_target": 1200,
+      "trimmed": 1212,
+      "augmented_needed": 0,
       "augmented_written": 0,
-      "val_used": 4,
-      "test_used": 4,
-      "duplication_factor": 8.57
+      "val_used": 150,
+      "test_used": 150,
+      "duplication_factor": 1.0
     }
   },
   "pv_report": {

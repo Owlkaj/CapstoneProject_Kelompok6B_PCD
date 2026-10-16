@@ -30,6 +30,11 @@ jobs:
         run: |
           python test_leaf_preprocessing.py
 
+      - name: Run FastAPI confidence gating unit tests
+        working-directory: ./fastapi
+        run: |
+          python test_confidence_gating.py
+
       - name: Run FastAPI Contract & API Tests
         working-directory: ./fastapi
         run: |

@@ -184,6 +184,15 @@
                     <p id="resConfidenceCategory" class="text-[11px] text-gray-500 font-medium">Sangat Yakin (&ge; 90%)</p>
                 </div>
 
+                <!-- Confidence Gating: quality / uncertainty warning -->
+                <div id="resGateWrap" class="hidden flex items-start gap-3 p-3.5 rounded-xl border">
+                    <span id="resGateIcon" class="text-lg leading-none">⚠️</span>
+                    <div class="text-xs leading-relaxed">
+                        <p id="resGateTitle" class="font-bold font-heading mb-0.5">Hasil perlu diverifikasi</p>
+                        <p id="resGateMessage" class="text-[11px]"></p>
+                    </div>
+                </div>
+
                 <!-- Alternatif Diagnosa (Top-K Predictions / Differential Diagnosis) -->
                 <div id="resAlternativesWrap" class="hidden space-y-2.5 bg-gray-50/90 p-4 rounded-xl border border-gray-200/90">
                     <div class="flex items-center justify-between">
@@ -403,6 +412,52 @@ document.addEventListener('DOMContentLoaded', function () {
     const resDescription = document.getElementById('resDescription');
     const resModelName = document.getElementById('resModelName');
     const resInferenceTime = document.getElementById('resInferenceTime');
+    const resGateWrap = document.getElementById('resGateWrap');
+    const resGateIcon = document.getElementById('resGateIcon');
+    const resGateTitle = document.getElementById('resGateTitle');
+    const resGateMessage = document.getElementById('resGateMessage');
+
+    const GATE_STYLES = {
+        amber: {
+            wrap: 'bg-amber-50 border-amber-200 text-amber-900',
+            icon: '⚠️',
+            title: 'Hasil perlu diverifikasi',
+        },
+        red: {
+            wrap: 'bg-red-50 border-red-200 text-red-900',
+            icon: '⛔',
+            title: 'Foto belum bisa dianalisis dengan baik',
+        },
+    };
+
+    function renderGateWarning(data) {
+        const accepted = data.accepted !== false;
+        if (accepted) {
+            resGateWrap.classList.add('hidden');
+            return;
+        }
+        const isReject = data.gate_action === 'reject';
+        const style = isReject ? GATE_STYLES.red : GATE_STYLES.amber;
+
+        resGateWrap.className = `flex items-start gap-3 p-3.5 rounded-xl border ${style.wrap}`;
+        resGateIcon.textContent = style.icon;
+        resGateTitle.textContent = style.title;
+
+        const reasons = {
+            blurry: 'Foto buram',
+            too_dark: 'Foto terlalu gelap',
+            too_bright: 'Foto terlalu terang',
+            too_small: 'Resolusi foto kecil',
+            low_confidence: 'Model kurang yakin',
+            ambiguous: 'Gejala antar penyakit mirip',
+        };
+        const found = (data.gate_reasons || []).map(r => reasons[r] || r).join(', ');
+        resGateMessage.textContent = (data.gate_message || 'Coba ambil foto ulang.')
+            + (found ? ` (${found})` : '')
+            + (data.gate_threshold != null
+                ? ` Ambang keyakinan: ${(data.gate_threshold * 100).toFixed(0)}%.`
+                : '');
+    }
 
     let currentFile = null;
 
@@ -568,6 +623,10 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             resConfidenceCategory.textContent = 'Tingkat Keyakinan: Perlu Verifikasi Lanjutan (< 70%)';
         }
+
+        // --- Confidence gating: show a quality/uncertainty warning when the
+        //     model result is not trustworthy enough to state as a diagnosis.
+        renderGateWarning(data);
 
         resDescription.textContent = data.description;
         resModelName.textContent = data.model || 'EfficientNetB0';

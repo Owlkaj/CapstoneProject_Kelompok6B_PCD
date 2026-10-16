@@ -1,0 +1,157 @@
+{
+  "tag": "fieldmixed_yolo3_field",
+  "model_path": "models\\model_field_mixed.pt",
+  "manifest_path": "dataset\\splits\\manifest_yolo3_clean.csv",
+  "split": "test",
+  "samples": 1160,
+  "classes_present": [
+    "Early Blight",
+    "Healthy",
+    "Late Blight",
+    "Leaf Mold",
+    "Tomato Mosaic Virus",
+    "Septoria Leaf Spot",
+    "Spider Mites",
+    "Tomato Yellow Leaf Curl Virus (TYLCV)"
+  ],
+  "classes_absent": [
+    "Bacterial Spot",
+    "Target Spot"
+  ],
+  "overall_accuracy": 0.8724137931034482,
+  "macro_precision": 0.8982555215949892,
+  "macro_recall": 0.838090273588449,
+  "macro_f1": 0.8580425582461146,
+  "per_class_metrics": {
+    "Early Blight": {
+      "precision": 0.9,
+      "recall": 0.8372093023255814,
+      "f1-score": 0.8674698795180723,
+      "support": 129.0
+    },
+    "Healthy": {
+      "precision": 0.7575757575757576,
+      "recall": 0.3472222222222222,
+      "f1-score": 0.47619047619047616,
+      "support": 72.0
+    },
+    "Late Blight": {
+      "precision": 0.8607594936708861,
+      "recall": 0.9400921658986175,
+      "f1-score": 0.8986784140969163,
+      "support": 217.0
+    },
+    "Leaf Mold": {
+      "precision": 0.9602272727272727,
+      "recall": 0.8894736842105263,
+      "f1-score": 0.9234972677595629,
+      "support": 190.0
+    },
+    "Tomato Mosaic Virus": {
+      "precision": 0.9083333333333333,
+      "recall": 0.8861788617886179,
+      "f1-score": 0.897119341563786,
+      "support": 123.0
+    },
+    "Septoria Leaf Spot": {
+      "precision": 0.906832298136646,
+      "recall": 0.9240506329113924,
+      "f1-score": 0.9153605015673981,
+      "support": 158.0
+    },
+    "Spider Mites": {
+      "precision": 0.9696969696969697,
+      "recall": 0.9896907216494846,
+      "f1-score": 0.9795918367346939,
+      "support": 97.0
+    },
+    "Tomato Yellow Leaf Curl Virus (TYLCV)": {
+      "precision": 0.9226190476190477,
+      "recall": 0.8908045977011494,
+      "f1-score": 0.9064327485380117,
+      "support": 174.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      108,
+      1,
+      7,
+      2,
+      0,
+      7,
+      0,
+      0
+    ],
+    [
+      0,
+      25,
+      16,
+      2,
+      3,
+      0,
+      0,
+      10
+    ],
+    [
+      5,
+      2,
+      204,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      3,
+      7,
+      169,
+      2,
+      1,
+      0,
+      0
+    ],
+    [
+      2,
+      1,
+      1,
+      0,
+      109,
+      5,
+      1,
+      2
+    ],
+    [
+      4,
+      0,
+      0,
+      1,
+      1,
+      146,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      96,
+      0
+    ],
+    [
+      0,
+      1,
+      2,
+      1,
+      5,
+      2,
+      1,
+      155
+    ]
+  ]
+}

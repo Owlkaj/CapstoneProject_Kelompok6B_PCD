@@ -79,22 +79,36 @@ def evaluate_on_manifest(model_path: Path, manifest_path: Path, results_dir: Pat
     all_targets = np.array(all_targets)
 
     accuracy = accuracy_score(all_targets, all_preds)
-    precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(all_targets, all_preds, average="macro")
 
     label_data = json.loads((ML_ROOT / "models" / "label_mapping.json").read_text(encoding="utf-8"))
-    class_names = [label_data["idx_to_class"][str(i)] for i in range(10)]
-    report_text = classification_report(all_targets, all_preds, target_names=class_names, digits=4)
+    class_names_all = [label_data["idx_to_class"][str(i)] for i in range(10)]
+
+    # A manifest may cover only a subset of the 10 classes (e.g. a field test
+    # set without Bacterial Spot / Target Spot). Compute macro metrics over the
+    # classes actually present in the ground truth, otherwise absent classes
+    # would count as 0 and artificially deflate the macro average. Absent
+    # classes are reported explicitly.
+    present = sorted(set(int(t) for t in all_targets))
+    absent = [i for i in range(10) if i not in present]
+    present_names = [class_names_all[i] for i in present]
+
+    precision_macro, recall_macro, f1_macro, _ = precision_recall_fscore_support(
+        all_targets, all_preds, labels=present, average="macro", zero_division=0)
+    report_text = classification_report(
+        all_targets, all_preds, labels=present, target_names=present_names, digits=4, zero_division=0)
 
     print(f"Samples            : {len(eval_df)}")
+    print(f"Classes present    : {len(present)}/10"
+          + (f"   (absent: {', '.join(class_names_all[i] for i in absent)})" if absent else ""))
     print(f"Overall Accuracy   : {accuracy*100:.2f}%")
-    print(f"Macro Precision    : {precision_macro*100:.2f}%")
+    print(f"Macro Precision    : {precision_macro*100:.2f}%   (over {len(present)} present classes)")
     print(f"Macro Recall       : {recall_macro*100:.2f}%")
     print(f"Macro F1-Score     : {f1_macro*100:.2f}%")
     print("\nClassification Report:\n" + report_text)
 
     results_dir.mkdir(parents=True, exist_ok=True)
-    cm = confusion_matrix(all_targets, all_preds)
-    pd.DataFrame(cm, index=class_names, columns=class_names).to_csv(results_dir / f"confusion_matrix_{tag}.csv")
+    cm = confusion_matrix(all_targets, all_preds, labels=present)
+    pd.DataFrame(cm, index=present_names, columns=present_names).to_csv(results_dir / f"confusion_matrix_{tag}.csv")
 
     metrics = {
         "tag": tag,
@@ -102,12 +116,15 @@ def evaluate_on_manifest(model_path: Path, manifest_path: Path, results_dir: Pat
         "manifest_path": str(manifest_path),
         "split": split,
         "samples": int(len(eval_df)),
+        "classes_present": [class_names_all[i] for i in present],
+        "classes_absent": [class_names_all[i] for i in absent],
         "overall_accuracy": float(accuracy),
         "macro_precision": float(precision_macro),
         "macro_recall": float(recall_macro),
         "macro_f1": float(f1_macro),
         "per_class_metrics": {k: v for k, v in classification_report(
-            all_targets, all_preds, target_names=class_names, output_dict=True).items() if k in class_names},
+            all_targets, all_preds, labels=present, target_names=present_names,
+            output_dict=True, zero_division=0).items() if k in present_names},
         "confusion_matrix": cm.tolist(),
     }
     out = results_dir / f"evaluation_metrics_{tag}.json"

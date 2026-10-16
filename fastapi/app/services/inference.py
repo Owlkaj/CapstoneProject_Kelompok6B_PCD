@@ -9,6 +9,7 @@ import torch
 import torchvision.transforms as T
 from torchvision.models import efficientnet_b0
 from app.services.leaf_preprocessing import LeafPreprocessor
+from app.services.confidence_gating import ConfidenceGate
 
 class InferenceService:
     def __init__(
@@ -18,12 +19,14 @@ class InferenceService:
         preprocessing_path: str,
         device_name: str = "cpu",
         preprocessor: Optional[LeafPreprocessor] = None,
+        gate: Optional[ConfidenceGate] = None,
     ):
         self.model_path = Path(model_path)
         self.label_mapping_path = Path(label_mapping_path)
         self.preprocessing_path = Path(preprocessing_path)
         self.device_name = device_name
         self.preprocessor = preprocessor or LeafPreprocessor(enabled=False)
+        self.gate = gate or ConfidenceGate()
         self.model = None
         self.idx_to_class = {}
         self.transform = None
@@ -78,11 +81,17 @@ class InferenceService:
         self.is_ready = True
         print(f"[FastAPI InferenceService] Model loaded successfully on device: {self.device}")
 
-    def predict(self, image_bytes: bytes, preprocess: Optional[bool] = None) -> dict:
+    def predict(self, image_bytes: bytes, preprocess: Optional[bool] = None,
+                gate: Optional[bool] = None) -> dict:
         """Processes image bytes and returns prediction dictionary.
 
         ``preprocess`` overrides the default leaf-isolation preprocessing:
         ``None`` = use the service default, ``True``/``False`` = force on/off.
+
+        ``gate`` overrides confidence gating: ``None`` = use the service
+        default, ``True``/``False`` = force on/off. Gating never changes the
+        predicted class; it only annotates whether the result is trustworthy
+        enough to be shown as a diagnosis.
         """
         if not self.is_ready or self.model is None:
             raise RuntimeError("Model is not initialized or ready for inference.")
@@ -146,6 +155,17 @@ class InferenceService:
             for i, p in enumerate(probs)
         }
 
+        # Confidence gating: annotate trustworthiness without changing the class.
+        effective_gate = self.gate.enabled if gate is None else bool(gate)
+        decision = self.gate.decide(
+            image,
+            confidence=conf_score,
+            second_confidence=float(topk_probs[1].item()) if len(topk_probs) > 1 else 0.0,
+            enabled=effective_gate,
+        )
+
+        gate_payload = decision.to_dict()
+
         return {
             "class": class_name,
             "confidence": round(conf_score, 4),
@@ -155,4 +175,13 @@ class InferenceService:
             "top_predictions": top_predictions,
             "preprocessing_applied": pre_meta.get("applied", False),
             "preprocessing_method": pre_meta.get("method", "none"),
+            # Flattened gate fields (easy for the Laravel layer to consume) ...
+            "accepted": decision.passed,
+            "gate_action": decision.action,
+            "gate_reason": (decision.reasons[0] if decision.reasons else None),
+            "gate_message": decision.message or None,
+            "gate_threshold": round(decision.threshold, 4),
+            "quality_score": round(decision.quality.get("sharpness", 0.0), 2),
+            # ... plus the full payload for debugging / richer UI.
+            "confidence_gate": gate_payload,
         }

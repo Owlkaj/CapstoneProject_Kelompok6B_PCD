@@ -27,6 +27,10 @@ async def predict_image(
         default=None,
         description="Override leaf isolation preprocessing (true/false). Omit to use server default.",
     ),
+    gate: Optional[bool] = Query(
+        default=None,
+        description="Override confidence gating (true/false). Omit to use server default.",
+    ),
 ):
     inference_service = request.app.state.inference_service
     if inference_service is None or not inference_service.is_ready:
@@ -72,7 +76,7 @@ async def predict_image(
 
     # 4. Run inference
     try:
-        result = inference_service.predict(contents, preprocess=preprocess)
+        result = inference_service.predict(contents, preprocess=preprocess, gate=gate)
         return PredictionResponse(
             **result
         )
