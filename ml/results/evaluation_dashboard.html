@@ -3,638 +3,1246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TomatCare — Dashboard Evaluasi Model & Panduan Laporan Lengkap</title>
+    <title>TomatCare — Laporan Evaluasi Model</title>
+    <meta name="description" content="Laporan evaluasi EfficientNet-B0 untuk klasifikasi penyakit daun tomat pada data laboratorium, lapangan, dan dataset eksternal.">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iNSIgZmlsbD0iIzA2NWY0NiIvPjxwYXRoIGQ9Ik0xOSA1Yy03IDAtMTEgMy43LTExIDlhNCA0IDAgMCAwIDQgNGM2IDAgNy01LjUgNy0xM1oiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiLz48cGF0aCBkPSJNNSAxOWMzLTUgNi41LTcuNSAxMS05IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42Ii8+PC9zdmc+">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            300: '#6ee7b7',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .tab-btn.active {
-            background-color: #059669;
+        :root {
+            --accent: #047857;
+            --line: #e2e8f0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        ::selection {
+            background: #d1fae5;
+            color: #064e3b;
+        }
+
+        .skip-link {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 60;
+            transform: translateY(-150%);
+            border-radius: 8px;
+            background: #064e3b;
+            padding: 10px 14px;
             color: #ffffff;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+            transition: transform 160ms ease;
+        }
+
+        .skip-link:focus {
+            transform: translateY(0);
+        }
+
+        :where(a, button):focus-visible {
+            outline: 3px solid rgba(5, 150, 105, 0.28);
+            outline-offset: 3px;
+        }
+
+        .report-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .report-card-accent {
+            background: #f0fdf4;
+            border-color: #a7f3d0;
+        }
+
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 3px;
+            background: var(--metric-accent, #047857);
+            content: '';
+        }
+
+        .metric-card[data-tone="lab"] {
+            --metric-accent: #2563eb;
+        }
+
+        .metric-card[data-tone="field"] {
+            --metric-accent: #0f766e;
+        }
+
+        .metric-card[data-tone="external"] {
+            --metric-accent: #047857;
+        }
+
+        .tab-scroll {
+            scrollbar-color: #cbd5e1 transparent;
+            scrollbar-width: thin;
+        }
+
+        .tab-scroll::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .tab-scroll::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: #cbd5e1;
+        }
+
+        .tab-btn {
+            border-bottom: 2px solid transparent;
+            color: #64748b;
+        }
+
+        .tab-btn:hover {
+            color: #0f172a;
+        }
+
+        .tab-btn[aria-selected="true"] {
+            border-color: var(--accent);
+            color: #0f172a;
+        }
+
+        .tab-btn[aria-selected="true"] .tab-index {
+            color: var(--accent);
+        }
+
+        .segment-btn {
+            color: #64748b;
+        }
+
+        .segment-btn:hover {
+            color: #0f172a;
+        }
+
+        .segment-btn[aria-pressed="true"] {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        }
+
+        .tab-panel[hidden] {
+            display: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+
+        @media print {
+            @page {
+                margin: 16mm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            body {
+                background: #ffffff !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .tab-panel[hidden] {
+                display: block !important;
+            }
+
+            .tab-panel {
+                break-before: page;
+            }
+
+            .tab-panel:first-of-type {
+                break-before: auto;
+            }
+
+            .report-card,
+            .report-card-accent {
+                box-shadow: none !important;
+            }
+
+            .print-avoid-break {
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen p-4 md:p-8">
-    <div class="max-w-7xl mx-auto space-y-6">
-        
-        <!-- HEADER UTAMA -->
-        <header class="bg-gradient-to-r from-emerald-800 via-teal-700 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-emerald-950/20 relative overflow-hidden">
-            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="px-3 py-1 bg-emerald-500/30 border border-emerald-400/40 rounded-full text-xs font-bold uppercase tracking-wider text-emerald-200">
-                            Dokumen Resmi Evaluasi Capstone
-                        </span>
-                        <span class="px-3 py-1 bg-blue-500/30 border border-blue-400/40 rounded-full text-xs font-bold uppercase tracking-wider text-blue-200">
-                            Model Aktif: EfficientNet-B0
-                        </span>
+<body class="min-h-screen bg-[#f8faf9] font-sans text-slate-800 antialiased">
+    <a href="#report-main" class="skip-link no-print">Lewati ke isi laporan</a>
+    <div class="mx-auto max-w-[1120px] px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <header class="no-print border-b border-slate-200">
+            <div class="flex h-16 items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-800 text-white">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 4c-8.5 0-14 4.5-14 11a5 5 0 0 0 5 5c7 0 9-6.5 9-16Z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c4-6 8-9 13-11"/>
+                        </svg>
+                    </span>
+                    <div class="leading-tight">
+                        <p class="font-serif text-lg font-semibold tracking-tight text-slate-950">TomatCare</p>
+                        <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500">Laporan evaluasi model</p>
                     </div>
-                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">TomatCare — Dashboard Evaluasi Model & Hasil Riset</h1>
-                    <p class="text-emerald-100 text-sm md:text-base mt-2 max-w-3xl">
-                        Panduan komprehensif untuk membaca metrik, arsitektur model, distribusi dataset 32.000 citra, serta hasil pengujian laboratorium dan foto lapangan nyata.
-                    </p>
                 </div>
-                <div class="flex gap-3">
-                    <div class="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 text-center min-w-[130px]">
-                        <span class="text-xs uppercase tracking-wider text-emerald-200 block font-semibold">Akurasi Lab (PV)</span>
-                        <span class="text-3xl font-black text-white">96.70%</span>
-                        <span class="text-[10px] text-emerald-200 block">2.000 citra test</span>
-                    </div>
-                    <div class="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 text-center min-w-[130px]">
-                        <span class="text-xs uppercase tracking-wider text-teal-200 block font-semibold">Akurasi Lapangan</span>
-                        <span class="text-3xl font-black text-emerald-300">96.64%</span>
-                        <span class="text-[10px] text-teal-200 block">1.160 citra test</span>
-                    </div>
+
+                <div class="flex items-center gap-4">
+                    <p class="hidden text-xs text-slate-500 sm:block">EfficientNet-B0 · 32.000 citra</p>
+                    <button type="button"
+                            onclick="window.print()"
+                            class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 8V4h10v4M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v6H7v-6Z"/>
+                        </svg>
+                        Cetak laporan
+                    </button>
                 </div>
             </div>
         </header>
 
-        <!-- NAVIGASI TAB -->
-        <nav class="flex flex-wrap gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-            <button onclick="switchTab('tab-faq')" id="btn-tab-faq" class="tab-btn active px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
-                <span>🎯</span> 1. Jawaban Penting (Sidang/Presentasi)
-            </button>
-            <button onclick="switchTab('tab-guide')" id="btn-tab-guide" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
-                <span>💡</span> 2. Panduan Membaca Laporan
-            </button>
-            <button onclick="switchTab('tab-final')" id="btn-tab-final" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
-                <span>🏆</span> 3. Hasil Model Final Operasional
-            </button>
-            <button onclick="switchTab('tab-dataset')" id="btn-tab-dataset" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
-                <span>📚</span> 4. Rincian Dataset & Split Data
-            </button>
-            <button onclick="switchTab('tab-cross')" id="btn-tab-cross" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
-                <span>🌐</span> 5. Uji Lintas Dataset (Generalisasi)
-            </button>
-            <button onclick="switchTab('tab-gallery')" id="btn-tab-gallery" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-2">
-                <span>🖼️</span> 6. Galeri Gambar Confusion Matrix
-            </button>
-        </nav>
+        <!-- Hero -->
+        <section class="py-10 sm:py-14">
+            <div class="grid gap-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
+                <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">Evaluasi model · Oktober 2026</p>
+                    <h1 class="mt-4 max-w-3xl font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-slate-950 sm:text-5xl">
+                        Kinerja klasifikasi
+                        <br class="hidden sm:block">
+                        penyakit daun tomat
+                    </h1>
+                    <p class="mt-5 max-w-2xl text-base leading-relaxed text-slate-600">
+                        Ringkasan pengujian EfficientNet-B0 pada data laboratorium, foto lapangan, dan dataset eksternal. Angka disusun dari hasil evaluasi pada 16 Oktober 2026.
+                    </p>
+                    <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
+                        <span><span class="font-medium text-slate-700">Model</span> EfficientNet-B0</span>
+                        <span class="hidden h-3 w-px bg-slate-300 sm:block"></span>
+                        <span><span class="font-medium text-slate-700">Dataset</span> 32.000 citra</span>
+                        <span class="hidden h-3 w-px bg-slate-300 sm:block"></span>
+                        <span><span class="font-medium text-slate-700">Kelas</span> 10</span>
+                    </div>
+                </div>
 
-        <!-- ========================================================================= -->
-        <!-- TAB 1: JAWABAN PENTING & CONTEKAN SIDANG -->
-        <!-- ========================================================================= -->
-        <section id="tab-faq" class="tab-content space-y-6">
-            
-            <!-- ALERT CARD UTAMA: ARSITEKTUR MODEL -->
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-8 border-blue-600 p-6 rounded-2xl shadow-sm">
-                <div class="flex items-start gap-4">
-                    <span class="text-3xl">❓</span>
-                    <div class="space-y-2">
-                        <h2 class="text-xl font-extrabold text-blue-950">Pertanyaan 1: Apakah sistem ini masih memakai EfficientNet-B0? Lalu kenapa ada istilah YOLO?</h2>
-                        <div class="text-sm md:text-base text-slate-700 leading-relaxed space-y-2">
-                            <p><strong>JAWABAN TEGAS: YA, 100% MASIH EFFICIENTNET-B0!</strong></p>
-                            <p>Model kecerdasan buatan (*classifier*) yang berjalan di server dan melakukan klasifikasi diagnosa penyakit pada daun tomat adalah <strong>EfficientNet-B0</strong> (terletak di berkas <code class="bg-blue-150 px-2 py-0.5 rounded font-mono text-blue-800">fastapi/models/final_model.pt</code>).</p>
-                            <p><strong>Lalu apa fungsi YOLO di sistem ini?</strong></p>
-                            <ul class="list-disc ml-5 space-y-1 text-slate-700">
-                                <li><strong>Bukan sebagai pengganti model:</strong> Sistem tidak memakai arsitektur YOLO untuk mendiagnosa citra saat aplikasi dijalankan.</li>
-                                <li><strong>YOLO dipakai sebagai Alat Ekstraksi Data (Data Pipeline):</strong> Dataset foto kebun dari Roboflow memiliki format anotasi <em>YOLO-OBB (Oriented Bounding Box)</em>. Bounding box ini kita gunakan secara otomatis untuk <strong>memotong (crop)</strong> daun berpenyakit dari foto kebun yang luas dan berlatar rumit.</li>
-                                <li>Hasil crop daun berpenyakit dari kebun itulah yang dimasukkan untuk melatih dan menyempurnakan (*fine-tuning*) model <strong>EfficientNet-B0</strong>!</li>
-                            </ul>
+                <div class="report-card p-5 sm:p-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Ringkasan performa</p>
+                        <span class="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-800">Model final</span>
+                    </div>
+                    <dl class="mt-4 divide-y divide-slate-100">
+                        <div class="flex items-baseline justify-between gap-4 py-3 first:pt-0">
+                            <dt class="text-sm text-slate-600">Laboratorium</dt>
+                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">96,70%</dd>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARD DATASET & PEMBAGIAN DATA -->
-            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-l-8 border-emerald-600 p-6 rounded-2xl shadow-sm">
-                <div class="flex items-start gap-4">
-                    <span class="text-3xl">❓</span>
-                    <div class="space-y-2">
-                        <h2 class="text-xl font-extrabold text-emerald-950">Pertanyaan 2: Berapa total dataset yang dipakai dan bagaimana pembagiannya?</h2>
-                        <div class="text-sm md:text-base text-slate-700 leading-relaxed space-y-2">
-                            <p><strong>JAWABAN RINGKAS UNTUK DIPRESENTASIKAN:</strong></p>
-                            <p>Dataset akhir yang digunakan untuk menghasilkan model operasional adalah <strong>32.000 citra</strong>, yang merupakan kombinasi seimbang (*Balanced Combined Dataset*) antara dua sumber domain:</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-3">
-                                <div class="bg-white p-4 rounded-xl border border-emerald-200">
-                                    <h3 class="font-bold text-emerald-800 text-sm uppercase">1. Dataset Laboratorium (PlantVillage)</h3>
-                                    <p class="text-2xl font-black text-slate-800 mt-1">20.000 citra</p>
-                                    <p class="text-xs text-slate-500 mt-1">10 kelas penyakit (2.000 citra/kelas seimbang). Daun tunggal dengan latar polos.</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl border border-teal-200">
-                                    <h3 class="font-bold text-teal-800 text-sm uppercase">2. Dataset Lapangan Nyata (YOLO Crops)</h3>
-                                    <p class="text-2xl font-black text-slate-800 mt-1">12.000 citra</p>
-                                    <p class="text-xs text-slate-500 mt-1">8 kelas penyakit (1.500 citra/kelas seimbang). Dipotong dari ribuan foto kebun petani.</p>
-                                </div>
-                            </div>
-                            <p><strong>Pembagian Split Data Standar Machine Learning (80 : 10 : 10):</strong></p>
-                            <ul class="list-disc ml-5 space-y-1 text-slate-700">
-                                <li><strong>Training Set (80% = 25.600 citra):</strong> 16.000 PlantVillage + 9.600 Lapangan. Digunakan untuk melatih bobot model.</li>
-                                <li><strong>Validation Set (10% = 3.200 citra):</strong> 2.000 PlantVillage + 1.200 Lapangan. Digunakan untuk tuning hyperparameter dan evaluasi tiap epoch.</li>
-                                <li><strong>Test Set Independen (10% = 3.200 citra):</strong> 2.000 PlantVillage + 1.200 Lapangan. Citra murni yang <em>sama sekali belum pernah dilihat model</em> saat training.</li>
-                            </ul>
+                        <div class="flex items-baseline justify-between gap-4 py-3">
+                            <dt class="text-sm text-slate-600">Lapangan</dt>
+                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">96,64%</dd>
                         </div>
-                    </div>
+                        <div class="flex items-baseline justify-between gap-4 py-3">
+                            <dt class="text-sm text-slate-600">Dataset eksternal</dt>
+                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">83,31%</dd>
+                        </div>
+                    </dl>
+                    <p class="mt-4 border-t border-slate-100 pt-4 text-[11px] leading-relaxed text-slate-500">
+                        2.000 citra laboratorium · 1.160 citra lapangan · 653 citra eksternal
+                    </p>
                 </div>
             </div>
-
-            <!-- CARD CONTEKAN MENJAWAB PENGUJI -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <span>💡</span> Contekan Menjawab Saat Ditanya Dosen / Penguji
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                        <p class="font-bold text-slate-800">"Kenapa tidak langsung pakai foto lapangan saja sejak awal?"</p>
-                        <p class="text-slate-600 text-xs leading-relaxed">
-                            <em>"Citra PlantVillage sangat kaya variasi (10 kelas lengkap), tetapi tidak mewakili kondisi kebun (*domain shift*). Sebaliknya, data lapangan jumlahnya terbatas dan beberapa kelas sangat sedikit. Solusi terbaik adalah teknik <strong>Domain Adaptation (Skema B)</strong>: model belajar fitur visual dasar dari PlantVillage, kemudian disempurnakan (*fine-tuned*) dengan campuran data lapangan teranotasi agar model akurat di kedua domain."</em>
-                        </p>
-                    </div>
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                        <p class="font-bold text-slate-800">"Apa bukti bahwa model tidak overfitting pada data training?"</p>
-                        <p class="text-slate-600 text-xs leading-relaxed">
-                            <em>"Kami melakukan <strong>Cross-Dataset Evaluation</strong> pada Dataset 2 (himpunan citra eksternal yang sama sekali tidak pernah diikutkan dalam proses training). Model baseline lama hanya meraih akurasi 69.16%, sedangkan model final kami melonjak ke <strong>89.18%</strong> (+20 poin persen), membuktikan generalisasi fitur yang dipelajari model sangat kokoh."</em>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
         </section>
 
-        <!-- ========================================================================= -->
-        <!-- TAB 2: PANDUAN CARA MEMBACA LAPORAN & METRIK -->
-        <!-- ========================================================================= -->
-        <section id="tab-guide" class="tab-content hidden space-y-6">
-            
-            <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">📖 Panduan Membaca Laporan Evaluasi & Metrik AI</h2>
-                    <p class="text-sm text-slate-500 mt-1">Penjelasan sederhana dan mudah dipahami tanpa rumus rumit</p>
+        <!-- Navigation -->
+        <div class="no-print z-30 border-y border-slate-200 bg-[#f8faf9]/95 backdrop-blur md:sticky md:top-0">
+            <nav class="tab-scroll -mb-px flex gap-6 overflow-x-auto sm:gap-8" role="tablist" aria-label="Bagian laporan">
+                <button type="button" id="tab-ringkasan" data-tab="ringkasan" role="tab" aria-selected="true" aria-controls="panel-ringkasan" tabindex="0"
+                        class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
+                    <span class="tab-index font-mono text-[11px] text-slate-400">01</span>
+                    Ringkasan
+                </button>
+                <button type="button" id="tab-metrik" data-tab="metrik" role="tab" aria-selected="false" aria-controls="panel-metrik" tabindex="-1"
+                        class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
+                    <span class="tab-index font-mono text-[11px] text-slate-400">02</span>
+                    Metrik
+                </button>
+                <button type="button" id="tab-hasil" data-tab="hasil" role="tab" aria-selected="false" aria-controls="panel-hasil" tabindex="-1"
+                        class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
+                    <span class="tab-index font-mono text-[11px] text-slate-400">03</span>
+                    Hasil model
+                </button>
+                <button type="button" id="tab-dataset" data-tab="dataset" role="tab" aria-selected="false" aria-controls="panel-dataset" tabindex="-1"
+                        class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
+                    <span class="tab-index font-mono text-[11px] text-slate-400">04</span>
+                    Dataset
+                </button>
+                <button type="button" id="tab-generalisasi" data-tab="generalisasi" role="tab" aria-selected="false" aria-controls="panel-generalisasi" tabindex="-1"
+                        class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
+                    <span class="tab-index font-mono text-[11px] text-slate-400">05</span>
+                    Generalisasi
+                </button>
+                <button type="button" id="tab-lampiran" data-tab="lampiran" role="tab" aria-selected="false" aria-controls="panel-lampiran" tabindex="-1"
+                        class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
+                    <span class="tab-index font-mono text-[11px] text-slate-400">06</span>
+                    Lampiran
+                </button>
+            </nav>
+        </div>
+
+        <main id="report-main" class="py-8 sm:py-10">
+            <!-- 01 — RINGKASAN -->
+            <section id="panel-ringkasan" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-ringkasan">
+                <header class="max-w-3xl">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">01 · Ringkasan</p>
+                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Temuan utama</h2>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        Model final menunjukkan performa tinggi dan konsisten di dua domain. Pada dataset eksternal, akurasi meningkat jauh dibanding baseline, meskipun cakupan kelasnya lebih terbatas.
+                    </p>
+                </header>
+
+                <div class="grid gap-4 md:grid-cols-3">
+                    <article class="report-card metric-card p-5" data-tone="lab">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Laboratorium</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,70%</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">1.934 dari 2.000 citra uji tepat pada 10 kelas PlantVillage.</p>
+                    </article>
+                    <article class="report-card metric-card p-5" data-tone="field">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Lapangan</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,64%</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">1.121 dari 1.160 citra uji tepat pada 8 kelas foto kebun.</p>
+                    </article>
+                    <article class="report-card metric-card p-5" data-tone="external">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Generalisasi</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">83,31%</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">653 citra eksternal, meningkat 36,60 poin dari baseline 46,71%.</p>
+                    </article>
                 </div>
 
-                <!-- 4 KARTU METRIK DASAR -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-200">
-                        <span class="text-xs font-bold uppercase text-emerald-700 tracking-wider">1. Akurasi (Accuracy)</span>
-                        <h3 class="text-lg font-extrabold text-emerald-950 mt-1">Persentase Kebenaran Total</h3>
-                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                            <strong>Artinya:</strong> Dari 100 daun yang diperiksa, berapa daun yang ditebak benar oleh AI? Akurasi 96.6% berarti dari 100 daun, ~97 daun ditebak tepat.
-                        </p>
-                    </div>
-                    <div class="p-5 rounded-2xl bg-blue-50 border border-blue-200">
-                        <span class="text-xs font-bold uppercase text-blue-700 tracking-wider">2. Precision</span>
-                        <h3 class="text-lg font-extrabold text-blue-950 mt-1">Ketepatan Vonis AI</h3>
-                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                            <strong>Artinya:</strong> Saat AI mendiagnosa daun sebagai <em>"Hawar Daun"</em>, seberapa yakin vonis itu benar bukan salah tuduh? Precision tinggi = model jarang memberi alarm palsu (*false alarm*).
-                        </p>
-                    </div>
-                    <div class="p-5 rounded-2xl bg-teal-50 border border-teal-200">
-                        <span class="text-xs font-bold uppercase text-teal-700 tracking-wider">3. Recall (Sensitivitas)</span>
-                        <h3 class="text-lg font-extrabold text-teal-950 mt-1">Daya Jaring Penyakit</h3>
-                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                            <strong>Artinya:</strong> Dari seluruh daun yang sebenarnya sakit di kebun, berapa persen yang berhasil ditemukan oleh AI? Recall tinggi = penyakit tidak lolos dari deteksi.
-                        </p>
-                    </div>
-                    <div class="p-5 rounded-2xl bg-purple-50 border border-purple-200">
-                        <span class="text-xs font-bold uppercase text-purple-700 tracking-wider">4. F1-Score</span>
-                        <h3 class="text-lg font-extrabold text-purple-950 mt-1">Keseimbangan Harmonis</h3>
-                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                            <strong>Artinya:</strong> Rata-rata harmonis antara Precision dan Recall. Jika F1-Score di atas 90%, artinya model tidak hanya jago menebak, tapi juga tidak pernah salah tuduh.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- CARA BACA CONFUSION MATRIX -->
-                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <span>🧩</span> Cara Membaca Gambar "Confusion Matrix" (Matriks Kebingungan)
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                        <div class="space-y-3">
-                            <p class="text-slate-700">Confusion matrix adalah tabel kotak-kotak yang membandingkan antara <strong>Kenyataan Sebenarnya (Baris / Sumbu Y)</strong> vs <strong>Prediksi Model (Kolom / Sumbu X)</strong>.</p>
-                            <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                                <span class="font-bold text-emerald-700 block">✅ Garis Diagonal Utama (Kiri Atas ke Kanan Bawah):</span>
-                                <p class="text-xs text-slate-600">Angka-angka di garis diagonal menunjukkan <strong>prediksi yang BENAR</strong>. Semakin gelap warnanya dan semakin besar angkanya, artinya model semakin pintar dan akurat!</p>
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <article class="report-card p-5 sm:p-6">
+                        <h3 class="font-serif text-xl font-semibold text-slate-950">Arsitektur dan peran YOLO</h3>
+                        <dl class="mt-5 divide-y divide-slate-100">
+                            <div class="py-4 first:pt-0">
+                                <dt class="text-sm font-medium text-slate-900">Classifier operasional</dt>
+                                <dd class="mt-1 text-sm leading-relaxed text-slate-600">
+                                    EfficientNet-B0 dengan transfer learning dan fine-tuning, digunakan sebagai classifier utama.
+                                </dd>
                             </div>
-                            <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                                <span class="font-bold text-amber-700 block">⚠️ Kotak di Luar Diagonal (Off-Diagonal):</span>
-                                <p class="text-xs text-slate-600">Menunjukkan <strong>kesalahan tebak (kebingungan) model</strong>. Misalnya, daun aslinya bercak bakteri tapi model menebak kapang daun. Jika kotak di luar diagonal bernilai 0 atau sangat kecil, model sangat jarang bingung.</p>
+                            <div class="py-4">
+                                <dt class="text-sm font-medium text-slate-900">Pipeline data</dt>
+                                <dd class="mt-1 text-sm leading-relaxed text-slate-600">
+                                    YOLO tidak dipakai saat inferensi. Anotasi YOLO digunakan untuk memotong daun dari foto kebun, lalu hasil crop menjadi data latih EfficientNet-B0.
+                                </dd>
+                            </div>
+                            <div class="py-4 last:pb-0">
+                                <dt class="text-sm font-medium text-slate-900">Keluaran</dt>
+                                <dd class="mt-1 text-sm leading-relaxed text-slate-600">
+                                    Sepuluh kelas penyakit, terdiri dari 8 kelas lapangan dan 2 kelas tambahan dari PlantVillage (Bacterial Spot dan Target Spot).
+                                </dd>
+                            </div>
+                        </dl>
+                    </article>
+
+                    <article class="report-card p-5 sm:p-6">
+                        <div class="flex items-baseline justify-between gap-4">
+                            <h3 class="font-serif text-xl font-semibold text-slate-950">Komposisi dataset</h3>
+                            <span class="text-xs tabular-nums text-slate-500">32.000 citra</span>
+                        </div>
+
+                        <div class="mt-5 space-y-5">
+                            <div>
+                                <div class="flex items-baseline justify-between text-sm">
+                                    <span class="font-medium text-slate-800">PlantVillage</span>
+                                    <span class="tabular-nums text-slate-600">20.000</span>
+                                </div>
+                                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                    <div class="h-full rounded-full bg-brand-700" style="width: 62.5%"></div>
+                                </div>
+                                <p class="mt-1.5 text-xs text-slate-500">10 kelas · 2.000 citra per kelas · latar laboratorium</p>
+                            </div>
+
+                            <div>
+                                <div class="flex items-baseline justify-between text-sm">
+                                    <span class="font-medium text-slate-800">YOLO3 lapangan</span>
+                                    <span class="tabular-nums text-slate-600">12.000</span>
+                                </div>
+                                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                    <div class="h-full rounded-full bg-teal-600" style="width: 37.5%"></div>
+                                </div>
+                                <p class="mt-1.5 text-xs text-slate-500">8 kelas · 1.500 citra per kelas · crop foto kebun</p>
                             </div>
                         </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-center items-center text-center">
-                            <span class="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">Simulasi Baca Baris</span>
-                            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50 text-xs space-y-1 max-w-xs">
-                                <p class="font-semibold text-slate-700">Contoh Baris "Healthy" (Daun Sehat) n=200:</p>
-                                <p class="text-emerald-700 font-bold">Kolom Healthy: 198 (Benar)</p>
-                                <p class="text-red-600">Kolom Bercak Kering: 2 (Salah tebak)</p>
-                                <p class="text-slate-500 pt-1 border-t border-slate-200">Recall = 198 / 200 = <strong>99.0%</strong></p>
+
+                        <div class="mt-5 border-t border-slate-100 pt-4">
+                            <div class="grid grid-cols-3 gap-3 text-center">
+                                <div>
+                                    <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">25.600</p>
+                                    <p class="text-[11px] text-slate-500">Latih · 80%</p>
+                                </div>
+                                <div>
+                                    <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">3.200</p>
+                                    <p class="text-[11px] text-slate-500">Validasi · 10%</p>
+                                </div>
+                                <div>
+                                    <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">3.200</p>
+                                    <p class="text-[11px] text-slate-500">Uji · 10%</p>
+                                </div>
                             </div>
-                            <p class="text-[11px] text-slate-500 mt-2">Sangat mudah dibaca: cukup lihat apakah angka terpusat di garis diagonal!</p>
+                            <p class="mt-3 text-[11px] leading-relaxed text-slate-500">
+                                Evaluasi lapangan memakai 1.160 citra uji setelah penyaringan duplikat dan kualitas.
+                            </p>
+                        </div>
+                    </article>
+                </div>
+
+                <aside class="rounded-xl border border-amber-200 bg-amber-50/60 p-5">
+                    <div class="flex gap-3">
+                        <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500"></span>
+                        <div>
+                            <h3 class="text-sm font-semibold text-amber-900">Batas interpretasi</h3>
+                            <p class="mt-1 text-sm leading-relaxed text-amber-800">
+                                Hasil berlaku untuk citra daun dengan kualitas yang memadai. Dataset eksternal hanya memuat tiga kelas, sehingga angka generalisasi tidak dapat disamakan dengan performa 10 kelas di laboratorium.
+                            </p>
                         </div>
                     </div>
+                </aside>
+            </section>
+
+            <!-- 02 — METRIK -->
+            <section id="panel-metrik" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-metrik" hidden>
+                <header class="max-w-3xl">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">02 · Metrik</p>
+                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Metrik evaluasi</h2>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        Empat ukuran utama yang dipakai untuk menilai kualitas prediksi model.
+                    </p>
+                </header>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <article class="report-card p-5">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h3 class="text-sm font-semibold text-slate-900">Akurasi</h3>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400">Accuracy</span>
+                        </div>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                            Proporsi seluruh prediksi yang benar. Akurasi 96,70% berarti 1.934 dari 2.000 citra uji diklasifikasikan dengan tepat.
+                        </p>
+                    </article>
+
+                    <article class="report-card p-5">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h3 class="text-sm font-semibold text-slate-900">Precision</h3>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400">Precision</span>
+                        </div>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                            Ketepatan saat model memprediksi suatu kelas. Precision tinggi berarti model jarang memberi alarm palsu.
+                        </p>
+                    </article>
+
+                    <article class="report-card p-5">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h3 class="text-sm font-semibold text-slate-900">Recall</h3>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400">Sensitivity</span>
+                        </div>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                            Kemampuan model menemukan seluruh kasus pada suatu kelas. Recall tinggi berarti penyakit tidak mudah lolos dari deteksi.
+                        </p>
+                    </article>
+
+                    <article class="report-card p-5">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h3 class="text-sm font-semibold text-slate-900">F1-Score</h3>
+                            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400">F1</span>
+                        </div>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                            Rata-rata harmonis precision dan recall. Metrik ini berguna ketika jumlah sampel antar kelas tidak seimbang.
+                        </p>
+                    </article>
                 </div>
 
-            </div>
-
-        </section>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 3: HASIL MODEL FINAL OPERASIONAL (DEPLOYED) -->
-        <!-- ========================================================================= -->
-        <section id="tab-final" class="tab-content hidden space-y-6">
-            
-            <!-- RINGKASAN METRIK MODEL OPERASIONAL -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Akurasi Lab (PlantVillage)</span>
-                    <span class="text-3xl font-black text-blue-600 mt-1 block">96.70%</span>
-                    <span class="text-xs text-slate-500 mt-1 block">1.934 dari 2.000 citra tepat (10 kelas)</span>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Akurasi Lapangan (YOLO)</span>
-                    <span class="text-3xl font-black text-emerald-600 mt-1 block">96.64%</span>
-                    <span class="text-xs text-slate-500 mt-1 block">1.121 dari 1.160 citra tepat (8 kelas)</span>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Macro Precision Rata-rata</span>
-                    <span class="text-3xl font-black text-teal-600 mt-1 block">96.34%</span>
-                    <span class="text-xs text-slate-500 mt-1 block">Keseimbangan vonis di dua domain</span>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Macro F1-Score Rata-rata</span>
-                    <span class="text-3xl font-black text-purple-600 mt-1 block">96.43%</span>
-                    <span class="text-xs text-slate-500 mt-1 block">Performa stabil dan adil antar kelas</span>
-                </div>
-            </div>
-
-            <!-- GRAFIK INTERAKTIF -->
-            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-900">Performa Per Kelas Model Operasional</h2>
-                        <p class="text-xs text-slate-500">Pilih domain untuk melihat perbandingan skor Precision, Recall, dan F1-Score</p>
+                <article class="report-card p-5 sm:p-6">
+                    <h3 class="font-serif text-xl font-semibold text-slate-950">Cara membaca confusion matrix</h3>
+                    <div class="mt-5 grid gap-6 md:grid-cols-2">
+                        <div>
+                            <p class="text-sm font-medium text-slate-900">Diagonal utama</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-600">
+                                Angka pada diagonal menunjukkan prediksi yang benar. Semakin besar nilainya, semakin konsisten model mengenali kelas tersebut.
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-900">Di luar diagonal</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-600">
+                                Angka di luar diagonal menunjukkan kesalahan klasifikasi. Misalnya, citra Bercak Bakteri yang diprediksi sebagai Kapang Daun.
+                            </p>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="updateChartDomain('pv')" id="btn-chart-pv" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white transition">Domain Lab (PlantVillage)</button>
-                        <button onclick="updateChartDomain('field')" id="btn-chart-field" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Domain Lapangan (YOLO)</button>
+                    <p class="mt-5 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-500">
+                        Contoh: dari 200 citra Healthy, 198 diprediksi benar dan 2 diprediksi sebagai kelas lain. Recall kelas Healthy adalah 198/200 = 99,00%.
+                    </p>
+                </article>
+            </section>
+
+            <!-- 03 — HASIL MODEL -->
+            <section id="panel-hasil" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-hasil" hidden>
+                <header class="max-w-3xl">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">03 · Hasil model</p>
+                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Performa model operasional</h2>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        Evaluasi model final pada himpunan uji independen di laboratorium dan lapangan.
+                    </p>
+                </header>
+
+                <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <article class="report-card metric-card p-5" data-tone="lab">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Akurasi laboratorium</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,70%</p>
+                        <p class="mt-1 text-xs text-slate-500">1.934 dari 2.000 citra · 10 kelas</p>
+                    </article>
+                    <article class="report-card metric-card p-5" data-tone="field">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Akurasi lapangan</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,64%</p>
+                        <p class="mt-1 text-xs text-slate-500">1.121 dari 1.160 citra · 8 kelas</p>
+                    </article>
+                    <article class="report-card metric-card p-5">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Macro precision</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,33%</p>
+                        <p class="mt-1 text-xs text-slate-500">Lab 96,77% · Lapangan 95,89%</p>
+                    </article>
+                    <article class="report-card metric-card p-5">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Macro F1</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,43%</p>
+                        <p class="mt-1 text-xs text-slate-500">Lab 96,69% · Lapangan 96,17%</p>
+                    </article>
+                </div>
+
+                <article class="report-card p-5 sm:p-6">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 class="font-serif text-xl font-semibold text-slate-950">Performa per kelas</h3>
+                            <p class="mt-1 text-sm text-slate-600">Precision, recall, dan F1 untuk setiap kelas.</p>
+                        </div>
+                        <div class="inline-flex w-fit rounded-lg border border-slate-200 bg-slate-50 p-0.5" role="group" aria-label="Pilih domain evaluasi">
+                            <button type="button" id="domainLab" aria-pressed="true"
+                                    class="segment-btn rounded-md px-3 py-1.5 text-xs font-medium transition-colors">
+                                Laboratorium
+                            </button>
+                            <button type="button" id="domainField" aria-pressed="false"
+                                    class="segment-btn rounded-md px-3 py-1.5 text-xs font-medium transition-colors">
+                                Lapangan
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 h-[600px] sm:h-[520px]">
+                        <canvas id="metricsChart" role="img" aria-label="Grafik precision, recall, dan F1 per kelas"></canvas>
+                        <p id="chartFallback" class="hidden rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                            Grafik tidak dapat dimuat. Nilai lengkap tersedia pada tabel di bawah.
+                        </p>
+                    </div>
+                    <p id="chartCaption" class="mt-3 text-xs text-slate-500" aria-live="polite">
+                        Laboratorium · 2.000 citra uji · 10 kelas. Skala 70–100% (dipotong) untuk memperjelas perbedaan.
+                    </p>
+                </article>
+
+                <figure class="report-card p-5 sm:p-6">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 class="font-serif text-xl font-semibold text-slate-950">Confusion matrix model final</h3>
+                            <p class="mt-1 text-sm text-slate-600">Perbandingan hasil pada domain laboratorium dan lapangan.</p>
+                        </div>
+                        <a href="confusion_matrix_final_deployed_comparison.png" target="_blank" rel="noopener"
+                           class="inline-flex items-center gap-1.5 text-xs font-medium text-brand-700 hover:text-brand-800">
+                            Buka gambar penuh
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5h5v5M19 5l-8 8M19 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h4"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2">
+                        <img src="confusion_matrix_final_deployed_comparison.png"
+                             alt="Confusion matrix model final pada data laboratorium dan lapangan"
+                             class="h-auto w-full rounded"
+                             loading="lazy">
+                    </div>
+                    <figcaption class="mt-3 text-xs leading-relaxed text-slate-500">
+                        Diagonal utama menunjukkan prediksi benar. Angka di luar diagonal menunjukkan kesalahan klasifikasi.
+                    </figcaption>
+                </figure>
+
+                <div class="grid gap-6 xl:grid-cols-2">
+                    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                        <div class="border-b border-slate-200 px-5 py-4">
+                            <div class="flex items-baseline justify-between gap-3">
+                                <h3 class="font-serif text-lg font-semibold text-slate-950">Laboratorium</h3>
+                                <span class="text-xs tabular-nums text-slate-500">2.000 citra</span>
+                            </div>
+                            <p class="mt-1 text-xs text-slate-500">PlantVillage · 10 kelas</p>
+                        </div>
+                        <div id="cardsLab" class="divide-y divide-slate-100 sm:hidden"></div>
+                        <div class="hidden overflow-x-auto sm:block">
+                            <table class="w-full min-w-[520px] text-left text-sm">
+                                <thead class="border-b border-slate-200 bg-slate-50 text-[11px] uppercase tracking-[0.12em] text-slate-500">
+                                    <tr>
+                                        <th scope="col" class="px-5 py-2.5 font-medium">Kelas</th>
+                                        <th scope="col" class="px-3 py-2.5 text-right font-medium">n</th>
+                                        <th scope="col" class="px-3 py-2.5 text-right font-medium">Precision</th>
+                                        <th scope="col" class="px-3 py-2.5 text-right font-medium">Recall</th>
+                                        <th scope="col" class="px-5 py-2.5 text-right font-medium">F1</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableLab" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                        <p class="border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+                            n = jumlah citra uji per kelas.
+                        </p>
+                    </div>
+
+                    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                        <div class="border-b border-slate-200 px-5 py-4">
+                            <div class="flex items-baseline justify-between gap-3">
+                                <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan</h3>
+                                <span class="text-xs tabular-nums text-slate-500">1.160 citra</span>
+                            </div>
+                            <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 8 kelas</p>
+                        </div>
+                        <div id="cardsField" class="divide-y divide-slate-100 sm:hidden"></div>
+                        <div class="hidden overflow-x-auto sm:block">
+                            <table class="w-full min-w-[520px] text-left text-sm">
+                                <thead class="border-b border-slate-200 bg-slate-50 text-[11px] uppercase tracking-[0.12em] text-slate-500">
+                                    <tr>
+                                        <th scope="col" class="px-5 py-2.5 font-medium">Kelas</th>
+                                        <th scope="col" class="px-3 py-2.5 text-right font-medium">n</th>
+                                        <th scope="col" class="px-3 py-2.5 text-right font-medium">Precision</th>
+                                        <th scope="col" class="px-3 py-2.5 text-right font-medium">Recall</th>
+                                        <th scope="col" class="px-5 py-2.5 text-right font-medium">F1</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableField" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                        <p class="border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+                            n = jumlah citra uji per kelas. Bacterial Spot dan Target Spot tidak tersedia pada dataset lapangan.
+                        </p>
                     </div>
                 </div>
-                <div class="h-80 w-full">
-                    <canvas id="finalMetricsChart"></canvas>
-                </div>
-            </div>
+            </section>
 
-            <!-- GAMBAR SIDE-BY-SIDE CONFUSION MATRIX -->
-            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <!-- 04 — DATASET -->
+            <section id="panel-dataset" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-dataset" hidden>
+                <header class="max-w-3xl">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">04 · Dataset</p>
+                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Komposisi dan pembagian data</h2>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        32.000 citra seimbang dari dua sumber, dibagi dengan rasio 80 : 10 : 10 untuk pelatihan, validasi, dan pengujian.
+                    </p>
+                </header>
+
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-0 text-left text-xs sm:min-w-[860px] sm:text-sm">
+                            <thead class="border-b border-slate-200 bg-slate-50 text-[10px] uppercase tracking-[0.12em] text-slate-500 sm:text-[11px]">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 font-medium sm:px-5">Komponen data</th>
+                                    <th scope="col" class="hidden px-4 py-3 font-medium sm:table-cell">Sumber</th>
+                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Latih · 80%</th>
+                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Validasi · 10%</th>
+                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Uji · 10%</th>
+                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Total</th>
+                                    <th scope="col" class="hidden px-5 py-3 font-medium lg:table-cell">Karakteristik</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr class="hover:bg-slate-50/70">
+                                    <td class="px-4 py-4 font-medium text-slate-900 sm:px-5">PlantVillage</td>
+                                    <td class="hidden px-4 py-4 text-slate-600 sm:table-cell">Laboratorium · 10 kelas</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">16.000</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">2.000</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">2.000</td>
+                                    <td class="px-2 py-4 text-right font-medium tabular-nums text-slate-900 sm:px-4">20.000</td>
+                                    <td class="hidden px-5 py-4 text-xs leading-relaxed text-slate-500 lg:table-cell">Daun tunggal terisolasi, latar polos, pencahayaan studio.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/70">
+                                    <td class="px-4 py-4 font-medium text-slate-900 sm:px-5">YOLO3 lapangan</td>
+                                    <td class="hidden px-4 py-4 text-slate-600 sm:table-cell">Kebun nyata · 8 kelas</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">9.600</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">1.200</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">1.200</td>
+                                    <td class="px-2 py-4 text-right font-medium tabular-nums text-slate-900 sm:px-4">12.000</td>
+                                    <td class="hidden px-5 py-4 text-xs leading-relaxed text-slate-500 lg:table-cell">Crop daun dari foto kebun, pencahayaan alami, variasi sudut.</td>
+                                </tr>
+                                <tr class="bg-slate-50 font-semibold text-slate-900">
+                                    <td class="px-4 py-4 sm:px-5">Total gabungan</td>
+                                    <td class="hidden px-4 py-4 sm:table-cell"></td>
+                                    <td class="px-2 py-4 text-right tabular-nums sm:px-4">25.600</td>
+                                    <td class="px-2 py-4 text-right tabular-nums sm:px-4">3.200</td>
+                                    <td class="px-2 py-4 text-right tabular-nums sm:px-4">3.200</td>
+                                    <td class="px-2 py-4 text-right text-base tabular-nums sm:px-4 sm:text-lg">32.000</td>
+                                    <td class="hidden px-5 py-4 text-xs font-normal leading-relaxed text-slate-500 lg:table-cell">Seimbang, tanpa duplikasi sintetis.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p class="mt-3 text-xs leading-relaxed text-slate-500">
+                    Alokasi uji lapangan adalah 1.200 citra; 1.160 citra lolos penyaringan duplikat dan kualitas, lalu digunakan pada evaluasi akhir.
+                </p>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <article class="report-card p-5">
+                        <h3 class="text-sm font-semibold text-slate-900">Target 1.500 citra per kelas</h3>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                            Kelas dengan jumlah crop terendah, yaitu Tungau Laba-laba, memiliki 1.558 citra bersih. Target 1.500 per kelas dapat dipenuhi tanpa duplikasi sintetis.
+                        </p>
+                    </article>
+                    <article class="report-card p-5">
+                        <h3 class="text-sm font-semibold text-slate-900">Delapan kelas lapangan</h3>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                            Dataset lapangan tidak menyediakan Bacterial Spot dan Target Spot. Kedua kelas tetap dicakup dari PlantVillage sehingga model final mengenali 10 kelas.
+                        </p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- 05 — GENERALISASI -->
+            <section id="panel-generalisasi" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-generalisasi" hidden>
+                <header class="max-w-3xl">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">05 · Generalisasi</p>
+                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Uji lintas dataset</h2>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        Model diuji pada Dataset 2 yang tidak digunakan saat pelatihan. Dataset ini hanya memuat tiga kelas: Healthy, Leaf Mold, dan TYLCV.
+                    </p>
+                </header>
+
+                <div class="grid gap-4 md:grid-cols-3">
+                    <article class="report-card p-5">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Baseline E02</p>
+                        <p class="mt-1 text-xs text-slate-500">Hanya data laboratorium</p>
+                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">46,71%</p>
+                        <p class="mt-1 text-xs text-slate-500">Macro F1 52,48% · 653 citra</p>
+                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Akurasi menurun saat diuji pada citra eksternal.</p>
+                    </article>
+
+                    <article class="report-card p-5">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">FieldMixed v1</p>
+                        <p class="mt-1 text-xs text-slate-500">Fine-tuning lapangan tahap pertama</p>
+                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">37,98%</p>
+                        <p class="mt-1 text-xs text-slate-500">Macro F1 47,20% · 653 citra</p>
+                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Akurasi lebih rendah dari baseline pada Dataset 2.</p>
+                    </article>
+
+                    <article class="report-card report-card-accent p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-800">Model final</p>
+                                <p class="mt-1 text-xs text-brand-700">Crop YOLO3 + fine-tuning</p>
+                            </div>
+                            <span class="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-800">Terbaik</span>
+                        </div>
+                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">83,31%</p>
+                        <p class="mt-1 text-xs text-slate-500">Macro F1 86,19% · 653 citra</p>
+                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Meningkat 36,60 poin dari baseline.</p>
+                    </article>
+                </div>
+
+                <article class="report-card p-5 sm:p-6">
+                    <div class="flex items-baseline justify-between gap-4">
+                        <div>
+                            <h3 class="font-serif text-xl font-semibold text-slate-950">Akurasi keseluruhan</h3>
+                            <p class="mt-1 text-sm text-slate-600">Diukur pada 653 citra uji Dataset 2.</p>
+                        </div>
+                        <span class="text-xs text-slate-500">3 kelas</span>
+                    </div>
+
+                    <div class="mt-6 space-y-5">
+                        <div>
+                            <div class="flex items-baseline justify-between gap-3 text-sm">
+                                <span class="font-medium text-slate-800">Baseline E02</span>
+                                <span class="tabular-nums text-slate-600">46,71%</span>
+                            </div>
+                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-slate-400" style="width: 46.71%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-baseline justify-between gap-3 text-sm">
+                                <span class="font-medium text-slate-800">FieldMixed v1</span>
+                                <span class="tabular-nums text-slate-600">37,98%</span>
+                            </div>
+                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-slate-400" style="width: 37.98%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-baseline justify-between gap-3 text-sm">
+                                <span class="font-medium text-slate-800">Model final</span>
+                                <span class="font-medium tabular-nums text-brand-800">83,31%</span>
+                            </div>
+                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                                <div class="h-full rounded-full bg-brand-700" style="width: 83.31%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <aside class="rounded-xl border border-slate-200 bg-white p-5">
+                    <h3 class="text-sm font-semibold text-slate-900">Catatan metodologis</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                        Akurasi dihitung dari seluruh 653 citra uji, termasuk prediksi ke kelas di luar tiga kelas yang tersedia. Matriks tiga kelas hanya menghitung prediksi yang masuk ke tiga kelas tersebut, sehingga akurasi subset tidak dapat dibandingkan langsung dengan akurasi keseluruhan.
+                    </p>
+                </aside>
+            </section>
+
+            <!-- 06 — LAMPIRAN -->
+            <section id="panel-lampiran" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-lampiran" hidden>
+                <header class="max-w-3xl">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">06 · Lampiran</p>
+                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Dokumentasi visual</h2>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        Confusion matrix model final dan berkas pendukung untuk verifikasi hasil.
+                    </p>
+                </header>
+
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <figure class="report-card overflow-hidden">
+                        <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+                            <div>
+                                <h3 class="font-serif text-lg font-semibold text-slate-950">Laboratorium · 10 kelas</h3>
+                                <p class="mt-1 text-xs text-slate-500">PlantVillage · 2.000 citra</p>
+                            </div>
+                            <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">96,70%</span>
+                        </div>
+                        <a href="confusion_matrix_final_yolo3_pv.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
+                            <img src="confusion_matrix_final_yolo3_pv.png"
+                                 alt="Confusion matrix model final pada data laboratorium PlantVillage"
+                                 class="h-auto w-full rounded border border-slate-200"
+                                 loading="lazy">
+                        </a>
+                    </figure>
+
+                    <figure class="report-card overflow-hidden">
+                        <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+                            <div>
+                                <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan · 8 kelas</h3>
+                                <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 1.160 citra</p>
+                            </div>
+                            <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">96,64%</span>
+                        </div>
+                        <a href="confusion_matrix_final_yolo3_field.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
+                            <img src="confusion_matrix_final_yolo3_field.png"
+                                 alt="Confusion matrix model final pada data lapangan YOLO3"
+                                 class="h-auto w-full rounded border border-slate-200"
+                                 loading="lazy">
+                        </a>
+                    </figure>
+                </div>
+
+                <div class="report-card p-5 sm:p-6">
+                    <h3 class="font-serif text-xl font-semibold text-slate-950">Berkas pendukung</h3>
+                    <p class="mt-1 text-sm text-slate-600">Data mentah dan metrik lengkap untuk verifikasi.</p>
+
+                    <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                        <a href="evaluation_metrics_final_yolo3_pv.json" target="_blank" rel="noopener"
+                           class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
+                            <span>Metrik laboratorium</span>
+                            <span class="text-xs text-slate-400">JSON</span>
+                        </a>
+                        <a href="evaluation_metrics_final_yolo3_field.json" target="_blank" rel="noopener"
+                           class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
+                            <span>Metrik lapangan</span>
+                            <span class="text-xs text-slate-400">JSON</span>
+                        </a>
+                        <a href="evaluation_metrics_cross_yolo3_on_ds2.json" target="_blank" rel="noopener"
+                           class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
+                            <span>Metrik generalisasi</span>
+                            <span class="text-xs text-slate-400">JSON</span>
+                        </a>
+                        <a href="confusion_matrix_final_yolo3_pv.csv" target="_blank" rel="noopener"
+                           class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
+                            <span>Confusion matrix laboratorium</span>
+                            <span class="text-xs text-slate-400">CSV</span>
+                        </a>
+                        <a href="confusion_matrix_final_yolo3_field.csv" target="_blank" rel="noopener"
+                           class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
+                            <span>Confusion matrix lapangan</span>
+                            <span class="text-xs text-slate-400">CSV</span>
+                        </a>
+                        <a href="evaluation_metrics_cross_baseline_on_ds2.json" target="_blank" rel="noopener"
+                           class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
+                            <span>Metrik baseline eksternal</span>
+                            <span class="text-xs text-slate-400">JSON</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="border-t border-slate-200 py-8">
+            <div class="flex flex-col gap-3 text-xs leading-relaxed text-slate-500 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900">Visualisasi Confusion Matrix Model Operasional</h3>
-                    <p class="text-xs text-slate-500">Hasil pengujian model yang sama pada dua domain sekaligus: Laboratorium (kiri) dan Lapangan (kanan)</p>
+                    <p class="font-medium text-slate-700">TomatCare · Laporan evaluasi model</p>
+                    <p class="mt-1">Diperbarui 24 Oktober 2026 · Data evaluasi 16 Oktober 2026</p>
                 </div>
-                <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-2">
-                    <img src="confusion_matrix_final_deployed_comparison.png" alt="Perbandingan Final Deployed Model" class="w-full h-auto rounded-xl shadow-sm hover:scale-[1.01] transition duration-300">
-                </div>
-                <p class="text-xs text-slate-500 text-center italic">
-                    Perhatikan garis diagonal pada kedua matriks di atas: angka-angka terpusat rapi di sepanjang diagonal utama dengan sangat sedikit kesalahan tebak di luar diagonal.
+                <p class="sm:text-right">
+                    EfficientNet-B0 · 32.000 citra · 10 kelas<br>
+                    Sumber: hasil evaluasi model, 16 Oktober 2026 · Data mentah tersedia di Lampiran.
                 </p>
             </div>
-
-            <!-- TABEL DETAIL ANGKA PER KELAS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Tabel Lab -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-4 bg-blue-50/70 border-b border-blue-100 flex justify-between items-center">
-                        <div>
-                            <h4 class="font-bold text-blue-950 text-sm">1. Uji Lab (PlantVillage - 10 Kelas)</h4>
-                            <span class="text-xs text-blue-700 font-semibold">Total Test: 2.000 citra | Akurasi: 96.70%</span>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                                <tr>
-                                    <th class="py-2.5 px-3">Kelas Penyakit</th>
-                                    <th class="py-2.5 px-3 text-center">Precision</th>
-                                    <th class="py-2.5 px-3 text-center">Recall</th>
-                                    <th class="py-2.5 px-3 text-center">F1-Score</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100" id="table-pv-body">
-                                <!-- diisi JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Tabel Lapangan -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-4 bg-emerald-50/70 border-b border-emerald-100 flex justify-between items-center">
-                        <div>
-                            <h4 class="font-bold text-emerald-950 text-sm">2. Uji Lapangan (YOLO3 Crop - 8 Kelas)</h4>
-                            <span class="text-xs text-emerald-700 font-semibold">Total Test: 1.160 citra | Akurasi: 96.64%</span>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                                <tr>
-                                    <th class="py-2.5 px-3">Kelas Penyakit</th>
-                                    <th class="py-2.5 px-3 text-center">Precision</th>
-                                    <th class="py-2.5 px-3 text-center">Recall</th>
-                                    <th class="py-2.5 px-3 text-center">F1-Score</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100" id="table-field-body">
-                                <!-- diisi JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 4: RINCIAN DATASET & SPLIT DATA -->
-        <!-- ========================================================================= -->
-        <section id="tab-dataset" class="tab-content hidden space-y-6">
-            
-            <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">📚 Arsitektur & Distribusi Dataset (32.000 Citra)</h2>
-                    <p class="text-sm text-slate-500 mt-1">Pembagian seimbang antara dataset laboratorium dan dataset lapangan</p>
-                </div>
-
-                <!-- TABEL MATRIKS DATASET -->
-                <div class="overflow-x-auto rounded-2xl border border-slate-200">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-100 text-slate-700 font-bold text-xs uppercase tracking-wider border-b border-slate-200">
-                            <tr>
-                                <th class="py-3 px-4">Komponen Data</th>
-                                <th class="py-3 px-4">Domain / Sumber</th>
-                                <th class="py-3 px-4 text-center">Train (80%)</th>
-                                <th class="py-3 px-4 text-center">Val (10%)</th>
-                                <th class="py-3 px-4 text-center">Test (10%)</th>
-                                <th class="py-3 px-4 text-center">Total Citra</th>
-                                <th class="py-3 px-4">Karakteristik Visual</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-4 font-bold text-blue-900">PlantVillage</td>
-                                <td class="py-3 px-4 text-slate-600">Laboratorium (10 Kelas)</td>
-                                <td class="py-3 px-4 text-center font-mono font-semibold">16.000</td>
-                                <td class="py-3 px-4 text-center font-mono font-semibold">2.000</td>
-                                <td class="py-3 px-4 text-center font-mono font-semibold">2.000</td>
-                                <td class="py-3 px-4 text-center font-bold text-blue-700">20.000</td>
-                                <td class="py-3 px-4 text-xs text-slate-500">Daun tunggal terisolasi, latar polos, pencahayaan studio konstan.</td>
-                            </tr>
-                            <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-4 font-bold text-emerald-900">YOLO3 Lapangan</td>
-                                <td class="py-3 px-4 text-slate-600">Kebun Nyata (8 Kelas)</td>
-                                <td class="py-3 px-4 text-center font-mono font-semibold">9.600</td>
-                                <td class="py-3 px-4 text-center font-mono font-semibold">1.200</td>
-                                <td class="py-3 px-4 text-center font-mono font-semibold">1.200</td>
-                                <td class="py-3 px-4 text-center font-bold text-emerald-700">12.000</td>
-                                <td class="py-3 px-4 text-xs text-slate-500">Crop OBB daun kebun, pencahayaan alami matahari, variasi sudut nyata.</td>
-                            </tr>
-                            <tr class="bg-slate-50 font-bold text-slate-900 border-t-2 border-slate-300">
-                                <td class="py-3.5 px-4" colspan="2">TOTAL GABUNGAN FINAL (BALANCED DATASET)</td>
-                                <td class="py-3.5 px-4 text-center font-mono text-emerald-700">25.600</td>
-                                <td class="py-3.5 px-4 text-center font-mono text-teal-700">3.200</td>
-                                <td class="py-3.5 px-4 text-center font-mono text-purple-700">3.200</td>
-                                <td class="py-3.5 px-4 text-center font-mono text-xl text-emerald-800">32.000</td>
-                                <td class="py-3.5 px-4 text-xs text-emerald-800 font-semibold">100% Bersih & Bebas Kebocoran Duplikat (*Zero-Leakage*)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- ALASAN PEMILIHAN TARGET 1.500 / KELAS -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                        <h4 class="font-bold text-slate-800 text-sm">Mengapa Target Lapangan Dipatok 1.500 per Kelas?</h4>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            Kelas terendah pada dataset lapangan YOLO3 (Tungau Laba-laba / Spider Mites) memiliki <strong>1.558 crop bersih</strong>. Dengan menetapkan target 1.500 citra/kelas, <strong>seluruh kelas dapat dipenuhi 100% menggunakan data asli tanpa perlu duplikasi artifisial</strong> (<code class="text-emerald-700 font-mono">duplication_factor = 1.00</code>).
-                        </p>
-                    </div>
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                        <h4 class="font-bold text-slate-800 text-sm">Mengapa Lapangan Berisi 8 Kelas, Bukan 10 Kelas?</h4>
-                        <p class="text-xs text-slate-600 leading-relaxed">
-                            Dataset lapangan Roboflow tidak menyediakan sampel untuk <em>Bacterial Spot</em> dan <em>Target Spot</em>. Namun kedua kelas ini <strong>tetap dipertahankan dari PlantVillage</strong> sehingga model yang di-deploy tetap mampu mengidentifikasi total <strong>10 kelas penyakit</strong> secara utuh.
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 5: UJI LINTAS DATASET (GENERALISASI EKSTERNAL) -->
-        <!-- ========================================================================= -->
-        <section id="tab-cross" class="tab-content hidden space-y-6">
-            
-            <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                <div>
-                    <span class="text-xs font-bold uppercase text-purple-700 tracking-wider">Uji Ketahanan Model (Stress Test)</span>
-                    <h2 class="text-2xl font-extrabold text-slate-900 mt-1">🌐 Uji Generalisasi Lintas Dataset (Cross-Dataset Evaluation)</h2>
-                    <p class="text-sm text-slate-500 mt-1">Menguji model pada himpunan citra eksternal (Dataset 2) yang 100% tidak pernah disentuh saat pelatihan.</p>
-                </div>
-
-                <!-- KARTU HASIL LINTAS DATASET -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="p-5 rounded-2xl bg-red-50 border border-red-200">
-                        <span class="text-xs font-bold uppercase text-red-700 tracking-wider">1. Baseline E02</span>
-                        <h3 class="text-3xl font-black text-red-900 mt-1">69.16%</h3>
-                        <p class="text-xs text-slate-600 mt-2">Hanya dilatih di laboratorium. Akurasi anjlok saat diuji di dataset luar karena perbedaan pencahayaan & tekstur.</p>
-                    </div>
-                    <div class="p-5 rounded-2xl bg-blue-50 border border-blue-200">
-                        <span class="text-xs font-bold uppercase text-blue-700 tracking-wider">2. Model FieldMixed v1</span>
-                        <h3 class="text-3xl font-black text-blue-900 mt-1">73.16%</h3>
-                        <p class="text-xs text-slate-600 mt-2">Dilatih dengan Skema B iterasi 1. Mulai menunjukkan peningkatan daya adaptasi (+4 poin persen).</p>
-                    </div>
-                    <div class="p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-500 shadow-md">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold uppercase text-emerald-700 tracking-wider">3. Model Final YOLO3</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-200 text-emerald-900">Juara (+20%)</span>
-                        </div>
-                        <h3 class="text-3xl font-black text-emerald-900 mt-1">89.18%</h3>
-                        <p class="text-xs text-slate-600 mt-2 font-medium">Lompatan drastis! Membuktikan model benar-benar memahami pola patologi penyakit, bukan sekadar menghafal latar gambar.</p>
-                    </div>
-                </div>
-
-                <!-- GAMBAR TRIPLET LINTAS DATASET -->
-                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                    <h3 class="font-bold text-slate-800 text-sm">Visualisasi Triplet Confusion Matrix Lintas Dataset</h3>
-                    <img src="confusion_matrix_cross_ds2_comparison.png" alt="Perbandingan Lintas Dataset" class="w-full h-auto rounded-xl border border-slate-200">
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ========================================================================= -->
-        <!-- TAB 6: GALERI GAMBAR CONFUSION MATRIX LENGKAP -->
-        <!-- ========================================================================= -->
-        <section id="tab-gallery" class="tab-content hidden space-y-6">
-            
-            <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                <div>
-                    <h2 class="text-2xl font-extrabold text-slate-900">🖼️ Galeri Visualisasi Confusion Matrix Resolusi Tinggi</h2>
-                    <p class="text-sm text-slate-500 mt-1">Seluruh gambar grafik dibuat dengan resolusi 300 DPI, siap disimpan dan dilampirkan langsung ke laporan</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- Item 1 -->
-                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-slate-800 text-sm">1. Model Final — PlantVillage Lab</span>
-                            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">96.70% (2.000 citra)</span>
-                        </div>
-                        <a href="confusion_matrix_final_yolo3_pv.png" target="_blank" class="block overflow-hidden rounded-xl border border-slate-200">
-                            <img src="confusion_matrix_final_yolo3_pv.png" class="w-full h-auto hover:scale-105 transition duration-300">
-                        </a>
-                        <p class="text-xs text-slate-500">Matriks 10 kelas pada himpunan uji steril laboratorium. Klik gambar untuk melihat ukuran penuh.</p>
-                    </div>
-
-                    <!-- Item 2 -->
-                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-slate-800 text-sm">2. Model Final — Foto Kebun Lapangan</span>
-                            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">96.64% (1.160 citra)</span>
-                        </div>
-                        <a href="confusion_matrix_final_yolo3_field.png" target="_blank" class="block overflow-hidden rounded-xl border border-slate-200">
-                            <img src="confusion_matrix_final_yolo3_field.png" class="w-full h-auto hover:scale-105 transition duration-300">
-                        </a>
-                        <p class="text-xs text-slate-500">Matriks 8 kelas pada sampel tanaman lapangan hasil crop OBB Roboflow.</p>
-                    </div>
-
-                    <!-- Item 3: Evolusi Lapangan -->
-                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 md:col-span-2">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-slate-800 text-sm">3. Evolusi Model Lapangan (Triplet Comparison: 87.42% ➔ 90.84% ➔ 96.64%)</span>
-                            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800">Perkembangan Skema B</span>
-                        </div>
-                        <a href="confusion_matrix_field_evolution_comparison.png" target="_blank" class="block overflow-hidden rounded-xl border border-slate-200">
-                            <img src="confusion_matrix_field_evolution_comparison.png" class="w-full h-auto hover:scale-[1.01] transition duration-300">
-                        </a>
-                        <p class="text-xs text-slate-500">Memperlihatkan bagaimana diagonal matriks semakin solid seiring dilakukannya domain adaptation training.</p>
-                    </div>
-
-                    <!-- Item 4: Uji Silang -->
-                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 md:col-span-2">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-slate-800 text-sm">4. Uji Generalisasi Lintas Dataset (69.16% ➔ 73.16% ➔ 89.18%)</span>
-                            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-teal-100 text-teal-800">Validasi Eksternal</span>
-                        </div>
-                        <a href="confusion_matrix_cross_ds2_comparison.png" target="_blank" class="block overflow-hidden rounded-xl border border-slate-200">
-                            <img src="confusion_matrix_cross_ds2_comparison.png" class="w-full h-auto hover:scale-[1.01] transition duration-300">
-                        </a>
-                        <p class="text-xs text-slate-500">Bukti empiris bahwa model final memiliki kemampuan generalisasi tertinggi pada dataset yang belum pernah dipelajari sebelumnya.</p>
-                    </div>
-
-                </div>
-            </div>
-
-        </section>
-
+        </footer>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Data Metrik Per Kelas
-        const pvData = [
-            { name: "Bercak Bakteri (Bacterial Spot)", prec: 98.42, rec: 93.50, f1: 95.90, n: 200 },
-            { name: "Bercak Kering (Early Blight)", prec: 95.98, rec: 95.50, f1: 95.74, n: 200 },
-            { name: "Daun Sehat (Healthy)", prec: 92.09, rec: 99.00, f1: 95.42, n: 200 },
-            { name: "Hawar Daun (Late Blight)", prec: 98.46, rec: 96.00, f1: 97.22, n: 200 },
-            { name: "Kapang Daun (Leaf Mold)", prec: 96.55, rec: 98.00, f1: 97.27, n: 200 },
-            { name: "Virus Mosaik (Mosaic Virus)", prec: 98.00, rec: 98.00, f1: 98.00, n: 200 },
-            { name: "Bercak Septoria (Septoria Spot)", prec: 95.57, rec: 97.00, f1: 96.28, n: 200 },
-            { name: "Tungau Laba-laba (Spider Mites)", prec: 96.14, rec: 99.50, f1: 97.79, n: 200 },
-            { name: "Bercak Sasaran (Target Spot)", prec: 99.46, rec: 91.50, f1: 95.31, n: 200 },
-            { name: "Virus Kuning Keriting (TYLCV)", prec: 97.06, rec: 99.00, f1: 98.02, n: 200 }
+        // Sumber angka: ml/results/evaluation_metrics_*.json (evaluasi 16 Oktober 2026).
+        const labData = [
+            { name: 'Bercak bakteri', en: 'Bacterial Spot', short: 'Bercak bakteri', prec: 98.42, rec: 93.50, f1: 95.90, n: 200 },
+            { name: 'Bercak kering', en: 'Early Blight', short: 'Bercak kering', prec: 95.98, rec: 95.50, f1: 95.74, n: 200 },
+            { name: 'Sehat', en: 'Healthy', short: 'Sehat', prec: 92.09, rec: 99.00, f1: 95.42, n: 200 },
+            { name: 'Hawar daun', en: 'Late Blight', short: 'Hawar daun', prec: 98.46, rec: 96.00, f1: 97.22, n: 200 },
+            { name: 'Kapang daun', en: 'Leaf Mold', short: 'Kapang daun', prec: 96.55, rec: 98.00, f1: 97.27, n: 200 },
+            { name: 'Virus mosaik', en: 'Tomato Mosaic Virus', short: 'Virus mosaik', prec: 98.00, rec: 98.00, f1: 98.00, n: 200 },
+            { name: 'Bercak Septoria', en: 'Septoria Leaf Spot', short: 'Septoria', prec: 95.57, rec: 97.00, f1: 96.28, n: 200 },
+            { name: 'Tungau laba-laba', en: 'Spider Mites', short: 'Tungau', prec: 96.14, rec: 99.50, f1: 97.79, n: 200 },
+            { name: 'Bercak sasaran', en: 'Target Spot', short: 'Bercak sasaran', prec: 99.46, rec: 91.50, f1: 95.31, n: 200 },
+            { name: 'Virus kuning keriting', en: 'Tomato Yellow Leaf Curl Virus (TYLCV)', short: 'TYLCV', prec: 97.06, rec: 99.00, f1: 98.02, n: 200 },
         ];
 
         const fieldData = [
-            { name: "Bercak Kering (Early Blight)", prec: 96.03, rec: 93.80, f1: 94.90, n: 129 },
-            { name: "Daun Sehat (Healthy)", prec: 87.34, rec: 95.83, f1: 91.39, n: 72 },
-            { name: "Hawar Daun (Late Blight)", prec: 98.58, rec: 96.31, f1: 97.44, n: 217 },
-            { name: "Kapang Daun (Leaf Mold)", prec: 96.86, rec: 97.37, f1: 97.11, n: 190 },
-            { name: "Virus Mosaik (Mosaic Virus)", prec: 97.41, rec: 91.87, f1: 94.56, n: 123 },
-            { name: "Bercak Septoria (Septoria Spot)", prec: 98.12, rec: 99.37, f1: 98.74, n: 158 },
-            { name: "Tungau Laba-laba (Spider Mites)", prec: 95.10, rec: 100.00, f1: 97.49, n: 97 },
-            { name: "Virus Kuning Keriting (TYLCV)", prec: 97.70, rec: 97.70, f1: 97.70, n: 174 }
+            { name: 'Bercak kering', en: 'Early Blight', short: 'Bercak kering', prec: 96.03, rec: 93.80, f1: 94.90, n: 129 },
+            { name: 'Sehat', en: 'Healthy', short: 'Sehat', prec: 87.34, rec: 95.83, f1: 91.39, n: 72 },
+            { name: 'Hawar daun', en: 'Late Blight', short: 'Hawar daun', prec: 98.58, rec: 96.31, f1: 97.44, n: 217 },
+            { name: 'Kapang daun', en: 'Leaf Mold', short: 'Kapang daun', prec: 96.86, rec: 97.37, f1: 97.11, n: 190 },
+            { name: 'Virus mosaik', en: 'Tomato Mosaic Virus', short: 'Virus mosaik', prec: 97.41, rec: 91.87, f1: 94.56, n: 123 },
+            { name: 'Bercak Septoria', en: 'Septoria Leaf Spot', short: 'Septoria', prec: 98.12, rec: 99.37, f1: 98.74, n: 158 },
+            { name: 'Tungau laba-laba', en: 'Spider Mites', short: 'Tungau', prec: 95.10, rec: 100.00, f1: 97.49, n: 97 },
+            { name: 'Virus kuning keriting', en: 'Tomato Yellow Leaf Curl Virus (TYLCV)', short: 'TYLCV', prec: 97.70, rec: 97.70, f1: 97.70, n: 174 },
         ];
 
-        // Populate Tables
-        function populateTable(elementId, dataset) {
-            const tbody = document.getElementById(elementId);
-            tbody.innerHTML = "";
-            dataset.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="py-2 px-3 font-medium text-slate-800">${row.name}</td>
-                    <td class="py-2 px-3 text-center font-mono font-semibold text-blue-600">${row.prec.toFixed(2)}%</td>
-                    <td class="py-2 px-3 text-center font-mono font-semibold text-emerald-600">${row.rec.toFixed(2)}%</td>
-                    <td class="py-2 px-3 text-center font-mono font-bold text-purple-700">${row.f1.toFixed(2)}%</td>
-                `;
-                tbody.appendChild(tr);
-            });
+        const formatPct = (value) => `${value.toFixed(2).replace('.', ',')}%`;
+        const formatCount = (value) => new Intl.NumberFormat('id-ID').format(value);
+
+        function renderTable(tbodyId, rows) {
+            const tbody = document.getElementById(tbodyId);
+
+            tbody.innerHTML = rows.map((row) => `
+                <tr class="transition-colors hover:bg-slate-50/70">
+                    <td class="px-5 py-3 align-top">
+                        <p class="font-medium text-slate-800">${row.name}</p>
+                        <p class="mt-0.5 text-[11px] text-slate-400">${row.en}</p>
+                    </td>
+                    <td class="px-3 py-3 text-right align-top tabular-nums text-slate-500">${formatCount(row.n)}</td>
+                    <td class="px-3 py-3 text-right align-top tabular-nums text-slate-600">${formatPct(row.prec)}</td>
+                    <td class="px-3 py-3 text-right align-top tabular-nums text-slate-600">${formatPct(row.rec)}</td>
+                    <td class="px-5 py-3 text-right align-top font-medium tabular-nums text-slate-900">${formatPct(row.f1)}</td>
+                </tr>
+            `).join('');
         }
-        populateTable("table-pv-body", pvData);
-        populateTable("table-field-body", fieldData);
 
-        // Chart.js initialization
-        let currentChart = null;
-        function renderMetricsChart(dataset) {
-            const ctx = document.getElementById("finalMetricsChart").getContext("2d");
-            if (currentChart) currentChart.destroy();
+        function renderCards(containerId, rows) {
+            const container = document.getElementById(containerId);
 
-            currentChart = new Chart(ctx, {
-                type: "bar",
+            container.innerHTML = rows.map((row) => `
+                <div class="px-5 py-3">
+                    <div class="flex items-baseline justify-between gap-3">
+                        <div>
+                            <p class="font-medium text-slate-800">${row.name}</p>
+                            <p class="mt-0.5 text-[11px] text-slate-400">${row.en}</p>
+                        </div>
+                        <span class="shrink-0 text-xs tabular-nums text-slate-500">n=${formatCount(row.n)}</span>
+                    </div>
+                    <dl class="mt-2 grid grid-cols-3 gap-2 text-xs">
+                        <div>
+                            <dt class="text-slate-500">Precision</dt>
+                            <dd class="mt-0.5 font-medium tabular-nums text-slate-800">${formatPct(row.prec)}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-slate-500">Recall</dt>
+                            <dd class="mt-0.5 font-medium tabular-nums text-slate-800">${formatPct(row.rec)}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-slate-500">F1</dt>
+                            <dd class="mt-0.5 font-medium tabular-nums text-slate-800">${formatPct(row.f1)}</dd>
+                        </div>
+                    </dl>
+                </div>
+            `).join('');
+        }
+
+        renderTable('tableLab', labData);
+        renderTable('tableField', fieldData);
+        renderCards('cardsLab', labData);
+        renderCards('cardsField', fieldData);
+
+        let metricsChart = null;
+        let activeDomain = 'lab';
+        let resultsPanelWasHidden = false;
+
+        function currentRows() {
+            return activeDomain === 'lab' ? labData : fieldData;
+        }
+
+        function updateChartCaption() {
+            document.getElementById('chartCaption').textContent = activeDomain === 'lab'
+                ? 'Laboratorium · 2.000 citra uji · 10 kelas. Skala 70–100% (dipotong) untuk memperjelas perbedaan.'
+                : 'Lapangan · 1.160 citra uji · 8 kelas. Skala 70–100% (dipotong) untuk memperjelas perbedaan.';
+        }
+
+        function chartConfig(rows) {
+            return {
+                type: 'bar',
                 data: {
-                    labels: dataset.map(d => d.name.split(" ")[0]),
+                    labels: rows.map((row) => row.short),
                     datasets: [
-                        { label: "Precision (%)", data: dataset.map(d => d.prec), backgroundColor: "#2563eb", borderRadius: 5 },
-                        { label: "Recall (%)", data: dataset.map(d => d.rec), backgroundColor: "#059669", borderRadius: 5 },
-                        { label: "F1-Score (%)", data: dataset.map(d => d.f1), backgroundColor: "#7c3aed", borderRadius: 5 }
-                    ]
+                        {
+                            label: 'Precision',
+                            data: rows.map((row) => row.prec),
+                            backgroundColor: '#475569',
+                            borderRadius: 3,
+                            barPercentage: 0.85,
+                            categoryPercentage: 0.7,
+                        },
+                        {
+                            label: 'Recall',
+                            data: rows.map((row) => row.rec),
+                            backgroundColor: '#0f766e',
+                            borderRadius: 3,
+                            barPercentage: 0.85,
+                            categoryPercentage: 0.7,
+                        },
+                        {
+                            label: 'F1',
+                            data: rows.map((row) => row.f1),
+                            backgroundColor: '#b45309',
+                            borderRadius: 3,
+                            barPercentage: 0.85,
+                            categoryPercentage: 0.7,
+                        },
+                    ],
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: { duration: 300 },
                     scales: {
+                        x: {
+                            min: 70,
+                            max: 100,
+                            grid: { color: '#e2e8f0' },
+                            border: { display: false },
+                            ticks: {
+                                color: '#64748b',
+                                font: { size: 11 },
+                                callback: (value) => `${value}%`,
+                            },
+                        },
                         y: {
-                            min: 80,
-                            max: 102,
-                            ticks: { callback: v => v + "%" }
-                        }
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: {
+                                color: '#334155',
+                                font: { size: 12 },
+                            },
+                        },
                     },
                     plugins: {
-                        legend: { position: "top" }
-                    }
-                }
-            });
+                        legend: {
+                            position: 'top',
+                            align: 'start',
+                            labels: {
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                usePointStyle: true,
+                                pointStyle: 'rectRounded',
+                                color: '#475569',
+                                font: { size: 11 },
+                            },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.dataset.label}: ${formatPct(context.parsed.x)}`,
+                            },
+                        },
+                    },
+                },
+            };
         }
-        renderMetricsChart(pvData);
 
-        function updateChartDomain(domain) {
-            const btnPv = document.getElementById("btn-chart-pv");
-            const btnField = document.getElementById("btn-chart-field");
+        function createChart() {
+            if (typeof Chart === 'undefined') {
+                document.getElementById('chartFallback').classList.remove('hidden');
+                return;
+            }
 
-            if (domain === "pv") {
-                renderMetricsChart(pvData);
-                btnPv.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white transition";
-                btnField.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+            metricsChart = new Chart(document.getElementById('metricsChart'), chartConfig(currentRows()));
+        }
+
+        function updateChart() {
+            if (!metricsChart) {
+                createChart();
+                return;
+            }
+
+            const rows = currentRows();
+            metricsChart.data.labels = rows.map((row) => row.short);
+            metricsChart.data.datasets[0].data = rows.map((row) => row.prec);
+            metricsChart.data.datasets[1].data = rows.map((row) => row.rec);
+            metricsChart.data.datasets[2].data = rows.map((row) => row.f1);
+            metricsChart.update();
+        }
+
+        function ensureChart() {
+            const panel = document.getElementById('panel-hasil');
+
+            if (panel.hidden) {
+                return;
+            }
+
+            if (metricsChart) {
+                metricsChart.resize();
             } else {
-                renderMetricsChart(fieldData);
-                btnField.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white transition";
-                btnPv.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+                createChart();
             }
         }
 
-        // Tab Switching Logic
-        function switchTab(tabId) {
-            document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
-            document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+        function setDomain(domain) {
+            activeDomain = domain;
+            document.getElementById('domainLab').setAttribute('aria-pressed', String(domain === 'lab'));
+            document.getElementById('domainField').setAttribute('aria-pressed', String(domain === 'field'));
+            updateChart();
+            updateChartCaption();
 
-            document.getElementById(tabId).classList.remove("hidden");
-            document.getElementById("btn-" + tabId).classList.add("active");
+            if (metricsChart) {
+                metricsChart.resize();
+            }
         }
+
+        document.getElementById('domainLab').addEventListener('click', () => setDomain('lab'));
+        document.getElementById('domainField').addEventListener('click', () => setDomain('field'));
+
+        const tabButtons = Array.from(document.querySelectorAll('[role="tab"]'));
+        const tabPanels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+
+        function showTab(name) {
+            tabButtons.forEach((button) => {
+                const selected = button.dataset.tab === name;
+                button.setAttribute('aria-selected', String(selected));
+                button.tabIndex = selected ? 0 : -1;
+            });
+
+            tabPanels.forEach((panel) => {
+                panel.hidden = panel.id !== `panel-${name}`;
+            });
+
+            if (name === 'hasil') {
+                requestAnimationFrame(ensureChart);
+            }
+        }
+
+        tabButtons.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                showTab(button.dataset.tab);
+                button.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            });
+
+            button.addEventListener('keydown', (event) => {
+                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                let nextIndex = index;
+
+                if (event.key === 'ArrowLeft') {
+                    nextIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+                }
+
+                if (event.key === 'ArrowRight') {
+                    nextIndex = (index + 1) % tabButtons.length;
+                }
+
+                if (event.key === 'Home') {
+                    nextIndex = 0;
+                }
+
+                if (event.key === 'End') {
+                    nextIndex = tabButtons.length - 1;
+                }
+
+                const nextButton = tabButtons[nextIndex];
+                showTab(nextButton.dataset.tab);
+                nextButton.focus();
+            });
+        });
+
+        showTab('ringkasan');
+
+        window.addEventListener('beforeprint', () => {
+            const panel = document.getElementById('panel-hasil');
+            resultsPanelWasHidden = panel.hidden;
+
+            if (resultsPanelWasHidden) {
+                panel.hidden = false;
+            }
+
+            ensureChart();
+        });
+
+        window.addEventListener('afterprint', () => {
+            if (resultsPanelWasHidden) {
+                document.getElementById('panel-hasil').hidden = true;
+            }
+        });
     </script>
 </body>
 </html>
