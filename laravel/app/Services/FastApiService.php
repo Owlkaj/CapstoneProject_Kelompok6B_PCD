@@ -2,16 +2,29 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class FastApiService
 {
-    protected string $baseUrl;
-    protected int $connectTimeout;
-    protected int $timeout;
+    /**
+     * Field wajib pada respons /predict.
+     */
+    private const REQUIRED_RESPONSE_FIELDS = [
+        'class',
+        'confidence',
+        'class_id',
+        'inference_time_ms',
+    ];
+
+    private string $baseUrl;
+
+    private int $connectTimeout;
+
+    private int $timeout;
 
     public function __construct()
     {
@@ -21,31 +34,32 @@ class FastApiService
     }
 
     /**
-     * Check health of FastAPI service
+     * Periksa status dan kesiapan model pada layanan inferensi.
      */
     public function checkHealth(): array
     {
         try {
             $response = Http::timeout($this->connectTimeout)->get("{$this->baseUrl}/health");
+
             return [
                 'available' => $response->successful(),
                 'status' => $response->json('status', 'unknown'),
-                'model_loaded' => $response->json('model_loaded', false)
+                'model_loaded' => $response->json('model_loaded', false),
             ];
         } catch (\Throwable $e) {
             return [
                 'available' => false,
                 'status' => 'offline',
                 'model_loaded' => false,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ];
         }
     }
 
     /**
-     * Sends image to FastAPI /predict
-     * 
-     * @return array [class, confidence, class_id, inference_time_ms]
+     * Kirim citra ke endpoint /predict.
+     *
+     * @return array{class: string, confidence: float, class_id: int, inference_time_ms: float}
      */
     public function predict(UploadedFile $file): array
     {
@@ -54,15 +68,22 @@ class FastApiService
         try {
             $response = Http::connectTimeout($this->connectTimeout)
                 ->timeout($this->timeout)
-                ->attach('image', file_get_contents($file->getRealPath()), $file->getClientOriginalName())
+                ->attach(
+                    'image',
+                    file_get_contents($file->getRealPath()),
+                    $file->getClientOriginalName(),
+                )
                 ->post($endpoint);
 
             if ($response->successful()) {
                 $data = $response->json();
-                
-                // Validate 4 contract fields
-                if (!isset($data['class'], $data['confidence'], $data['class_id'], $data['inference_time_ms'])) {
-                    throw new RuntimeException("FastAPI response violates contract specification.");
+
+                foreach (self::REQUIRED_RESPONSE_FIELDS as $field) {
+                    if (! isset($data[$field])) {
+                        throw new RuntimeException(
+                            'FastAPI response violates contract specification.',
+                        );
+                    }
                 }
 
                 return $data;
@@ -70,12 +91,18 @@ class FastApiService
 
             $statusCode = $response->status();
             $errorDetail = $response->json('detail') ?? $response->body();
-            \Log::error("FastAPI error [{$statusCode}]: {$errorDetail}");
+            Log::error("FastAPI error [{$statusCode}]: {$errorDetail}");
 
             throw new RuntimeException("Inference service error: {$errorDetail}", $statusCode);
         } catch (ConnectionException $e) {
-            \Log::error("Failed to connect to FastAPI service at {$endpoint}: " . $e->getMessage());
-            throw new RuntimeException("Inference service connection timed out or unreachable.", 503);
+            Log::error(
+                "Failed to connect to FastAPI service at {$endpoint}: ".$e->getMessage(),
+            );
+
+            throw new RuntimeException(
+                'Inference service connection timed out or unreachable.',
+                503,
+            );
         }
     }
 }

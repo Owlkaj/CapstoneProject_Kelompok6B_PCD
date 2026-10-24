@@ -1,7 +1,6 @@
 import os
 from typing import Optional
 from fastapi import APIRouter, File, UploadFile, HTTPException, Request, status, Query
-from fastapi.responses import JSONResponse
 from app.schemas.predict import PredictionResponse, HealthResponse
 
 router = APIRouter()
@@ -9,6 +8,7 @@ router = APIRouter()
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/jpg"}
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 MAX_FILE_SIZE_BYTES = int(os.getenv("MAX_UPLOAD_SIZE_MB", "10")) * 1024 * 1024
+
 
 @router.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health_check(request: Request):
@@ -18,6 +18,7 @@ async def health_check(request: Request):
         status="ok" if is_loaded else "degraded",
         model_loaded=is_loaded
     )
+
 
 @router.post("/predict", response_model=PredictionResponse, tags=["Inference"])
 async def predict_image(

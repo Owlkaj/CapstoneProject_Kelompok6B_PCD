@@ -2,66 +2,79 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\SupabaseService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
-use App\Services\SupabaseService;
 
 class EnsureTomatoSession
 {
-    protected SupabaseService $supabase;
+    private const COOKIE_NAME = 'tomato_session_id';
 
-    public function __construct(SupabaseService $supabase)
-    {
-        $this->supabase = $supabase;
-    }
+    private const COOKIE_LIFETIME_MINUTES = 60 * 24 * 30; // 30 hari
+
+    public function __construct(
+        private readonly SupabaseService $supabase,
+    ) {}
 
     /**
-     * Handle an incoming request.
+     * Pastikan setiap pengunjung memiliki identitas sesi pseudonim.
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $cookieName = 'tomato_session_id';
-        $sessionId = $request->cookie($cookieName);
+        [$sessionId, $isNew] = $this->resolveSessionId($request);
 
-        // Validate UUID format, if absent or invalid, generate new UUID v4
-        $isNew = false;
-        if (!$sessionId || !Str::isUuid($sessionId)) {
-            $sessionId = (string) Str::uuid();
-            $isNew = true;
-        }
-
-        // Set session ID in request attributes so controllers can safely access server context
         $request->attributes->set('tomato_session_id', $sessionId);
 
-        // Upsert session in Supabase user_sessions table
         try {
             $this->supabase->upsertSession($sessionId);
         } catch (\Throwable $e) {
-            \Log::warning("Failed to upsert Supabase user_sessions: " . $e->getMessage());
+            Log::warning('Failed to upsert Supabase user_sessions: '.$e->getMessage());
         }
 
-        /** @var Response $response */
         $response = $next($request);
 
-        // Attach cookie to response (30 days lifetime, HttpOnly=true, SameSite=Lax)
-        if ($isNew || !$request->hasCookie($cookieName)) {
-            $response->cookie(
-                cookie(
-                    name: $cookieName,
-                    value: $sessionId,
-                    minutes: 60 * 24 * 30, // 30 days
-                    path: '/',
-                    domain: null,
-                    secure: $request->isSecure(),
-                    httpOnly: true,
-                    raw: false,
-                    sameSite: 'Lax'
-                )
-            );
+        if ($isNew || ! $request->hasCookie(self::COOKIE_NAME)) {
+            $response->cookie($this->buildSessionCookie($request, $sessionId));
         }
 
         return $response;
+    }
+
+    /**
+     * Ambil UUID yang valid dari cookie, atau terbitkan UUID baru.
+     *
+     * @return array{0: string, 1: bool}
+     */
+    private function resolveSessionId(Request $request): array
+    {
+        $sessionId = $request->cookie(self::COOKIE_NAME);
+
+        if ($sessionId && Str::isUuid($sessionId)) {
+            return [$sessionId, false];
+        }
+
+        return [(string) Str::uuid(), true];
+    }
+
+    /**
+     * Buat cookie sesi berumur 30 hari.
+     */
+    private function buildSessionCookie(Request $request, string $sessionId): Cookie
+    {
+        return cookie(
+            name: self::COOKIE_NAME,
+            value: $sessionId,
+            minutes: self::COOKIE_LIFETIME_MINUTES,
+            path: '/',
+            domain: null,
+            secure: $request->isSecure(),
+            httpOnly: true,
+            raw: false,
+            sameSite: 'Lax',
+        );
     }
 }

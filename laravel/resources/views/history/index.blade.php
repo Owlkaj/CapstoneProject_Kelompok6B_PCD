@@ -1,167 +1,173 @@
 @extends('layouts.app')
 
-@section('title', 'Riwayat Deteksi Sesi — TomatCare')
+@section('title', 'Riwayat Deteksi — TomatCare')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-6 mb-8">
+<div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+    <header class="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2 border border-emerald-200">
-                <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                Identitas Sesi Browser: <span class="font-mono">{{ substr($sessionId, 0, 8) }}...</span>
-            </div>
-            <h1 class="text-3xl font-extrabold text-gray-900 font-heading">
-                Riwayat Deteksi
-            </h1>
+            <p class="text-sm font-semibold text-emerald-700">Arsip pemeriksaan</p>
+            <h1 class="mt-2 font-heading text-3xl font-bold tracking-tight text-slate-900">Riwayat deteksi</h1>
+            <p class="mt-2 text-sm text-slate-600">
+                Hasil pemeriksaan tersimpan otomatis di peramban ini.
+            </p>
         </div>
 
-        <div class="flex items-center gap-3">
-            <a href="{{ url('/detect') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] text-white text-sm font-semibold shadow-xs transition-colors">
-                <span>➕</span> Deteksi Baru
+        <a href="{{ route('detect.index') }}"
+           class="inline-flex w-fit items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14"/>
+            </svg>
+            Deteksi baru
+        </a>
+    </header>
+
+    @if (empty($records))
+        <div class="mx-auto mt-10 max-w-md rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.05 11a9 9 0 1 1 .5 4m-.5-4H7m-3.95 0L2 8"/>
+                </svg>
+            </div>
+            <h2 class="mt-4 font-heading text-lg font-semibold text-slate-800">Belum ada riwayat</h2>
+            <p class="mt-2 text-sm leading-relaxed text-slate-500">
+                Mulai pemeriksaan pertama Anda untuk melihat hasil deteksi di halaman ini.
+            </p>
+            <a href="{{ route('detect.index') }}"
+               class="mt-5 inline-flex items-center justify-center rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-800">
+                Mulai deteksi
             </a>
         </div>
-    </div>
-
-    <!-- Filters & Search Bar -->
-    <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="relative w-full sm:w-80">
-            <input type="text" id="searchInput" placeholder="Cari nama penyakit..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-600 focus:bg-white transition-colors">
-            <span class="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
-        </div>
-
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-            <select id="filterType" class="w-full sm:w-48 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-600 font-medium text-gray-700">
-                <option value="all">Semua Status</option>
-                <option value="healthy">Hanya Sehat (Healthy)</option>
-                <option value="diseased">Hanya Berpenyakit</option>
-            </select>
-            <span class="text-xs text-gray-400 font-medium whitespace-nowrap">
-                Total: <strong id="recordCountBadge" class="text-gray-700">{{ count($records) }}</strong>
-            </span>
-        </div>
-    </div>
-
-    <!-- Content: Empty State vs Records Grid -->
-    @if(empty($records))
-    <div id="emptyView" class="bg-white rounded-2xl border border-gray-200 p-12 text-center max-w-md mx-auto my-8 space-y-4">
-        <div class="w-20 h-20 mx-auto rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-4xl">
-            📋
-        </div>
-        <h3 class="text-xl font-bold text-gray-800 font-heading">
-            Belum Ada Riwayat Deteksi
-        </h3>
-        <p class="text-sm text-gray-500 leading-relaxed">
-            Anda belum melakukan pemeriksaan daun tomat pada sesi peramban ini. Unggah foto daun pertama Anda sekarang.
-        </p>
-        <a href="{{ url('/detect') }}" class="inline-block mt-2 px-6 py-2.5 rounded-xl bg-[#2E7D32] hover:bg-[#1B5E20] text-white text-sm font-semibold shadow-xs transition-colors">
-            Mulai Deteksi Sekarang
-        </a>
-    </div>
     @else
-    <div id="recordsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @foreach($records as $item)
-        <div class="history-card bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow"
-             data-id="{{ $item['id'] }}"
-             data-disease="{{ strtolower($item['disease'] . ' ' . $item['diseaseEn']) }}"
-             data-is-healthy="{{ $item['diseaseEn'] === 'Healthy' ? 'true' : 'false' }}">
-            
-            <div class="p-5 space-y-4">
-                <!-- Top Row: Thumbnail + Badge -->
-                <div class="flex items-start gap-4">
-                    <div class="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50">
-                        <img src="{{ $item['image'] }}" alt="Foto Daun" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold mb-1
-                            @if($item['diseaseEn'] === 'Healthy') bg-emerald-100 text-emerald-800 border border-emerald-300
-                            @elseif($item['diseaseEn'] === 'Late Blight') bg-red-100 text-red-800 border border-red-300
-                            @elseif($item['diseaseEn'] === 'Bacterial Spot') bg-orange-100 text-orange-800 border border-orange-300
-                            @elseif($item['diseaseEn'] === 'Early Blight') bg-amber-100 text-amber-800 border border-amber-300
-                            @elseif($item['diseaseEn'] === 'Leaf Mold') bg-lime-100 text-lime-800 border border-lime-300
-                            @elseif($item['diseaseEn'] === 'Tomato Mosaic Virus') bg-pink-100 text-pink-800 border border-pink-300
-                            @elseif($item['diseaseEn'] === 'Septoria Leaf Spot') bg-purple-100 text-purple-800 border border-purple-300
-                            @elseif($item['diseaseEn'] === 'Spider Mites') bg-stone-200 text-stone-800 border border-stone-300
-                            @elseif($item['diseaseEn'] === 'Target Spot') bg-cyan-100 text-cyan-800 border border-cyan-300
-                            @else bg-yellow-100 text-yellow-800 border border-yellow-300
-                            @endif">
-                            {{ $item['diseaseEn'] }}
-                        </span>
-                        <h4 class="font-heading font-bold text-gray-900 text-base leading-snug truncate" title="{{ $item['disease'] }}">
-                            {{ $item['disease'] }}
-                        </h4>
-                        <div class="flex items-center gap-2 mt-1.5">
-                            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                                {{ $item['confidence'] }}% Yakin
-                            </span>
+        <div class="mt-6 flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div class="relative w-full sm:max-w-xs">
+                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.85-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
+                    </svg>
+                </span>
+                <input id="searchInput"
+                       type="search"
+                       placeholder="Cari penyakit..."
+                       class="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none">
+            </div>
+
+            <div class="flex items-center justify-between gap-3 sm:justify-end">
+                <select id="filterType"
+                        class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-emerald-500 focus:outline-none">
+                    <option value="all">Semua status</option>
+                    <option value="healthy">Hanya sehat</option>
+                    <option value="diseased">Hanya berpenyakit</option>
+                </select>
+                <span class="whitespace-nowrap text-xs text-slate-500">
+                    <strong id="recordCountBadge" class="font-semibold text-slate-700">{{ count($records) }}</strong> hasil
+                </span>
+            </div>
+        </div>
+
+        <div id="recordsGrid" class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            @foreach ($records as $item)
+                <article class="history-card group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                         data-id="{{ $item['id'] }}"
+                         data-disease="{{ strtolower($item['disease'] . ' ' . $item['diseaseEn']) }}"
+                         data-is-healthy="{{ $item['diseaseEn'] === 'Healthy' ? 'true' : 'false' }}">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                        <img src="{{ $item['image'] }}"
+                             alt="Foto daun tomat"
+                             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                             loading="lazy">
+                        <div class="absolute left-3 top-3">
+                            <x-disease-badge :color="$item['color']" :label="$item['diseaseEn']" />
                         </div>
                     </div>
-                </div>
 
-                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                    {{ $item['description'] }}
-                </p>
-            </div>
+                    <div class="flex flex-1 flex-col p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <h2 class="font-heading text-base font-semibold leading-snug text-slate-900" title="{{ $item['disease'] }}">
+                                {{ $item['disease'] }}
+                            </h2>
+                            <div class="shrink-0 text-right">
+                                <p class="font-heading text-base font-bold text-slate-800">{{ $item['confidence'] }}%</p>
+                                <p class="text-[10px] text-slate-400">keyakinan</p>
+                            </div>
+                        </div>
 
-            <!-- Card Footer -->
-            <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                <span>🕒 {{ $item['date'] }}</span>
-                <div class="flex items-center gap-2">
-                    <button type="button" class="btn-detail font-semibold text-emerald-700 hover:text-emerald-900 transition-colors"
-                            data-json="{{ json_encode($item) }}">
-                        Detail
-                    </button>
-                    <span class="text-gray-300">•</span>
-                    <button type="button" class="btn-delete text-red-500 hover:text-red-700 transition-colors"
-                            data-id="{{ $item['id'] }}" title="Hapus catatan">
-                        Hapus
-                    </button>
-                </div>
-            </div>
+                        <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-500">
+                            {{ $item['description'] }}
+                        </p>
+
+                        <div class="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                            <span class="inline-flex items-center gap-1.5 text-xs text-slate-500">
+                                <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                </svg>
+                                {{ $item['date'] }}
+                            </span>
+
+                            <div class="flex items-center gap-3">
+                                <button type="button"
+                                        class="btn-detail text-xs font-medium text-emerald-700 transition-colors hover:text-emerald-800"
+                                        data-record="{{ json_encode($item) }}">
+                                    Detail
+                                </button>
+                                <button type="button"
+                                        class="btn-delete text-slate-400 transition-colors hover:text-red-600"
+                                        data-id="{{ $item['id'] }}"
+                                        title="Hapus riwayat"
+                                        aria-label="Hapus riwayat">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            @endforeach
         </div>
-        @endforeach
-    </div>
     @endif
 </div>
 
-<!-- Modal Detail Riwayat -->
-<div id="detailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="relative bg-white rounded-3xl max-w-lg w-full border border-gray-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        <!-- Close Button -->
-        <button id="closeModalBtn" type="button" class="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur rounded-full p-2 text-gray-600 hover:text-gray-900 hover:bg-white shadow-xs">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+{{-- Modal detail --}}
+<div id="detailModal" class="hidden fixed inset-0 z-50 items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-sm">
+    <div class="relative w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl">
+        <button id="closeModalBtn"
+                type="button"
+                class="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-slate-900/60 text-white transition-colors hover:bg-slate-900"
+                aria-label="Tutup detail">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+            </svg>
         </button>
 
-        <!-- Full Image Preview -->
-        <div class="w-full h-64 bg-gray-100 relative">
-            <img id="modalImage" src="" alt="Citra Daun" class="w-full h-full object-cover">
-            <div class="absolute bottom-3 left-3 bg-black/70 backdrop-blur px-3 py-1 rounded-lg text-white text-xs font-mono">
-                Model: <span id="modalModel">EfficientNetB0</span>
-            </div>
+        <div class="h-56 w-full bg-slate-100">
+            <img id="modalImage" src="" alt="Foto daun tomat" class="h-full w-full object-cover">
         </div>
 
-        <div class="p-6 space-y-4">
+        <div class="space-y-5 p-6">
             <div>
-                <span id="modalBadge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold mb-1"></span>
-                <h3 id="modalTitle" class="text-2xl font-extrabold text-gray-900 font-heading"></h3>
-                <p id="modalTitleEn" class="text-sm text-gray-500 italic"></p>
+                <span id="modalBadge" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset"></span>
+                <h3 id="modalTitle" class="mt-2 font-heading text-2xl font-bold text-slate-900"></h3>
+                <p id="modalTitleEn" class="mt-0.5 text-sm text-slate-500"></p>
             </div>
 
-            <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 flex items-center justify-between text-sm">
-                <span class="font-semibold text-gray-700">Tingkat Keyakinan:</span>
-                <span id="modalConfidence" class="font-heading font-extrabold text-emerald-700 text-base"></span>
+            <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm">
+                <span class="font-medium text-slate-700">Tingkat keyakinan</span>
+                <span id="modalConfidence" class="font-heading text-lg font-bold text-emerald-700"></span>
             </div>
 
-            <div class="space-y-3 text-sm">
-                <div>
-                    <h5 class="font-bold text-gray-900 text-xs uppercase tracking-wider text-emerald-800">Gejala Visual:</h5>
-                    <p id="modalDescription" class="text-gray-600 mt-1 leading-relaxed"></p>
-                </div>
+            <div>
+                <h4 class="text-sm font-semibold text-slate-800">Deskripsi</h4>
+                <p id="modalDescription" class="mt-2 text-sm leading-relaxed text-slate-600"></p>
             </div>
 
-            <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-                <span>Diperiksa: <strong id="modalDate" class="text-gray-600"></strong></span>
-                <button type="button" id="modalCloseAction" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-colors">
+            <div class="flex items-center justify-between gap-3 border-t border-slate-200 pt-4 text-xs text-slate-500">
+                <span>Diperiksa pada <strong id="modalDate" class="font-medium text-slate-600"></strong></span>
+                <button id="modalCloseAction"
+                        type="button"
+                        class="rounded-lg border border-slate-300 px-4 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50">
                     Tutup
                 </button>
             </div>
@@ -172,113 +178,153 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('searchInput');
-    const filterType = document.getElementById('filterType');
-    const cards = document.querySelectorAll('.history-card');
-    const recordCountBadge = document.getElementById('recordCountBadge');
+document.addEventListener('DOMContentLoaded', () => {
+    const $ = (id) => document.getElementById(id);
 
-    // Filter & Search Logic
+    const searchInput = $('searchInput');
+    const filterType = $('filterType');
+    const countBadge = $('recordCountBadge');
+    let cards = Array.from(document.querySelectorAll('.history-card'));
+
+    const modal = $('detailModal');
+    const modalElements = {
+        image: $('modalImage'),
+        badge: $('modalBadge'),
+        title: $('modalTitle'),
+        titleEn: $('modalTitleEn'),
+        confidence: $('modalConfidence'),
+        description: $('modalDescription'),
+        date: $('modalDate'),
+    };
+
+    const badgeThemes = {
+        emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+        red: 'bg-red-50 text-red-700 ring-red-600/20',
+        orange: 'bg-orange-50 text-orange-700 ring-orange-600/20',
+        amber: 'bg-amber-50 text-amber-800 ring-amber-600/20',
+        lime: 'bg-lime-50 text-lime-700 ring-lime-600/20',
+        pink: 'bg-pink-50 text-pink-700 ring-pink-600/20',
+        purple: 'bg-purple-50 text-purple-700 ring-purple-600/20',
+        stone: 'bg-stone-100 text-stone-700 ring-stone-600/20',
+        cyan: 'bg-cyan-50 text-cyan-700 ring-cyan-600/20',
+        yellow: 'bg-yellow-50 text-yellow-800 ring-yellow-600/20',
+    };
+
+    // ---------------------------------------------------------------------
+    // Pencarian dan filter
+    // ---------------------------------------------------------------------
     function filterCards() {
         const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const filter = filterType ? filterType.value : 'all';
         let visibleCount = 0;
 
-        cards.forEach(card => {
-            const disease = card.getAttribute('data-disease') || '';
-            const isHealthy = card.getAttribute('data-is-healthy') === 'true';
+        cards.forEach((card) => {
+            const matchesQuery = (card.dataset.disease || '').includes(query);
+            const isHealthy = card.dataset.isHealthy === 'true';
+            const matchesFilter = filter === 'healthy'
+                ? isHealthy
+                : filter === 'diseased'
+                    ? !isHealthy
+                    : true;
 
-            let matchesQuery = disease.includes(query);
-            let matchesFilter = true;
+            const isVisible = matchesQuery && matchesFilter;
+            card.classList.toggle('hidden', !isVisible);
 
-            if (filter === 'healthy') {
-                matchesFilter = isHealthy;
-            } else if (filter === 'diseased') {
-                matchesFilter = !isHealthy;
-            }
-
-            if (matchesQuery && matchesFilter) {
-                card.style.display = 'flex';
+            if (isVisible) {
                 visibleCount++;
-            } else {
-                card.style.display = 'none';
             }
         });
 
-        if (recordCountBadge) recordCountBadge.textContent = visibleCount;
+        if (countBadge) {
+            countBadge.textContent = String(visibleCount);
+        }
     }
 
     searchInput?.addEventListener('input', filterCards);
     filterType?.addEventListener('change', filterCards);
 
-    // Modal Interaction
-    const modal = document.getElementById('detailModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const modalCloseAction = document.getElementById('modalCloseAction');
+    // ---------------------------------------------------------------------
+    // Modal detail
+    // ---------------------------------------------------------------------
+    function openModal(data) {
+        modalElements.image.src = data.image;
+        modalElements.title.textContent = data.disease;
+        modalElements.titleEn.textContent = data.diseaseEn;
+        modalElements.confidence.textContent = `${data.confidence}%`;
+        modalElements.description.textContent = data.description;
+        modalElements.date.textContent = data.date;
 
-    const modalImage = document.getElementById('modalImage');
-    const modalBadge = document.getElementById('modalBadge');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalTitleEn = document.getElementById('modalTitleEn');
-    const modalConfidence = document.getElementById('modalConfidence');
-    const modalDescription = document.getElementById('modalDescription');
-    const modalModel = document.getElementById('modalModel');
-    const modalDate = document.getElementById('modalDate');
+        const theme = badgeThemes[data.color] || badgeThemes.emerald;
+        modalElements.badge.className = `inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${theme}`;
+        modalElements.badge.textContent = data.diseaseEn;
 
-    document.querySelectorAll('.btn-detail').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const data = JSON.parse(btn.getAttribute('data-json'));
-            modalImage.src = data.image;
-            modalTitle.textContent = data.disease;
-            modalTitleEn.textContent = data.diseaseEn;
-            modalConfidence.textContent = `${data.confidence}%`;
-            modalDescription.textContent = data.description;
-            modalModel.textContent = data.model || 'EfficientNetB0';
-            modalDate.textContent = data.date;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 
-            modalBadge.textContent = data.diseaseEn;
-            modalBadge.className = `inline-block px-2.5 py-0.5 rounded-full text-xs font-bold mb-1 ${data.diseaseEn === 'Healthy' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`;
+    function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
-            modal.classList.remove('hidden');
+    document.querySelectorAll('.btn-detail').forEach((button) => {
+        button.addEventListener('click', () => {
+            openModal(JSON.parse(button.dataset.record));
         });
     });
 
-    const closeModal = () => modal.classList.add('hidden');
-    closeModalBtn?.addEventListener('click', closeModal);
-    modalCloseAction?.addEventListener('click', closeModal);
-    modal?.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    $('closeModalBtn')?.addEventListener('click', closeModal);
+    $('modalCloseAction')?.addEventListener('click', closeModal);
+
+    modal?.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
     });
 
-    // Delete Record
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = btn.getAttribute('data-id');
-            if (!confirm('Yakin ingin menghapus catatan riwayat pemeriksaan ini?')) return;
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
+    // ---------------------------------------------------------------------
+    // Hapus riwayat
+    // ---------------------------------------------------------------------
+    document.querySelectorAll('.btn-delete').forEach((button) => {
+        button.addEventListener('click', async (event) => {
+            event.stopPropagation();
+
+            const id = button.dataset.id;
+
+            if (!confirm('Yakin ingin menghapus catatan riwayat pemeriksaan ini?')) {
+                return;
+            }
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
             try {
-                const res = await fetch(`/history/${id}`, {
+                const response = await fetch(`/history/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
-                    }
+                    },
                 });
-                const json = await res.json();
-                if (json.success) {
-                    const card = btn.closest('.history-card');
-                    card.remove();
-                    filterCards();
-                } else {
-                    alert('Gagal menghapus: ' + (json.message || 'Terjadi kesalahan'));
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    alert('Gagal menghapus: ' + (result.message || 'Terjadi kesalahan'));
+                    return;
                 }
-            } catch (err) {
-                alert('Gagal menghubungi server: ' + err.message);
+
+                const card = button.closest('.history-card');
+                card.remove();
+                cards = cards.filter((item) => item !== card);
+                filterCards();
+            } catch (error) {
+                alert('Gagal menghubungi server: ' + error.message);
             }
         });
     });

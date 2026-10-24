@@ -2,36 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Helpers\DiseaseCatalog;
 use App\Services\FastApiService;
 use App\Services\SupabaseService;
-use App\Helpers\DiseaseCatalog;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use RuntimeException;
+use Throwable;
 
 class DetectionController extends Controller
 {
-    protected FastApiService $fastApiService;
-    protected SupabaseService $supabaseService;
-
-    public function __construct(FastApiService $fastApiService, SupabaseService $supabaseService)
-    {
-        $this->fastApiService = $fastApiService;
-        $this->supabaseService = $supabaseService;
-    }
+    public function __construct(
+        private readonly FastApiService $fastApiService,
+        private readonly SupabaseService $supabaseService,
+    ) {}
 
     /**
-     * Show main TomatCare dashboard
+     * Tampilkan halaman utama deteksi.
      */
-    public function index(Request $request)
+    public function index(): View
     {
-        $sessionId = $request->attributes->get('tomato_session_id');
-        return view('detection.index', [
-            'sessionId' => $sessionId,
-        ]);
+        return view('detection.index');
     }
 
     /**
-     * Perform detection inference and record history
+     * Jalankan inferensi dan simpan hasil deteksi ke riwayat.
      */
     public function predict(Request $request): JsonResponse
     {
@@ -39,104 +36,41 @@ class DetectionController extends Controller
             'image' => 'required|image|mimes:jpeg,jpg,png|max:10240',
         ]);
 
-        $file = $request->file('image');
         $sessionId = $request->attributes->get('tomato_session_id');
 
-        if (!$sessionId) {
+        if (! $sessionId) {
             return response()->json(['message' => 'Invalid session context.'], 400);
         }
 
         try {
-            // 1. Call FastAPI REST endpoint
-            $prediction = $this->fastApiService->predict($file);
+            // 1. Inferensi melalui microservice FastAPI.
+            $prediction = $this->fastApiService->predict($request->file('image'));
             $className = $prediction['class'];
             $confidence = (float) $prediction['confidence'];
             $inferenceTimeMs = (float) $prediction['inference_time_ms'];
 
-            // 2. Upload image to Supabase Storage bucket detection-images/{sessionId}/{uuid}.jpg
-            $publicUrl = $this->supabaseService->uploadImage($file, $sessionId);
+            // 2. Unggah citra ke Supabase Storage.
+            $publicUrl = $this->supabaseService->uploadImage($request->file('image'), $sessionId);
 
-            // 3. Lookup disease in master penyakit table
-            $penyakit = $this->supabaseService->getPenyakitByNama($className);
-            if (!$penyakit || !isset($penyakit['id_penyakit'])) {
-                \Log::error("Disease lookup failed in master table for class: '{$className}'");
-                throw new \RuntimeException("Data penyakit '{$className}' tidak ditemukan dalam master data sistem.", 422);
-            }
-            $idPenyakit = (int) $penyakit['id_penyakit'];
+            // 3. Validasi penyakit dan model aktif pada master data.
+            $diseaseId = $this->resolveDiseaseId($className);
+            $activeModel = $this->resolveActiveModel();
 
-            // 4. Lookup active model in master model_cnn table
-            $activeModel = $this->supabaseService->getActiveModel();
-            if (!$activeModel || !isset($activeModel['id_model'])) {
-                \Log::error("Active CNN model lookup failed in master model_cnn table.");
-                throw new \RuntimeException("Model CNN aktif tidak ditemukan dalam konfigurasi sistem.", 500);
-            }
-            $idModel = (int) $activeModel['id_model'];
-            $modelName = $activeModel['nama_model'] ?? 'EfficientNetB0';
-
-            // 5. Insert history record into riwayat_deteksi
+            // 4. Simpan riwayat deteksi.
             $riwayat = $this->supabaseService->createRiwayat(
                 sessionId: $sessionId,
-                idPenyakit: $idPenyakit,
-                idModel: $idModel,
+                idPenyakit: $diseaseId,
+                idModel: $activeModel['id'],
                 citraInput: $publicUrl,
-                confidenceScore: $confidence
+                confidenceScore: $confidence,
             );
 
-            // 6. Enrich with Indonesian agronomy advice from catalog
+            // 5. Susun hasil diagnosis untuk tampilan.
             $info = DiseaseCatalog::getInfo($className);
-
-            // 7. Parse Top-K predictions and alternative differential diagnoses            $topPredictions = [];
-            if (!empty($prediction['top_predictions']) && is_array($prediction['top_predictions'])) {
-                foreach ($prediction['top_predictions'] as $predItem) {
-                    $cName = $predItem['class'];
-                    $cConf = (float) $predItem['confidence'];
-                    $catInfo = DiseaseCatalog::getInfo($cName);
-                    $topPredictions[] = [
-                        'disease' => $catInfo['name_id'],
-                        'diseaseEn' => $cName,
-                        'class_id' => $predItem['class_id'] ?? null,
-                        'confidence' => round($cConf * 100, 2),
-                        'confidence_raw' => $cConf,
-                        'color' => $catInfo['color'] ?? 'emerald',
-                        'description' => $catInfo['description'] ?? '',
-                    ];
-                }
-            } elseif (!empty($prediction['probabilities']) && is_array($prediction['probabilities'])) {
-                $probs = $prediction['probabilities'];
-                arsort($probs);
-                foreach (array_slice($probs, 0, 5, true) as $cName => $prob) {
-                    $catInfo = DiseaseCatalog::getInfo($cName);
-                    $cConf = (float) $prob;
-                    $topPredictions[] = [
-                        'disease' => $catInfo['name_id'],
-                        'diseaseEn' => $cName,
-                        'confidence' => round($cConf * 100, 2),
-                        'confidence_raw' => $cConf,
-                        'color' => $catInfo['color'] ?? 'emerald',
-                        'description' => $catInfo['description'] ?? '',
-                    ];
-                }
-            } else {
-                $topPredictions[] = [
-                    'disease' => $info['name_id'],
-                    'diseaseEn' => $className,
-                    'class_id' => $prediction['class_id'] ?? null,
-                    'confidence' => round($confidence * 100, 2),
-                    'confidence_raw' => $confidence,
-                    'color' => $info['color'],
-                    'description' => $info['description'],
-                ];
-            }
-
-            $alternatives = array_slice($topPredictions, 1);
-
-            // 8. Confidence gating: decide whether this result is trustworthy
-            //    enough to present as a diagnosis (calibrated in FastAPI).
-            $gate = is_array($prediction['confidence_gate'] ?? null) ? $prediction['confidence_gate'] : [];
-            $accepted = $gate['passed'] ?? true;
-            $gateAction = $gate['action'] ?? 'accept';
-            $gateReasons = $gate['reasons'] ?? [];
-            $gateMessage = $gate['message'] ?? null;
+            $topPredictions = $this->buildTopPredictions($prediction, $info);
+            $gate = is_array($prediction['confidence_gate'] ?? null)
+                ? $prediction['confidence_gate']
+                : [];
 
             return response()->json([
                 'success' => true,
@@ -150,33 +84,143 @@ class DetectionController extends Controller
                     'image' => $publicUrl,
                     'description' => $info['description'],
                     'color' => $info['color'],
-                    'model' => $modelName,
+                    'model' => $activeModel['name'],
                     'date' => now()->format('Y-m-d H:i'),
                     'top_predictions' => $topPredictions,
-                    'alternatives' => $alternatives,
-                    // --- confidence gating ---
-                    'accepted' => (bool) $accepted,
-                    'gate_action' => $gateAction,
-                    'gate_reasons' => $gateReasons,
-                    'gate_message' => $gateMessage,
+                    'alternatives' => array_slice($topPredictions, 1),
+                    'accepted' => (bool) ($gate['passed'] ?? true),
+                    'gate_action' => $gate['action'] ?? 'accept',
+                    'gate_reasons' => $gate['reasons'] ?? [],
+                    'gate_message' => $gate['message'] ?? null,
                     'gate_threshold' => $gate['threshold'] ?? null,
                     'gate_quality' => $gate['quality'] ?? null,
-                ]
+                ],
             ]);
-        } catch (\Throwable $e) {
-            \Log::error("Prediction pipeline error: " . $e->getMessage(), [
-                'exception' => $e
+        } catch (Throwable $e) {
+            Log::error('Prediction pipeline error: '.$e->getMessage(), [
+                'exception' => $e,
             ]);
 
-            $statusCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? (int) $e->getCode() : 500;
+            $statusCode = ($e->getCode() >= 400 && $e->getCode() < 600)
+                ? (int) $e->getCode()
+                : 500;
+
             $clientMessage = config('app.debug')
                 ? $e->getMessage()
-                : ($statusCode < 500 ? $e->getMessage() : 'Terjadi kendala saat memproses deteksi. Silakan coba beberapa saat lagi.');
+                : ($statusCode < 500
+                    ? $e->getMessage()
+                    : 'Terjadi kendala saat memproses deteksi. Silakan coba beberapa saat lagi.');
 
             return response()->json([
                 'success' => false,
-                'message' => $clientMessage
+                'message' => $clientMessage,
             ], $statusCode);
         }
+    }
+
+    /**
+     * Cari ID penyakit pada master data berdasarkan nama kelas model.
+     */
+    private function resolveDiseaseId(string $className): int
+    {
+        $penyakit = $this->supabaseService->getPenyakitByNama($className);
+
+        if (! $penyakit || ! isset($penyakit['id_penyakit'])) {
+            Log::error("Disease lookup failed in master table for class: '{$className}'");
+            throw new RuntimeException(
+                "Data penyakit '{$className}' tidak ditemukan dalam master data sistem.",
+                422,
+            );
+        }
+
+        return (int) $penyakit['id_penyakit'];
+    }
+
+    /**
+     * Ambil model CNN yang sedang aktif.
+     *
+     * @return array{id: int, name: string}
+     */
+    private function resolveActiveModel(): array
+    {
+        $model = $this->supabaseService->getActiveModel();
+
+        if (! $model || ! isset($model['id_model'])) {
+            Log::error('Active CNN model lookup failed in master model_cnn table.');
+            throw new RuntimeException(
+                'Model CNN aktif tidak ditemukan dalam konfigurasi sistem.',
+                500,
+            );
+        }
+
+        return [
+            'id' => (int) $model['id_model'],
+            'name' => $model['nama_model'] ?? 'EfficientNetB0',
+        ];
+    }
+
+    /**
+     * Susun daftar prediksi teratas untuk diagnosis banding.
+     *
+     * Prioritas sumber data:
+     * 1. top_predictions dari FastAPI
+     * 2. probabilities mentah dari FastAPI
+     * 3. hasil prediksi utama saja
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildTopPredictions(array $prediction, array $primaryInfo): array
+    {
+        if (! empty($prediction['top_predictions']) && is_array($prediction['top_predictions'])) {
+            return array_map(function (array $item): array {
+                $info = DiseaseCatalog::getInfo($item['class']);
+                $confidence = (float) $item['confidence'];
+
+                return [
+                    'disease' => $info['name_id'],
+                    'diseaseEn' => $item['class'],
+                    'class_id' => $item['class_id'] ?? null,
+                    'confidence' => round($confidence * 100, 2),
+                    'confidence_raw' => $confidence,
+                    'color' => $info['color'] ?? 'emerald',
+                    'description' => $info['description'] ?? '',
+                ];
+            }, $prediction['top_predictions']);
+        }
+
+        if (! empty($prediction['probabilities']) && is_array($prediction['probabilities'])) {
+            $probabilities = $prediction['probabilities'];
+            arsort($probabilities);
+
+            $predictions = [];
+
+            foreach (array_slice($probabilities, 0, 5, true) as $className => $probability) {
+                $info = DiseaseCatalog::getInfo($className);
+                $confidence = (float) $probability;
+
+                $predictions[] = [
+                    'disease' => $info['name_id'],
+                    'diseaseEn' => $className,
+                    'confidence' => round($confidence * 100, 2),
+                    'confidence_raw' => $confidence,
+                    'color' => $info['color'] ?? 'emerald',
+                    'description' => $info['description'] ?? '',
+                ];
+            }
+
+            return $predictions;
+        }
+
+        $confidence = (float) $prediction['confidence'];
+
+        return [[
+            'disease' => $primaryInfo['name_id'],
+            'diseaseEn' => $prediction['class'],
+            'class_id' => $prediction['class_id'] ?? null,
+            'confidence' => round($confidence * 100, 2),
+            'confidence_raw' => $confidence,
+            'color' => $primaryInfo['color'],
+            'description' => $primaryInfo['description'],
+        ]];
     }
 }

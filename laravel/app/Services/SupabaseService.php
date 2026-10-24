@@ -2,122 +2,112 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use RuntimeException;
 
 class SupabaseService
 {
-    protected string $url;
-    protected string $anonKey;
-    protected string $bucket;
+    private const RIWAYAT_COLUMNS = 'id_riwayat,citra_input,confidence_score,tanggal_deteksi,'
+        .'penyakit(id_penyakit,nama_penyakit,deskripsi),'
+        .'model_cnn(id_model,nama_model,arsitektur)';
+
+    private string $url;
+
+    private string $anonKey;
+
+    private string $bucket;
 
     public function __construct()
     {
-        $this->url = rtrim(config('services.supabase.url'), '/');
+        $this->url = rtrim((string) config('services.supabase.url'), '/');
         $this->anonKey = (string) config('services.supabase.anon_key');
         $this->bucket = (string) config('services.supabase.bucket', 'detection-images');
     }
 
     /**
-     * Standard headers for Supabase API requests
-     */
-    protected function headers(): array
-    {
-        return [
-            'apikey' => $this->anonKey,
-            'Authorization' => "Bearer {$this->anonKey}",
-        ];
-    }
-
-    /**
-     * Upsert session into user_sessions table
+     * Simpan atau perbarui sesi peramban.
      */
     public function upsertSession(string $sessionId): void
     {
-        $endpoint = "{$this->url}/rest/v1/user_sessions";
-        
-        Http::withHeaders(array_merge($this->headers(), [
+        $this->http([
             'Content-Type' => 'application/json',
             'Prefer' => 'resolution=merge-duplicates',
-        ]))->post($endpoint, [
+        ])->post("{$this->url}/rest/v1/user_sessions", [
             'session_id' => $sessionId,
             'last_accessed_at' => now()->toIso8601String(),
         ]);
     }
 
     /**
-     * Upload image to Supabase Storage bucket detection-images/{sessionId}/{uuid}.jpg
-     * Returns Public URL
+     * Unggah citra ke bucket penyimpanan dan kembalikan URL publiknya.
      */
     public function uploadImage(UploadedFile $file, string $sessionId): string
     {
-        $fileUuid = (string) Str::uuid();
         $extension = strtolower($file->getClientOriginalExtension()) ?: 'jpg';
-        $path = "{$sessionId}/{$fileUuid}.{$extension}";
-
-        $uploadEndpoint = "{$this->url}/storage/v1/object/{$this->bucket}/{$path}";
+        $path = "{$sessionId}/".Str::uuid().".{$extension}";
         $mimeType = $file->getMimeType() ?: 'image/jpeg';
 
-        $response = Http::withHeaders(array_merge($this->headers(), [
-            'Content-Type' => $mimeType,
-        ]))->withBody(file_get_contents($file->getRealPath()), $mimeType)
-          ->post($uploadEndpoint);
+        $response = $this->http(['Content-Type' => $mimeType])
+            ->withBody(file_get_contents($file->getRealPath()), $mimeType)
+            ->post("{$this->url}/storage/v1/object/{$this->bucket}/{$path}");
 
-        if (!$response->successful()) {
-            \Log::error("Supabase Storage upload failed: " . $response->body());
-            throw new RuntimeException("Failed to upload image to storage.");
+        if (! $response->successful()) {
+            \Log::error('Supabase Storage upload failed: '.$response->body());
+            throw new RuntimeException('Failed to upload image to storage.');
         }
 
-        // Form public URL as per PRD Bab 23.3
         return "{$this->url}/storage/v1/object/public/{$this->bucket}/{$path}";
     }
 
     /**
-     * Retrieve penyakit record by name
+     * Cari data penyakit berdasarkan nama kelas model.
      */
     public function getPenyakitByNama(string $nama): ?array
     {
-        $endpoint = "{$this->url}/rest/v1/penyakit?nama_penyakit=eq." . urlencode($nama) . "&select=*";
-        $response = Http::withHeaders($this->headers())->get($endpoint);
+        $response = $this->http()->get(
+            "{$this->url}/rest/v1/penyakit?nama_penyakit=eq.".urlencode($nama).'&select=*',
+        );
 
-        if ($response->successful()) {
-            $data = $response->json();
-            return !empty($data) ? $data[0] : null;
+        if (! $response->successful()) {
+            return null;
         }
 
-        return null;
+        $data = $response->json();
+
+        return ! empty($data) ? $data[0] : null;
     }
 
     /**
-     * Retrieve active model metadata from model_cnn
+     * Ambil metadata model CNN yang berstatus aktif.
      */
     public function getActiveModel(): ?array
     {
-        $endpoint = "{$this->url}/rest/v1/model_cnn?status=eq.active&select=*&limit=1";
-        $response = Http::withHeaders($this->headers())->get($endpoint);
+        $response = $this->http()->get(
+            "{$this->url}/rest/v1/model_cnn?status=eq.active&select=*&limit=1",
+        );
 
-        if ($response->successful()) {
-            $data = $response->json();
-            return !empty($data) ? $data[0] : null;
+        if (! $response->successful()) {
+            return null;
         }
 
-        return null;
+        $data = $response->json();
+
+        return ! empty($data) ? $data[0] : null;
     }
 
     /**
-     * Insert new riwayat_deteksi record
+     * Simpan satu baris riwayat deteksi.
      */
     public function createRiwayat(
         string $sessionId,
         int $idPenyakit,
         int $idModel,
         string $citraInput,
-        float $confidenceScore
+        float $confidenceScore,
     ): array {
-        $endpoint = "{$this->url}/rest/v1/riwayat_deteksi";
-
         $payload = [
             'session_id' => $sessionId,
             'id_penyakit' => $idPenyakit,
@@ -127,74 +117,97 @@ class SupabaseService
             'tanggal_deteksi' => now()->toIso8601String(),
         ];
 
-        $response = Http::withHeaders(array_merge($this->headers(), [
+        $response = $this->http([
             'Content-Type' => 'application/json',
             'Prefer' => 'return=representation',
-        ]))->post($endpoint, $payload);
+        ])->post("{$this->url}/rest/v1/riwayat_deteksi", $payload);
 
-        if ($response->successful()) {
-            $result = $response->json();
-            return !empty($result) ? $result[0] : $payload;
+        if (! $response->successful()) {
+            \Log::error('Failed to insert riwayat_deteksi: '.$response->body());
+            throw new RuntimeException('Failed to record detection history.');
         }
 
-        \Log::error("Failed to insert riwayat_deteksi: " . $response->body());
-        throw new RuntimeException("Failed to record detection history.");
+        $result = $response->json();
+
+        return ! empty($result) ? $result[0] : $payload;
     }
 
     /**
-     * Query detection history for active session with joined tables
+     * Ambil seluruh riwayat deteksi untuk satu sesi.
      */
     public function getRiwayatBySession(string $sessionId): array
     {
-        $endpoint = "{$this->url}/rest/v1/riwayat_deteksi?" . http_build_query([
-            'session_id' => 'eq.' . $sessionId,
-            'select' => 'id_riwayat,citra_input,confidence_score,tanggal_deteksi,penyakit(id_penyakit,nama_penyakit,deskripsi),model_cnn(id_model,nama_model,arsitektur)',
-            'order' => 'tanggal_deteksi.desc',
-        ]);
+        $response = $this->http()->get(
+            "{$this->url}/rest/v1/riwayat_deteksi?".http_build_query([
+                'session_id' => 'eq.'.$sessionId,
+                'select' => self::RIWAYAT_COLUMNS,
+                'order' => 'tanggal_deteksi.desc',
+            ]),
+        );
 
-        $response = Http::withHeaders($this->headers())->get($endpoint);
+        if (! $response->successful()) {
+            \Log::error("Failed to fetch riwayat for session {$sessionId}: ".$response->body());
 
-        if ($response->successful()) {
-            return $response->json();
+            return [];
         }
 
-        \Log::error("Failed to fetch riwayat for session {$sessionId}: " . $response->body());
-        return [];
+        return $response->json();
     }
 
     /**
-     * Query single history record strictly verified by session
+     * Ambil satu riwayat deteksi yang dipastikan milik sesi terkait.
      */
     public function getRiwayatDetail(string $sessionId, int $idRiwayat): ?array
     {
-        $endpoint = "{$this->url}/rest/v1/riwayat_deteksi?" . http_build_query([
-            'session_id' => 'eq.' . $sessionId,
-            'id_riwayat' => 'eq.' . $idRiwayat,
-            'select' => 'id_riwayat,citra_input,confidence_score,tanggal_deteksi,penyakit(id_penyakit,nama_penyakit,deskripsi),model_cnn(id_model,nama_model,arsitektur)',
-            'limit' => 1,
-        ]);
+        $response = $this->http()->get(
+            "{$this->url}/rest/v1/riwayat_deteksi?".http_build_query([
+                'session_id' => 'eq.'.$sessionId,
+                'id_riwayat' => 'eq.'.$idRiwayat,
+                'select' => self::RIWAYAT_COLUMNS,
+                'limit' => 1,
+            ]),
+        );
 
-        $response = Http::withHeaders($this->headers())->get($endpoint);
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return !empty($data) ? $data[0] : null;
+        if (! $response->successful()) {
+            return null;
         }
 
-        return null;
+        $data = $response->json();
+
+        return ! empty($data) ? $data[0] : null;
     }
 
     /**
-     * Delete detection record strictly verified by session
+     * Hapus satu riwayat deteksi milik sesi terkait.
      */
     public function deleteRiwayat(string $sessionId, int $idRiwayat): bool
     {
-        $endpoint = "{$this->url}/rest/v1/riwayat_deteksi?" . http_build_query([
-            'session_id' => 'eq.' . $sessionId,
-            'id_riwayat' => 'eq.' . $idRiwayat,
-        ]);
+        $response = $this->http()->delete(
+            "{$this->url}/rest/v1/riwayat_deteksi?".http_build_query([
+                'session_id' => 'eq.'.$sessionId,
+                'id_riwayat' => 'eq.'.$idRiwayat,
+            ]),
+        );
 
-        $response = Http::withHeaders($this->headers())->delete($endpoint);
         return $response->successful();
+    }
+
+    /**
+     * Header dasar untuk seluruh permintaan ke Supabase.
+     */
+    private function headers(): array
+    {
+        return [
+            'apikey' => $this->anonKey,
+            'Authorization' => "Bearer {$this->anonKey}",
+        ];
+    }
+
+    /**
+     * Buat HTTP client Supabase dengan header tambahan bila diperlukan.
+     */
+    private function http(array $headers = []): PendingRequest
+    {
+        return Http::withHeaders(array_merge($this->headers(), $headers));
     }
 }
