@@ -53,6 +53,7 @@ def main() -> None:
         if (i + 1) % 2000 == 0:
             print(f"  processed {i+1}/{len(df)}")
 
+    df["group_id"] = df["image_path"].map(lambda p: Path(str(p)).stem)
     df["source"] = sources
     df["source_score"] = scores
     df["edge_sat"] = sats
@@ -61,8 +62,8 @@ def main() -> None:
     df["width"] = ws
     df["height"] = hs
 
-    cols = ["image_path", "label", "class_name", "split", "source", "source_score",
-            "edge_sat", "edge_std", "black_corner_frac", "width", "height"]
+    cols = ["image_path", "label", "class_name", "split", "group_id", "source",
+            "source_score", "edge_sat", "edge_std", "black_corner_frac", "width", "height"]
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     df[cols].to_csv(args.out, index=False)
     print(f"Wrote {args.out} ({len(df)} rows)")

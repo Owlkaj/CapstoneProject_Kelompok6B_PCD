@@ -129,9 +129,9 @@ Model telah dievaluasi secara komprehensif pada tiga kelompok dataset uji untuk 
 
 | Himpunan Data Uji (*Test Set*) | Karakteristik Citra | Jumlah Sampel | Akurasi | Macro F1-Score | Keterangan |
 |---|---|:---:|:---:|:---:|---|
-| **PlantVillage Test Set** | Foto laboratorium, latar belakang netral | 2.000 citra | **96.70%** | **96.70%** | Sangat tinggi, presisi 96.65% |
-| **Field In-Pool Test Set** | Foto daun tomat lapangan (8 kelas) | 1.160 citra | **96.64%** | **96.48%** | Performa domain lapangan sangat stabil |
-| **Cross-Dataset Field Test** | Dataset independen luar (3 kelas) | 653 citra | **83.31%** | **82.15%** | Generalisasi lintas sumber (+36.6% vs baseline) |
+| **PlantVillage Test Set** | Foto laboratorium, latar belakang netral | 2.000 citra | **97.45%** | **97.45%** | Model produksi `model_yolo3_grouped.pt` (baseline E02: 96.60%) |
+| **Field Group-Disjoint Test** | Foto daun tomat lapangan (8 kelas, *group-disjoint*) | 1.058 citra | **93.01%** | **93.43%** | Tanpa kebocoran daun/gambar asal antar-split (+18.62 pp vs E02) |
+| **Cross-Dataset Field Test** | Dataset independen luar (3 kelas) | 653 citra | **81.32%** | **86.01%** | Generalisasi lintas sumber (+34.61 pp vs baseline E02) |
 
 ### 2. Efisiensi Komputasi
 * **Ukuran Bobot Model**: ~16.3 MB (`final_model.pt`).
@@ -325,7 +325,7 @@ Mengunggah citra daun untuk proses inferensi klasifikasi patologi.
     "confidence_gate": {
       "passed": true,
       "action": "accept",
-      "threshold": 0.55,
+      "threshold": 0.60,
       "quality": {
         "sharpness": 1240.5,
         "brightness": 128.2,

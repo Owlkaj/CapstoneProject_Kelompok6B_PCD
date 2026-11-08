@@ -142,6 +142,7 @@ def scan(root: Path) -> pd.DataFrame:
                     "label": CLASS_TO_IDX[canonical],
                     "class_name": canonical,
                     "split": split_dir.name,
+                    "group_id": img.stem,
                     "source": src,
                     "source_score": score,
                     "edge_sat": round(sat, 4),
@@ -195,8 +196,8 @@ def main() -> None:
     print("\nFinal split distribution:")
     print(df.groupby(["split", "source"]).size().unstack(fill_value=0).to_string())
 
-    cols = ["image_path", "label", "class_name", "split", "source", "source_score",
-            "edge_sat", "edge_std", "black_corner_frac", "width", "height"]
+    cols = ["image_path", "label", "class_name", "split", "group_id", "source",
+            "source_score", "edge_sat", "edge_std", "black_corner_frac", "width", "height"]
 
     combined = out / f"manifest_{args.tag}.csv"
     df[cols].to_csv(combined, index=False)

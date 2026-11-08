@@ -23,15 +23,15 @@ def _sharp_leaf(size=(320, 320)) -> Image.Image:
 
 
 def test_confident_prediction_is_accepted():
-    gate = ConfidenceGate(enabled=True, min_confidence=0.55, min_margin=0.10, min_sharpness=0.0)
+    gate = ConfidenceGate(enabled=True, min_confidence=0.60, min_margin=0.10, min_sharpness=0.0)
     d = gate.decide(_sharp_leaf(), confidence=0.98, second_confidence=0.005)
     assert d.action == ACCEPT and d.passed is True
     assert d.reasons == []
 
 
 def test_low_confidence_is_flagged():
-    gate = ConfidenceGate(enabled=True, min_confidence=0.55, min_sharpness=0.0)
-    d = gate.decide(_sharp_leaf(), confidence=0.40, second_confidence=0.30)
+    gate = ConfidenceGate(enabled=True, min_confidence=0.60, min_sharpness=0.0)
+    d = gate.decide(_sharp_leaf(), confidence=0.45, second_confidence=0.30)
     assert d.passed is False
     assert "low_confidence" in d.reasons
     assert d.action == REVIEW
@@ -39,14 +39,14 @@ def test_low_confidence_is_flagged():
 
 
 def test_very_low_confidence_is_rejected():
-    gate = ConfidenceGate(enabled=True, min_confidence=0.55, min_sharpness=0.0)
+    gate = ConfidenceGate(enabled=True, min_confidence=0.60, min_sharpness=0.0)
     d = gate.decide(_sharp_leaf(), confidence=0.15, second_confidence=0.12)
     assert d.action == REJECT and d.passed is False
 
 
 def test_ambiguous_top2_is_flagged_even_when_confidence_ok():
-    gate = ConfidenceGate(enabled=True, min_confidence=0.55, min_margin=0.20, min_sharpness=0.0)
-    d = gate.decide(_sharp_leaf(), confidence=0.60, second_confidence=0.55)
+    gate = ConfidenceGate(enabled=True, min_confidence=0.60, min_margin=0.20, min_sharpness=0.0)
+    d = gate.decide(_sharp_leaf(), confidence=0.65, second_confidence=0.55)
     assert d.passed is False
     assert "ambiguous" in d.reasons
 

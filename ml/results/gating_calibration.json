@@ -1,26 +1,154 @@
 {
-  "n": 800,
-  "accuracy": 0.975,
+  "model": "model_yolo3_grouped.pt",
+  "manifest": "manifest_field_only_clean.csv",
+  "split": "val",
+  "n": 1099,
+  "n_correct": 1030,
+  "n_wrong": 69,
+  "accuracy": 0.937216,
+  "recommended_threshold": 0.6,
   "summary": {
     "confidence": {
-      "correct_mean": 0.9696764102564104,
-      "wrong_mean": 0.65966
+      "correct_mean": 0.9496703883495146,
+      "correct_p10": 0.81463,
+      "correct_p25": 0.97475,
+      "correct_median": 0.9989,
+      "wrong_mean": 0.5647014492753623,
+      "wrong_p10": 0.36008,
+      "wrong_p75": 0.6772,
+      "wrong_median": 0.5572
     },
     "margin": {
-      "correct_mean": 0.9492367948717949,
-      "wrong_mean": 0.44578500000000004
+      "correct_mean": 0.9198162135922331,
+      "correct_p10": 0.70089,
+      "correct_p25": 0.9611750000000001,
+      "correct_median": 0.9982,
+      "wrong_mean": 0.34036666666666665,
+      "wrong_p10": 0.06216000000000001,
+      "wrong_p75": 0.4961,
+      "wrong_median": 0.3001
     },
     "sharpness": {
-      "correct_mean": 1167.512638653853,
-      "wrong_mean": 862.0834093093872
+      "correct_mean": 1045.2877946534204,
+      "correct_p10": 87.90905075073243,
+      "correct_p25": 248.28559112548828,
+      "correct_median": 713.4505310058594,
+      "wrong_mean": 483.0448858012324,
+      "wrong_p10": 76.03974914550783,
+      "wrong_p75": 538.7589111328125,
+      "wrong_median": 225.40394592285156
     },
     "brightness": {
-      "correct_mean": 116.57816903743634,
-      "wrong_mean": 109.82078054398846
+      "correct_mean": 117.38163712842314,
+      "correct_p10": 96.6032866835482,
+      "correct_p25": 106.1951848057413,
+      "correct_median": 115.62664815161571,
+      "wrong_mean": 124.54053698224293,
+      "wrong_p10": 96.88816014568025,
+      "wrong_p75": 137.24721588085882,
+      "wrong_median": 120.43410138248848
     },
     "min_side": {
-      "correct_mean": 271.4217948717949,
-      "wrong_mean": 192.1
+      "correct_mean": 246.8019417475728,
+      "correct_p10": 116.0,
+      "correct_p25": 177.5,
+      "correct_median": 258.0,
+      "wrong_mean": 205.91304347826087,
+      "wrong_p10": 95.2,
+      "wrong_p75": 239.0,
+      "wrong_median": 158.0
     }
-  }
+  },
+  "sweep": [
+    {
+      "threshold": 0.3,
+      "wrong_caught": 3,
+      "wrong_caught_pct": 4.35,
+      "correct_lost": 0,
+      "correct_lost_pct": 0.0,
+      "flag_rate_pct": 0.27,
+      "acc_of_accepted": 0.9398
+    },
+    {
+      "threshold": 0.4,
+      "wrong_caught": 14,
+      "wrong_caught_pct": 20.29,
+      "correct_lost": 7,
+      "correct_lost_pct": 0.68,
+      "flag_rate_pct": 1.91,
+      "acc_of_accepted": 0.949
+    },
+    {
+      "threshold": 0.45,
+      "wrong_caught": 19,
+      "wrong_caught_pct": 27.54,
+      "correct_lost": 12,
+      "correct_lost_pct": 1.17,
+      "flag_rate_pct": 2.82,
+      "acc_of_accepted": 0.9532
+    },
+    {
+      "threshold": 0.5,
+      "wrong_caught": 26,
+      "wrong_caught_pct": 37.68,
+      "correct_lost": 17,
+      "correct_lost_pct": 1.65,
+      "flag_rate_pct": 3.91,
+      "acc_of_accepted": 0.9593
+    },
+    {
+      "threshold": 0.55,
+      "wrong_caught": 33,
+      "wrong_caught_pct": 47.83,
+      "correct_lost": 26,
+      "correct_lost_pct": 2.52,
+      "flag_rate_pct": 5.37,
+      "acc_of_accepted": 0.9654
+    },
+    {
+      "threshold": 0.6,
+      "wrong_caught": 42,
+      "wrong_caught_pct": 60.87,
+      "correct_lost": 35,
+      "correct_lost_pct": 3.4,
+      "flag_rate_pct": 7.01,
+      "acc_of_accepted": 0.9736
+    },
+    {
+      "threshold": 0.65,
+      "wrong_caught": 49,
+      "wrong_caught_pct": 71.01,
+      "correct_lost": 42,
+      "correct_lost_pct": 4.08,
+      "flag_rate_pct": 8.28,
+      "acc_of_accepted": 0.9802
+    },
+    {
+      "threshold": 0.7,
+      "wrong_caught": 53,
+      "wrong_caught_pct": 76.81,
+      "correct_lost": 63,
+      "correct_lost_pct": 6.12,
+      "flag_rate_pct": 10.56,
+      "acc_of_accepted": 0.9837
+    },
+    {
+      "threshold": 0.8,
+      "wrong_caught": 63,
+      "wrong_caught_pct": 91.3,
+      "correct_lost": 98,
+      "correct_lost_pct": 9.51,
+      "flag_rate_pct": 14.65,
+      "acc_of_accepted": 0.9936
+    },
+    {
+      "threshold": 0.9,
+      "wrong_caught": 67,
+      "wrong_caught_pct": 97.1,
+      "correct_lost": 152,
+      "correct_lost_pct": 14.76,
+      "flag_rate_pct": 19.93,
+      "acc_of_accepted": 0.9977
+    }
+  ]
 }

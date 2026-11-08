@@ -72,15 +72,24 @@ def plot_single_cm(csv_file: Path, title: str, subtitle: str, output_file: Path,
     plt.close()
     print(f"[OK] Saved heatmap: {output_file.name}")
 
-def plot_cm_comparison(pv_csv: Path, field_csv: Path, output_file: Path):
+def plot_cm_comparison(pv_csv: Path, field_csv: Path, output_file: Path,
+                       title_main: str = "PERBANDINGAN VISUAL CONFUSION MATRIX: LABORATORIUM VS FOTO KEBUN NYATA",
+                       subtitle_left: str = "1. Dataset Uji Laboratorium (PlantVillage)",
+                       subtitle_right: str = "2. Dataset Uji Foto Lapangan Group-Disjoint",
+                       cmap_right: str = "Greens"):
     df_pv = pd.read_csv(pv_csv, index_col=0)
     df_field = pd.read_csv(field_csv, index_col=0)
     
-    # Short Indonesian names for cleaner 2-column layout
-    short_labels = [ID_NAMES.get(c, c) for c in df_pv.index]
+    short_labels_pv = [ID_NAMES.get(c, c) for c in df_pv.index]
+    short_labels_field = [ID_NAMES.get(c, c) for c in df_field.index]
     
-    acc_pv = (np.trace(df_pv.values) / df_pv.values.sum()) * 100
-    acc_field = (np.trace(df_field.values) / df_field.values.sum()) * 100
+    total_pv = int(df_pv.values.sum())
+    corr_pv = int(np.trace(df_pv.values))
+    acc_pv = (corr_pv / total_pv) * 100
+
+    total_field = int(df_field.values.sum())
+    corr_field = int(np.trace(df_field.values))
+    acc_field = (corr_field / total_field) * 100
 
     fig, axes = plt.subplots(1, 2, figsize=(22, 10), dpi=300)
     
@@ -91,43 +100,42 @@ def plot_cm_comparison(pv_csv: Path, field_csv: Path, output_file: Path):
         fmt="d", 
         cmap="Blues", 
         cbar=False,
-        xticklabels=short_labels, 
-        yticklabels=short_labels,
+        xticklabels=short_labels_pv, 
+        yticklabels=short_labels_pv,
         linewidths=0.5,
         linecolor="#e2e8f0",
         annot_kws={"size": 9, "weight": "bold"},
         ax=axes[0]
     )
-    axes[0].set_title(f"1. Dataset Uji Laboratorium (PlantVillage)\nAkurasi: {acc_pv:.2f}% (1.932 / 2.000 benar)\nDiagonal terisi penuh = Prediksi Sangat Akurat", 
+    axes[0].set_title(f"{subtitle_left}\nAkurasi: {acc_pv:.2f}% ({corr_pv:,} / {total_pv:,} benar · {len(df_pv)} kelas)", 
                       fontsize=12, fontweight='bold', pad=12, color='#1e3a8a')
     axes[0].set_xlabel("Prediksi Model", fontsize=11, fontweight='bold', labelpad=8)
     axes[0].set_ylabel("Label Sebenarnya", fontsize=11, fontweight='bold', labelpad=8)
     axes[0].tick_params(axis='x', rotation=35, labelsize=9)
     axes[0].tick_params(axis='y', rotation=0, labelsize=9)
 
-    # Plot 2: Field Clean
+    # Plot 2: Field
     sns.heatmap(
         df_field, 
         annot=True, 
         fmt="d", 
-        cmap="Oranges", 
+        cmap=cmap_right, 
         cbar=False,
-        xticklabels=short_labels, 
-        yticklabels=short_labels,
+        xticklabels=short_labels_field, 
+        yticklabels=short_labels_field,
         linewidths=0.5,
         linecolor="#e2e8f0",
         annot_kws={"size": 9, "weight": "bold"},
         ax=axes[1]
     )
-    axes[1].set_title(f"2. Dataset Uji Foto Lapangan Nyata (Field Test)\nAkurasi: {acc_field:.2f}% (139 / 208 benar)\nBanyak angka di luar diagonal = Efek Domain Shift", 
-                      fontsize=12, fontweight='bold', pad=12, color='#9a3412')
+    axes[1].set_title(f"{subtitle_right}\nAkurasi: {acc_field:.2f}% ({corr_field:,} / {total_field:,} benar · {len(df_field)} kelas)", 
+                      fontsize=12, fontweight='bold', pad=12, color='#065f46' if cmap_right == 'Greens' else '#9a3412')
     axes[1].set_xlabel("Prediksi Model", fontsize=11, fontweight='bold', labelpad=8)
     axes[1].set_ylabel("Label Sebenarnya", fontsize=11, fontweight='bold', labelpad=8)
     axes[1].tick_params(axis='x', rotation=35, labelsize=9)
     axes[1].tick_params(axis='y', rotation=0, labelsize=9)
 
-    plt.suptitle("PERBANDINGAN VISUAL CONFUSION MATRIX: LABORATORIUM VS FOTO KEBUN NYATA\nMemvisualisasikan Fenomena Domain Shift pada Model Baseline", 
-                 fontsize=15, fontweight='bold', y=0.98, color='#0f172a')
+    plt.suptitle(title_main, fontsize=15, fontweight='bold', y=0.98, color='#0f172a')
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.savefig(output_file, dpi=300)
     plt.close()
@@ -242,37 +250,63 @@ def plot_benchmark_comparison(pv_json: Path, field_baseline_json: Path, field_ft
 def main():
     setup_matplotlib()
     
-    # 1. Heatmap Baseline PlantVillage
+    # 1. Heatmap Baseline PlantVillage (E02)
     pv_cm = RESULTS_DIR / "confusion_matrix_baseline_pv.csv"
     if pv_cm.exists():
         plot_single_cm(
             pv_cm, 
-            "Confusion Matrix — Model Baseline (Dataset Laboratorium PlantVillage)",
+            "Confusion Matrix — Model Baseline E02 (Dataset Laboratorium PlantVillage)",
             "Himpunan Uji Test Set: 2.000 Citra (200 Citra / Kelas)",
             RESULTS_DIR / "confusion_matrix_baseline_pv.png",
             cmap="Blues"
         )
 
-    # 2. Heatmap Baseline Field Clean
-    field_cm = RESULTS_DIR / "confusion_matrix_baseline_field_clean.csv"
-    if field_cm.exists():
+    # 2. Heatmap Model Produksi Final (model_yolo3_grouped) - PlantVillage
+    final_pv_cm = RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_pv.csv"
+    if final_pv_cm.exists():
         plot_single_cm(
-            field_cm, 
-            "Confusion Matrix — Model Baseline (Dataset Foto Kebun Nyata / Field Test)",
-            "Himpunan Uji Petani Lapangan: 208 Citra (Menguji Efek Domain Shift)",
-            RESULTS_DIR / "confusion_matrix_baseline_field_clean.png",
-            cmap="Oranges"
+            final_pv_cm,
+            "Confusion Matrix — Model Produksi Final (Laboratorium PlantVillage)",
+            "model_yolo3_grouped.pt · Himpunan Uji: 2.000 Citra (10 Kelas)",
+            RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_pv.png",
+            cmap="Blues"
         )
 
-    # 3. Side-by-side Confusion Matrix comparison
-    if pv_cm.exists() and field_cm.exists():
+    # 3. Heatmap Model Produksi Final (model_yolo3_grouped) - Field Group-Disjoint
+    final_field_cm = RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_field.csv"
+    if final_field_cm.exists():
+        plot_single_cm(
+            final_field_cm,
+            "Confusion Matrix — Model Produksi Final (Lapangan Group-Disjoint)",
+            "model_yolo3_grouped.pt · Himpunan Uji: 1.058 Citra (8 Kelas Lapangan)",
+            RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_field.png",
+            cmap="Greens"
+        )
+
+    # 4. Heatmap Model Produksi Final (model_yolo3_grouped) - Cross-Dataset DS2
+    cross_cm = RESULTS_DIR / "confusion_matrix_cross_yolo3_grouped_on_ds2.csv"
+    if cross_cm.exists():
+        plot_single_cm(
+            cross_cm,
+            "Confusion Matrix Subset 3 Kelas — Uji Lintas-Dataset (Dataset 2 Independen)",
+            "model_yolo3_grouped.pt · Akurasi Keseluruhan 653 Citra: 81.32% (Macro F1: 86.01%)",
+            RESULTS_DIR / "confusion_matrix_cross_yolo3_grouped_on_ds2.png",
+            cmap="Purples"
+        )
+
+    # 5. Side-by-side Confusion Matrix comparison for Deployed Final Model (Lab vs Field Group-Disjoint)
+    if final_pv_cm.exists() and final_field_cm.exists():
         plot_cm_comparison(
-            pv_cm, 
-            field_cm, 
-            RESULTS_DIR / "confusion_matrix_comparison.png"
+            final_pv_cm,
+            final_field_cm,
+            RESULTS_DIR / "confusion_matrix_final_deployed_comparison.png",
+            title_main="CONFUSION MATRIX MODEL PRODUKSI FINAL (model_yolo3_grouped.pt)\nPerbandingan Performa pada Domain Laboratorium (10 Kelas) vs Lapangan Group-Disjoint (8 Kelas)",
+            subtitle_left="1. Domain Laboratorium (PlantVillage Test Set)",
+            subtitle_right="2. Domain Lapangan (YOLO3 Group-Disjoint Test Set)",
+            cmap_right="Greens"
         )
 
-    # 4. Baseline PV metrics chart (Precision, Recall, F1)
+    # 6. Baseline PV metrics chart (Precision, Recall, F1)
     pv_json = RESULTS_DIR / "evaluation_metrics_baseline_pv.json"
     if pv_json.exists():
         plot_baseline_pv_metrics(
@@ -280,14 +314,15 @@ def main():
             RESULTS_DIR / "baseline_pv_metrics_chart.png"
         )
 
-    # 5. Benchmark Comparison: Lab vs Field Baseline vs Field Fine-tuned
-    field_base_json = RESULTS_DIR / "evaluation_metrics_baseline_field_clean.json"
-    field_ft_json = RESULTS_DIR / "evaluation_metrics_fieldB_clean.json"
-    if pv_json.exists() and field_base_json.exists() and field_ft_json.exists():
+    # 7. Benchmark Comparison: Lab Final vs Field Baseline (Group-Disjoint) vs Field Final (Group-Disjoint)
+    final_pv_json = RESULTS_DIR / "evaluation_metrics_final_yolo3_grouped_pv.json"
+    field_base_grouped_json = RESULTS_DIR / "evaluation_metrics_baseline_grouped_field.json"
+    field_final_grouped_json = RESULTS_DIR / "evaluation_metrics_final_yolo3_grouped_field.json"
+    if final_pv_json.exists() and field_base_grouped_json.exists() and field_final_grouped_json.exists():
         plot_benchmark_comparison(
-            pv_json,
-            field_base_json,
-            field_ft_json,
+            final_pv_json,
+            field_base_grouped_json,
+            field_final_grouped_json,
             RESULTS_DIR / "domain_comparison_barchart.png"
         )
 

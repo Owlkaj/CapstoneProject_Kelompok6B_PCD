@@ -84,6 +84,7 @@ ml/models/_smoke_model.pt
 # Model backups created by deploy_model.ps1
 fastapi/models/*.bak_*
 ml/models/*.bak_*
+ml/models/*.pre_groupfix_*
 
 # ------------------------------------------------------------------------------
 # 3. Laravel / PHP Dependencies & Generated Caches

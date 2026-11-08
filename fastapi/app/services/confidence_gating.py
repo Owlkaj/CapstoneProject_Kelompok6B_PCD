@@ -41,7 +41,9 @@ except Exception:  # pragma: no cover
 
 
 # --- default thresholds (overridable via env) --------------------------------
-DEFAULT_MIN_CONFIDENCE = 0.55     # below this the diagnosis is not shown
+# Calibrated on the group-disjoint field validation split (n=1,099, 2026-11-08)
+# of `model_yolo3_grouped.pt` (`ml/results/gating_calibration.json`).
+DEFAULT_MIN_CONFIDENCE = 0.60     # below this the diagnosis is not shown
 DEFAULT_MIN_MARGIN = 0.10         # top1 - top2; below this the model is torn
 DEFAULT_MIN_SHARPNESS = 25.0      # variance of Laplacian
 DEFAULT_MIN_BRIGHTNESS = 30.0     # 0..255

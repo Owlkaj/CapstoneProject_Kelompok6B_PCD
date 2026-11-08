@@ -239,7 +239,7 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <p class="hidden text-xs text-slate-500 sm:block">EfficientNet-B0 · 32.000 citra</p>
+                    <p class="hidden text-xs text-slate-500 sm:block">EfficientNet-B0 · 31.757 citra (Group-Disjoint)</p>
                     <button type="button"
                             onclick="window.print()"
                             class="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900">
@@ -256,19 +256,19 @@
         <section class="py-10 sm:py-14">
             <div class="grid gap-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
                 <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">Evaluasi model · Oktober 2026</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">Evaluasi model · 8 November 2026 (Group-Disjoint)</p>
                     <h1 class="mt-4 max-w-3xl font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-slate-950 sm:text-5xl">
                         Kinerja klasifikasi
                         <br class="hidden sm:block">
                         penyakit daun tomat
                     </h1>
                     <p class="mt-5 max-w-2xl text-base leading-relaxed text-slate-600">
-                        Ringkasan pengujian EfficientNet-B0 pada data laboratorium, foto lapangan, dan dataset eksternal. Angka disusun dari hasil evaluasi pada 16 Oktober 2026.
+                        Ringkasan pengujian model produksi final (<code>model_yolo3_grouped.pt</code>) pada data laboratorium, foto lapangan <em>group-disjoint</em> (bebas kebocoran daun/gambar asal antar-split), dan dataset eksternal independen, dilengkapi <em>calibrated confidence gating</em> (<code>t = 0,60</code>).
                     </p>
                     <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
-                        <span><span class="font-medium text-slate-700">Model</span> EfficientNet-B0</span>
+                        <span><span class="font-medium text-slate-700">Model</span> EfficientNet-B0 (E03 Grouped)</span>
                         <span class="hidden h-3 w-px bg-slate-300 sm:block"></span>
-                        <span><span class="font-medium text-slate-700">Dataset</span> 32.000 citra</span>
+                        <span><span class="font-medium text-slate-700">Dataset</span> 31.757 citra</span>
                         <span class="hidden h-3 w-px bg-slate-300 sm:block"></span>
                         <span><span class="font-medium text-slate-700">Kelas</span> 10</span>
                     </div>
@@ -282,19 +282,19 @@
                     <dl class="mt-4 divide-y divide-slate-100">
                         <div class="flex items-baseline justify-between gap-4 py-3 first:pt-0">
                             <dt class="text-sm text-slate-600">Laboratorium</dt>
-                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">96,70%</dd>
+                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">97,45%</dd>
                         </div>
                         <div class="flex items-baseline justify-between gap-4 py-3">
-                            <dt class="text-sm text-slate-600">Lapangan</dt>
-                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">96,64%</dd>
+                            <dt class="text-sm text-slate-600">Lapangan (Group-Disjoint)</dt>
+                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">93,01%</dd>
                         </div>
                         <div class="flex items-baseline justify-between gap-4 py-3">
                             <dt class="text-sm text-slate-600">Dataset eksternal</dt>
-                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">83,31%</dd>
+                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">81,32%</dd>
                         </div>
                     </dl>
                     <p class="mt-4 border-t border-slate-100 pt-4 text-[11px] leading-relaxed text-slate-500">
-                        2.000 citra laboratorium · 1.160 citra lapangan · 653 citra eksternal
+                        2.000 citra laboratorium · 1.058 citra lapangan · 653 citra eksternal
                     </p>
                 </div>
             </div>
@@ -350,18 +350,18 @@
                 <div class="grid gap-4 md:grid-cols-3">
                     <article class="report-card metric-card p-5" data-tone="lab">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Laboratorium</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,70%</p>
-                        <p class="mt-2 text-sm leading-relaxed text-slate-600">1.934 dari 2.000 citra uji tepat pada 10 kelas PlantVillage.</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">97,45%</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">1.949 dari 2.000 citra uji tepat pada 10 kelas PlantVillage.</p>
                     </article>
                     <article class="report-card metric-card p-5" data-tone="field">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Lapangan</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,64%</p>
-                        <p class="mt-2 text-sm leading-relaxed text-slate-600">1.121 dari 1.160 citra uji tepat pada 8 kelas foto kebun.</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Lapangan (Group-Disjoint)</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">93,01%</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">984 dari 1.058 citra uji tepat pada 8 kelas lapangan (+18,62 pp dari baseline 74,39%; 96,62% pasca confidence gating).</p>
                     </article>
                     <article class="report-card metric-card p-5" data-tone="external">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Generalisasi</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">83,31%</p>
-                        <p class="mt-2 text-sm leading-relaxed text-slate-600">653 citra eksternal, meningkat 36,60 poin dari baseline 46,71%.</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">81,32%</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">653 citra eksternal (Macro F1 86,01%), meningkat 34,61 poin dari baseline 46,71%.</p>
                     </article>
                 </div>
 
@@ -393,7 +393,7 @@
                     <article class="report-card p-5 sm:p-6">
                         <div class="flex items-baseline justify-between gap-4">
                             <h3 class="font-serif text-xl font-semibold text-slate-950">Komposisi dataset</h3>
-                            <span class="text-xs tabular-nums text-slate-500">32.000 citra</span>
+                            <span class="text-xs tabular-nums text-slate-500">31.757 citra</span>
                         </div>
 
                         <div class="mt-5 space-y-5">
@@ -403,20 +403,20 @@
                                     <span class="tabular-nums text-slate-600">20.000</span>
                                 </div>
                                 <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                                    <div class="h-full rounded-full bg-brand-700" style="width: 62.5%"></div>
+                                    <div class="h-full rounded-full bg-brand-700" style="width: 63.0%"></div>
                                 </div>
                                 <p class="mt-1.5 text-xs text-slate-500">10 kelas · 2.000 citra per kelas · latar laboratorium</p>
                             </div>
 
                             <div>
                                 <div class="flex items-baseline justify-between text-sm">
-                                    <span class="font-medium text-slate-800">YOLO3 lapangan</span>
-                                    <span class="tabular-nums text-slate-600">12.000</span>
+                                    <span class="font-medium text-slate-800">YOLO3 lapangan (Group-Disjoint)</span>
+                                    <span class="tabular-nums text-slate-600">11.757</span>
                                 </div>
                                 <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                                    <div class="h-full rounded-full bg-teal-600" style="width: 37.5%"></div>
+                                    <div class="h-full rounded-full bg-teal-600" style="width: 37.0%"></div>
                                 </div>
-                                <p class="mt-1.5 text-xs text-slate-500">8 kelas · 1.500 citra per kelas · crop foto kebun</p>
+                                <p class="mt-1.5 text-xs text-slate-500">8 kelas · split per gambar asal (StratifiedGroupKFold) · bebas kebocoran</p>
                             </div>
                         </div>
 
@@ -424,19 +424,19 @@
                             <div class="grid grid-cols-3 gap-3 text-center">
                                 <div>
                                     <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">25.600</p>
-                                    <p class="text-[11px] text-slate-500">Latih · 80%</p>
+                                    <p class="text-[11px] text-slate-500">Latih</p>
                                 </div>
                                 <div>
-                                    <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">3.200</p>
-                                    <p class="text-[11px] text-slate-500">Validasi · 10%</p>
+                                    <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">3.099</p>
+                                    <p class="text-[11px] text-slate-500">Validasi</p>
                                 </div>
                                 <div>
-                                    <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">3.200</p>
-                                    <p class="text-[11px] text-slate-500">Uji · 10%</p>
+                                    <p class="font-serif text-lg font-semibold tabular-nums text-slate-950">3.058</p>
+                                    <p class="text-[11px] text-slate-500">Uji</p>
                                 </div>
                             </div>
                             <p class="mt-3 text-[11px] leading-relaxed text-slate-500">
-                                Evaluasi lapangan memakai 1.160 citra uji setelah penyaringan duplikat dan kualitas.
+                                Evaluasi lapangan memakai 1.058 citra uji group-disjoint (0 overlap gambar asal dengan train/val).
                             </p>
                         </div>
                     </article>
@@ -542,23 +542,23 @@
                 <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <article class="report-card metric-card p-5" data-tone="lab">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Akurasi laboratorium</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,70%</p>
-                        <p class="mt-1 text-xs text-slate-500">1.934 dari 2.000 citra · 10 kelas</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">97,45%</p>
+                        <p class="mt-1 text-xs text-slate-500">1.949 dari 2.000 citra · 10 kelas</p>
                     </article>
                     <article class="report-card metric-card p-5" data-tone="field">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Akurasi lapangan</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,64%</p>
-                        <p class="mt-1 text-xs text-slate-500">1.121 dari 1.160 citra · 8 kelas</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">93,01%</p>
+                        <p class="mt-1 text-xs text-slate-500">984 dari 1.058 citra · 8 kelas (Group-Disjoint)</p>
                     </article>
                     <article class="report-card metric-card p-5">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Macro precision</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,33%</p>
-                        <p class="mt-1 text-xs text-slate-500">Lab 96,77% · Lapangan 95,89%</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">95,57%</p>
+                        <p class="mt-1 text-xs text-slate-500">Lab 97,49% · Lapangan 93,66%</p>
                     </article>
                     <article class="report-card metric-card p-5">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Macro F1</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">96,43%</p>
-                        <p class="mt-1 text-xs text-slate-500">Lab 96,69% · Lapangan 96,17%</p>
+                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">95,44%</p>
+                        <p class="mt-1 text-xs text-slate-500">Lab 97,45% · Lapangan 93,43%</p>
                     </article>
                 </div>
 
@@ -648,10 +648,10 @@
                     <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                         <div class="border-b border-slate-200 px-5 py-4">
                             <div class="flex items-baseline justify-between gap-3">
-                                <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan</h3>
-                                <span class="text-xs tabular-nums text-slate-500">1.160 citra</span>
+                                <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan (Group-Disjoint)</h3>
+                                <span class="text-xs tabular-nums text-slate-500">1.058 citra</span>
                             </div>
-                            <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 8 kelas</p>
+                            <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 8 kelas · StratifiedGroupKFold</p>
                         </div>
                         <div id="cardsField" class="divide-y divide-slate-100 sm:hidden"></div>
                         <div class="hidden overflow-x-auto sm:block">
@@ -679,9 +679,9 @@
             <section id="panel-dataset" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-dataset" hidden>
                 <header class="max-w-3xl">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">04 · Dataset</p>
-                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Komposisi dan pembagian data</h2>
+                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Komposisi dan pembagian data (Group-Disjoint)</h2>
                     <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
-                        32.000 citra seimbang dari dua sumber, dibagi dengan rasio 80 : 10 : 10 untuk pelatihan, validasi, dan pengujian.
+                        31.757 citra dari dua sumber, dibagi dengan pembagian <em>group-aware</em> (<code>StratifiedGroupKFold</code> berdasarkan gambar asal) agar seluruh crop dari daun/gambar yang sama tidak pernah bocor antar-split.
                     </p>
                 </header>
 
@@ -692,9 +692,9 @@
                                 <tr>
                                     <th scope="col" class="px-4 py-3 font-medium sm:px-5">Komponen data</th>
                                     <th scope="col" class="hidden px-4 py-3 font-medium sm:table-cell">Sumber</th>
-                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Latih · 80%</th>
-                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Validasi · 10%</th>
-                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Uji · 10%</th>
+                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Latih</th>
+                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Validasi</th>
+                                    <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Uji</th>
                                     <th scope="col" class="px-2 py-3 text-right font-medium sm:px-4">Total</th>
                                     <th scope="col" class="hidden px-5 py-3 font-medium lg:table-cell">Karakteristik</th>
                                 </tr>
@@ -710,29 +710,29 @@
                                     <td class="hidden px-5 py-4 text-xs leading-relaxed text-slate-500 lg:table-cell">Daun tunggal terisolasi, latar polos, pencahayaan studio.</td>
                                 </tr>
                                 <tr class="hover:bg-slate-50/70">
-                                    <td class="px-4 py-4 font-medium text-slate-900 sm:px-5">YOLO3 lapangan</td>
+                                    <td class="px-4 py-4 font-medium text-slate-900 sm:px-5">YOLO3 lapangan (Group-Disjoint)</td>
                                     <td class="hidden px-4 py-4 text-slate-600 sm:table-cell">Kebun nyata · 8 kelas</td>
                                     <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">9.600</td>
-                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">1.200</td>
-                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">1.200</td>
-                                    <td class="px-2 py-4 text-right font-medium tabular-nums text-slate-900 sm:px-4">12.000</td>
-                                    <td class="hidden px-5 py-4 text-xs leading-relaxed text-slate-500 lg:table-cell">Crop daun dari foto kebun, pencahayaan alami, variasi sudut.</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">1.099</td>
+                                    <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">1.058</td>
+                                    <td class="px-2 py-4 text-right font-medium tabular-nums text-slate-900 sm:px-4">11.757</td>
+                                    <td class="hidden px-5 py-4 text-xs leading-relaxed text-slate-500 lg:table-cell">Crop daun dari foto kebun, split per <code>group_id</code> gambar asal + deduplikasi hash.</td>
                                 </tr>
                                 <tr class="bg-slate-50 font-semibold text-slate-900">
                                     <td class="px-4 py-4 sm:px-5">Total gabungan</td>
                                     <td class="hidden px-4 py-4 sm:table-cell"></td>
                                     <td class="px-2 py-4 text-right tabular-nums sm:px-4">25.600</td>
-                                    <td class="px-2 py-4 text-right tabular-nums sm:px-4">3.200</td>
-                                    <td class="px-2 py-4 text-right tabular-nums sm:px-4">3.200</td>
-                                    <td class="px-2 py-4 text-right text-base tabular-nums sm:px-4 sm:text-lg">32.000</td>
-                                    <td class="hidden px-5 py-4 text-xs font-normal leading-relaxed text-slate-500 lg:table-cell">Seimbang, tanpa duplikasi sintetis.</td>
+                                    <td class="px-2 py-4 text-right tabular-nums sm:px-4">3.099</td>
+                                    <td class="px-2 py-4 text-right tabular-nums sm:px-4">3.058</td>
+                                    <td class="px-2 py-4 text-right text-base tabular-nums sm:px-4 sm:text-lg">31.757</td>
+                                    <td class="hidden px-5 py-4 text-xs font-normal leading-relaxed text-slate-500 lg:table-cell">Bebas kebocoran group_id antar-split dan bebas duplikasi sintetis.</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <p class="mt-3 text-xs leading-relaxed text-slate-500">
-                    Alokasi uji lapangan adalah 1.200 citra; 1.160 citra lolos penyaringan duplikat dan kualitas, lalu digunakan pada evaluasi akhir.
+                    Sebanyak 1.099 citra validasi dipakai untuk kalibrasi ambang <em>confidence gating</em> (<code>t = 0,60</code>), sedangkan 1.058 citra uji dijaga murni untuk evaluasi akhir.
                 </p>
 
                 <div class="grid gap-4 md:grid-cols-2">
@@ -781,14 +781,14 @@
                     <article class="report-card report-card-accent p-5">
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-800">Model final</p>
-                                <p class="mt-1 text-xs text-brand-700">Crop YOLO3 + fine-tuning</p>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-800">Model final (Group-Disjoint)</p>
+                                <p class="mt-1 text-xs text-brand-700">Crop YOLO3 + fine-tuning E03</p>
                             </div>
                             <span class="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-800">Terbaik</span>
                         </div>
-                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">83,31%</p>
-                        <p class="mt-1 text-xs text-slate-500">Macro F1 86,19% · 653 citra</p>
-                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Meningkat 36,60 poin dari baseline.</p>
+                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">81,32%</p>
+                        <p class="mt-1 text-xs text-slate-500">Macro F1 86,01% · 653 citra</p>
+                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Meningkat 34,61 poin dari baseline.</p>
                     </article>
                 </div>
 
@@ -824,11 +824,11 @@
 
                         <div>
                             <div class="flex items-baseline justify-between gap-3 text-sm">
-                                <span class="font-medium text-slate-800">Model final</span>
-                                <span class="font-medium tabular-nums text-brand-800">83,31%</span>
+                                <span class="font-medium text-slate-800">Model final (Group-Disjoint)</span>
+                                <span class="font-medium tabular-nums text-brand-800">81,32%</span>
                             </div>
                             <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                                <div class="h-full rounded-full bg-brand-700" style="width: 83.31%"></div>
+                                <div class="h-full rounded-full bg-brand-700" style="width: 81.32%"></div>
                             </div>
                         </div>
                     </div>
@@ -859,10 +859,10 @@
                                 <h3 class="font-serif text-lg font-semibold text-slate-950">Laboratorium · 10 kelas</h3>
                                 <p class="mt-1 text-xs text-slate-500">PlantVillage · 2.000 citra</p>
                             </div>
-                            <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">96,70%</span>
+                            <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">97,45%</span>
                         </div>
-                        <a href="confusion_matrix_final_yolo3_pv.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
-                            <img src="confusion_matrix_final_yolo3_pv.png"
+                        <a href="confusion_matrix_final_yolo3_grouped_pv.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
+                            <img src="confusion_matrix_final_yolo3_grouped_pv.png"
                                  alt="Confusion matrix model final pada data laboratorium PlantVillage"
                                  class="h-auto w-full rounded border border-slate-200"
                                  loading="lazy">
@@ -872,14 +872,14 @@
                     <figure class="report-card overflow-hidden">
                         <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
                             <div>
-                                <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan · 8 kelas</h3>
-                                <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 1.160 citra</p>
+                                <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan (Group-Disjoint) · 8 kelas</h3>
+                                <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 1.058 citra</p>
                             </div>
-                            <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">96,64%</span>
+                            <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">93,01%</span>
                         </div>
-                        <a href="confusion_matrix_final_yolo3_field.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
-                            <img src="confusion_matrix_final_yolo3_field.png"
-                                 alt="Confusion matrix model final pada data lapangan YOLO3"
+                        <a href="confusion_matrix_final_yolo3_grouped_field.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
+                            <img src="confusion_matrix_final_yolo3_grouped_field.png"
+                                 alt="Confusion matrix model final pada data lapangan YOLO3 group-disjoint"
                                  class="h-auto w-full rounded border border-slate-200"
                                  loading="lazy">
                         </a>
@@ -888,37 +888,37 @@
 
                 <div class="report-card p-5 sm:p-6">
                     <h3 class="font-serif text-xl font-semibold text-slate-950">Berkas pendukung</h3>
-                    <p class="mt-1 text-sm text-slate-600">Data mentah dan metrik lengkap untuk verifikasi.</p>
+                    <p class="mt-1 text-sm text-slate-600">Data mentah dan metrik lengkap untuk verifikasi (Model Produksi Final <code>model_yolo3_grouped.pt</code>).</p>
 
                     <div class="mt-4 grid gap-2 sm:grid-cols-2">
-                        <a href="evaluation_metrics_final_yolo3_pv.json" target="_blank" rel="noopener"
+                        <a href="evaluation_metrics_final_yolo3_grouped_pv.json" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
-                            <span>Metrik laboratorium</span>
+                            <span>Metrik laboratorium (2.000 citra · 97,45%)</span>
                             <span class="text-xs text-slate-400">JSON</span>
                         </a>
-                        <a href="evaluation_metrics_final_yolo3_field.json" target="_blank" rel="noopener"
+                        <a href="evaluation_metrics_final_yolo3_grouped_field.json" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
-                            <span>Metrik lapangan</span>
+                            <span>Metrik lapangan group-disjoint (1.058 citra · 93,01%)</span>
                             <span class="text-xs text-slate-400">JSON</span>
                         </a>
-                        <a href="evaluation_metrics_cross_yolo3_on_ds2.json" target="_blank" rel="noopener"
+                        <a href="evaluation_metrics_cross_yolo3_grouped_on_ds2.json" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
-                            <span>Metrik generalisasi</span>
+                            <span>Metrik generalisasi lintas-dataset DS2 (653 citra · 81,32%)</span>
                             <span class="text-xs text-slate-400">JSON</span>
                         </a>
-                        <a href="confusion_matrix_final_yolo3_pv.csv" target="_blank" rel="noopener"
+                        <a href="confusion_matrix_final_yolo3_grouped_pv.csv" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
                             <span>Confusion matrix laboratorium</span>
                             <span class="text-xs text-slate-400">CSV</span>
                         </a>
-                        <a href="confusion_matrix_final_yolo3_field.csv" target="_blank" rel="noopener"
+                        <a href="confusion_matrix_final_yolo3_grouped_field.csv" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
-                            <span>Confusion matrix lapangan</span>
+                            <span>Confusion matrix lapangan group-disjoint</span>
                             <span class="text-xs text-slate-400">CSV</span>
                         </a>
-                        <a href="evaluation_metrics_cross_baseline_on_ds2.json" target="_blank" rel="noopener"
+                        <a href="gating_calibration.json" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
-                            <span>Metrik baseline eksternal</span>
+                            <span>Kalibrasi confidence gating (val n=1.099 · t=0,60)</span>
                             <span class="text-xs text-slate-400">JSON</span>
                         </a>
                     </div>
@@ -930,11 +930,11 @@
             <div class="flex flex-col gap-3 text-xs leading-relaxed text-slate-500 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <p class="font-medium text-slate-700">TomatCare · Laporan evaluasi model</p>
-                    <p class="mt-1">Diperbarui 24 Oktober 2026 · Data evaluasi 16 Oktober 2026</p>
+                    <p class="mt-1">Diperbarui 8 November 2026 · Evaluasi Group-Disjoint &amp; Kalibrasi Gating</p>
                 </div>
                 <p class="sm:text-right">
-                    EfficientNet-B0 · 32.000 citra · 10 kelas<br>
-                    Sumber: hasil evaluasi model, 16 Oktober 2026 · Data mentah tersedia di Lampiran.
+                    EfficientNet-B0 · 31.757 citra · 10 kelas<br>
+                    Sumber: hasil evaluasi model <code>model_yolo3_grouped.pt</code>, 8 November 2026.
                 </p>
             </div>
         </footer>
@@ -942,29 +942,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Sumber angka: ml/results/evaluation_metrics_*.json (evaluasi 16 Oktober 2026).
+        // Sumber angka: ml/results/evaluation_metrics_final_yolo3_grouped_*.json (evaluasi 8 November 2026).
         const labData = [
-            { name: 'Bercak bakteri', en: 'Bacterial Spot', short: 'Bercak bakteri', prec: 98.42, rec: 93.50, f1: 95.90, n: 200 },
-            { name: 'Bercak kering', en: 'Early Blight', short: 'Bercak kering', prec: 95.98, rec: 95.50, f1: 95.74, n: 200 },
-            { name: 'Sehat', en: 'Healthy', short: 'Sehat', prec: 92.09, rec: 99.00, f1: 95.42, n: 200 },
-            { name: 'Hawar daun', en: 'Late Blight', short: 'Hawar daun', prec: 98.46, rec: 96.00, f1: 97.22, n: 200 },
-            { name: 'Kapang daun', en: 'Leaf Mold', short: 'Kapang daun', prec: 96.55, rec: 98.00, f1: 97.27, n: 200 },
-            { name: 'Virus mosaik', en: 'Tomato Mosaic Virus', short: 'Virus mosaik', prec: 98.00, rec: 98.00, f1: 98.00, n: 200 },
-            { name: 'Bercak Septoria', en: 'Septoria Leaf Spot', short: 'Septoria', prec: 95.57, rec: 97.00, f1: 96.28, n: 200 },
-            { name: 'Tungau laba-laba', en: 'Spider Mites', short: 'Tungau', prec: 96.14, rec: 99.50, f1: 97.79, n: 200 },
-            { name: 'Bercak sasaran', en: 'Target Spot', short: 'Bercak sasaran', prec: 99.46, rec: 91.50, f1: 95.31, n: 200 },
-            { name: 'Virus kuning keriting', en: 'Tomato Yellow Leaf Curl Virus (TYLCV)', short: 'TYLCV', prec: 97.06, rec: 99.00, f1: 98.02, n: 200 },
+            { name: 'Bercak bakteri', en: 'Bacterial Spot', short: 'Bercak bakteri', prec: 95.57, rec: 97.00, f1: 96.28, n: 200 },
+            { name: 'Bercak kering', en: 'Early Blight', short: 'Bercak kering', prec: 95.07, rec: 96.50, f1: 95.78, n: 200 },
+            { name: 'Sehat', en: 'Healthy', short: 'Sehat', prec: 96.14, rec: 99.50, f1: 97.79, n: 200 },
+            { name: 'Hawar daun', en: 'Late Blight', short: 'Hawar daun', prec: 99.48, rec: 95.00, f1: 97.19, n: 200 },
+            { name: 'Kapang daun', en: 'Leaf Mold', short: 'Kapang daun', prec: 98.49, rec: 98.00, f1: 98.25, n: 200 },
+            { name: 'Virus mosaik', en: 'Tomato Mosaic Virus', short: 'Virus mosaik', prec: 98.50, rec: 98.50, f1: 98.50, n: 200 },
+            { name: 'Bercak Septoria', en: 'Septoria Leaf Spot', short: 'Septoria', prec: 95.61, rec: 98.00, f1: 96.79, n: 200 },
+            { name: 'Tungau laba-laba', en: 'Spider Mites', short: 'Tungau', prec: 98.03, rec: 99.50, f1: 98.76, n: 200 },
+            { name: 'Bercak sasaran', en: 'Target Spot', short: 'Bercak sasaran', prec: 99.47, rec: 94.50, f1: 96.92, n: 200 },
+            { name: 'Virus kuning keriting', en: 'Tomato Yellow Leaf Curl Virus (TYLCV)', short: 'TYLCV', prec: 98.49, rec: 98.00, f1: 98.25, n: 200 },
         ];
 
         const fieldData = [
-            { name: 'Bercak kering', en: 'Early Blight', short: 'Bercak kering', prec: 96.03, rec: 93.80, f1: 94.90, n: 129 },
-            { name: 'Sehat', en: 'Healthy', short: 'Sehat', prec: 87.34, rec: 95.83, f1: 91.39, n: 72 },
-            { name: 'Hawar daun', en: 'Late Blight', short: 'Hawar daun', prec: 98.58, rec: 96.31, f1: 97.44, n: 217 },
-            { name: 'Kapang daun', en: 'Leaf Mold', short: 'Kapang daun', prec: 96.86, rec: 97.37, f1: 97.11, n: 190 },
-            { name: 'Virus mosaik', en: 'Tomato Mosaic Virus', short: 'Virus mosaik', prec: 97.41, rec: 91.87, f1: 94.56, n: 123 },
-            { name: 'Bercak Septoria', en: 'Septoria Leaf Spot', short: 'Septoria', prec: 98.12, rec: 99.37, f1: 98.74, n: 158 },
-            { name: 'Tungau laba-laba', en: 'Spider Mites', short: 'Tungau', prec: 95.10, rec: 100.00, f1: 97.49, n: 97 },
-            { name: 'Virus kuning keriting', en: 'Tomato Yellow Leaf Curl Virus (TYLCV)', short: 'TYLCV', prec: 97.70, rec: 97.70, f1: 97.70, n: 174 },
+            { name: 'Bercak kering', en: 'Early Blight', short: 'Bercak kering', prec: 86.96, rec: 88.24, f1: 87.59, n: 136 },
+            { name: 'Sehat', en: 'Healthy', short: 'Sehat', prec: 93.62, rec: 92.31, f1: 92.96, n: 143 },
+            { name: 'Hawar daun', en: 'Late Blight', short: 'Hawar daun', prec: 95.20, rec: 92.25, f1: 93.70, n: 129 },
+            { name: 'Kapang daun', en: 'Leaf Mold', short: 'Kapang daun', prec: 93.98, rec: 93.28, f1: 93.63, n: 134 },
+            { name: 'Virus mosaik', en: 'Tomato Mosaic Virus', short: 'Virus mosaik', prec: 93.50, rec: 99.14, f1: 96.23, n: 116 },
+            { name: 'Bercak Septoria', en: 'Septoria Leaf Spot', short: 'Septoria', prec: 95.04, rec: 93.71, f1: 94.37, n: 143 },
+            { name: 'Tungau laba-laba', en: 'Spider Mites', short: 'Tungau', prec: 97.17, rec: 96.26, f1: 96.71, n: 107 },
+            { name: 'Virus kuning keriting', en: 'Tomato Yellow Leaf Curl Virus (TYLCV)', short: 'TYLCV', prec: 93.79, rec: 90.67, f1: 92.20, n: 150 },
         ];
 
         const formatPct = (value) => `${value.toFixed(2).replace('.', ',')}%`;
@@ -1033,7 +1033,7 @@
         function updateChartCaption() {
             document.getElementById('chartCaption').textContent = activeDomain === 'lab'
                 ? 'Laboratorium · 2.000 citra uji · 10 kelas. Skala 70–100% (dipotong) untuk memperjelas perbedaan.'
-                : 'Lapangan · 1.160 citra uji · 8 kelas. Skala 70–100% (dipotong) untuk memperjelas perbedaan.';
+                : 'Lapangan (Group-Disjoint) · 1.058 citra uji · 8 kelas. Skala 70–100% (dipotong) untuk memperjelas perbedaan.';
         }
 
         function chartConfig(rows) {

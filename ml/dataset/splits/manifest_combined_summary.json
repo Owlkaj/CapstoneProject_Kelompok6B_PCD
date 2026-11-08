@@ -1,14 +1,16 @@
 {
   "per_class_target": 1500,
   "augment_mode": "rows",
-  "total_rows": 32000,
+  "split_strategy": "group_id (source image, leakage-safe)",
+  "group_leakage_field": 0,
+  "total_rows": 31986,
   "by_source": {
     "plantvillage": 20000,
-    "field": 12000
+    "field": 11986
   },
   "by_source_split": {
     "test": {
-      "field": 1200,
+      "field": 1186,
       "plantvillage": 2000
     },
     "train": {
@@ -80,11 +82,11 @@
       "real_available": 1558,
       "real_train": 1200,
       "train_target": 1200,
-      "trimmed": 58,
+      "trimmed": 72,
       "augmented_needed": 0,
       "augmented_written": 0,
       "val_used": 150,
-      "test_used": 150,
+      "test_used": 136,
       "duplication_factor": 1.0
     },
     "Tomato Mosaic Virus": {

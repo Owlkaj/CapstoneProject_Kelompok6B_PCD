@@ -13,6 +13,9 @@ Design notes:
 - Splits from the source (train/valid/test) are preserved (they are already
   per-image, hence leakage-free across splits); run `dedupe_manifest.py`
   afterwards to also drop near-duplicates.
+- A `group_id` column (the source image stem) is written to the manifest. Every
+  crop from the same source image shares it, so downstream balancing/splitting
+  can keep all crops of one leaf in a single split.
 - Boxes that are too small (in pixels OR in relative area) are skipped, because
   upscaling a tiny crop to 224x224 only produces blur — a measured problem in
   Roboflow OBB tomato datasets (~40% of boxes < 1% of the image).
@@ -239,6 +242,9 @@ def main() -> None:
                     "split": split if split != "valid" else "val",
                     "source": "field",
                     "is_augmented": False,
+                    # All crops cut from the same source image must stay in the
+                    # same split; group-aware balancing uses this column.
+                    "group_id": img_path.stem,
                 })
                 stats["boxes_kept"] += 1
                 per_class[target] = per_class.get(target, 0) + 1

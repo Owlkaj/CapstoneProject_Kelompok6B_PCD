@@ -312,14 +312,21 @@ if __name__ == "__main__":
     ap.add_argument("--split", default="test")
     ap.add_argument("--compare-domains", action="store_true",
                     help="Evaluate the model on both PlantVillage and field manifests")
+    ap.add_argument("--field-manifest", default=None,
+                    help="Override the field manifest used by --compare-domains "
+                         "(default: manifest_field_only_clean.csv when present)")
     args = ap.parse_args()
 
     if args.compare_domains:
         results_dir = ML_ROOT / "results"
         model_path = _resolve(args.model or "ml/models/final_model_field.pt")
+        default_field = REPO_ROOT / "ml" / "dataset" / "splits" / "manifest_field_only_clean.csv"
+        if not default_field.exists():
+            default_field = REPO_ROOT / "ml" / "dataset" / "splits" / "manifest_field_only.csv"
+        field_manifest = _resolve(args.field_manifest) if args.field_manifest else default_field
         pairs = [
             ("pv", REPO_ROOT / "ml" / "dataset" / "splits" / "manifest.csv"),
-            ("field", REPO_ROOT / "ml" / "dataset" / "splits" / "manifest_field_only.csv"),
+            ("field", field_manifest),
         ]
         summary = {}
         for tag, man in pairs:
