@@ -29,3 +29,4 @@ Silakan buka [**`EVALUATION_REPORT.md`**](./EVALUATION_REPORT.md) untuk laporan 
 4. **Subfolder**:
    - [`training_history/`](./training_history/) — Log CSV dan grafik kurva *Loss/Accuracy* per epoch untuk tahap `E01`, `E02`, dan `E03`.
    - [`archive_pre_groupfix/`](./archive_pre_groupfix/) — Arsip hasil eksperimen terdahulu sebelum perbaikan *group-aware split*.
+
