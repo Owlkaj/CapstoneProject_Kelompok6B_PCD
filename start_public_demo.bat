@@ -35,14 +35,26 @@ ping 127.0.0.1 -n 4 >nul
 
 echo.
 echo ==============================================================================
-echo   LINK WEB PUBLIK AKAN MUNCUL DI BAWAH (https://...trycloudflare.com)
+echo   LINK WEB PUBLIK AKAN MUNCUL DI BAWAH
 echo   Biarkan jendela ini tetap terbuka selama demo berlangsung!
 echo   Tekan Ctrl + C untuk menghentikan tunnel publik.
 echo ==============================================================================
 echo.
 
 "%~dp0cloudflared.exe" tunnel --url http://127.0.0.1:8000
+if %ERRORLEVEL% equ 0 goto END_TUNNEL
 
+echo.
+echo ==============================================================================
+echo   [INFO] Server Cloudflare Quick Tunnel (trycloudflare.com) sedang sibuk/down.
+echo   [AUTO-FALLBACK] Mengalihkan otomatis ke tunnel cadangan (localhost.run)...
+echo   Cari link publik HTTPS di bawah: https://....lhr.life
+echo ==============================================================================
+echo.
+
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=NUL -o ServerAliveInterval=30 -R 80:127.0.0.1:8000 nokey@localhost.run
+
+:END_TUNNEL
 echo.
 echo Tunnel telah dihentikan.
 pause

@@ -7,8 +7,9 @@ echo       TomatCare - Menghentikan Seluruh Service Lokal dan Tunnel
 echo ==============================================================================
 echo.
 
-echo Menghentikan Cloudflare Tunnel...
+echo Menghentikan Public Tunnel (Cloudflare / localhost.run)...
 taskkill /F /IM cloudflared.exe >nul 2>&1
+powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name = 'ssh.exe' AND CommandLine LIKE '%%localhost.run%%'\" | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }" >nul 2>&1
 
 echo Menghentikan Laravel Server [Port 8000]...
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr /R /C:":8000 .*LISTENING"') do taskkill /F /PID %%a >nul 2>&1
