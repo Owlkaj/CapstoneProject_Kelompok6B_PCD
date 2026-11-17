@@ -18,22 +18,22 @@
         <div class="bg-white p-5 sm:p-6">
             <p class="text-xs font-medium text-slate-500">Model</p>
             <p class="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">EfficientNet-B0</p>
-            <p class="mt-1 text-xs text-slate-500">Transfer learning</p>
+            <p class="mt-1 text-xs text-slate-500">Transfer learning + fine-tuning</p>
         </div>
         <div class="bg-white p-5 sm:p-6">
-            <p class="text-xs font-medium text-slate-500">Akurasi uji</p>
-            <p class="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">96,60%</p>
-            <p class="mt-1 text-xs text-slate-500">2.000 citra uji</p>
+            <p class="text-xs font-medium text-slate-500">Akurasi lab</p>
+            <p class="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">97,45%</p>
+            <p class="mt-1 text-xs text-slate-500">2.000 citra PlantVillage</p>
         </div>
         <div class="bg-white p-5 sm:p-6">
-            <p class="text-xs font-medium text-slate-500">Dataset</p>
-            <p class="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">20.000</p>
-            <p class="mt-1 text-xs text-slate-500">2.000 citra per kelas</p>
+            <p class="text-xs font-medium text-slate-500">Akurasi lapangan</p>
+            <p class="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">93,01%</p>
+            <p class="mt-1 text-xs text-slate-500">96,62% setelah saringan keyakinan</p>
         </div>
         <div class="bg-white p-5 sm:p-6">
-            <p class="text-xs font-medium text-slate-500">Macro F1</p>
-            <p class="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">96,60%</p>
-            <p class="mt-1 text-xs text-slate-500">Sepuluh kelas</p>
+            <p class="text-xs font-medium text-slate-500">Total dataset</p>
+            <p class="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">31.757</p>
+            <p class="mt-1 text-xs text-slate-500">Gabungan lab &amp; kebun (10 kelas)</p>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
                         {{ $disease['name_id'] }}
                     </h3>
                     <p class="mt-1 text-xs font-medium text-emerald-700">{{ $disease['pathogen'] }}</p>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ $disease['visual'] }}</p>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ ucfirst($disease['visual']) }}.</p>
                 </article>
             @endforeach
         </div>

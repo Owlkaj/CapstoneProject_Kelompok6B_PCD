@@ -228,12 +228,31 @@
                         </div>
                     </div>
 
-                    <div id="resAlternativesWrap" class="hidden space-y-3 rounded-xl border border-slate-200 p-4">
-                        <div>
-                            <h4 class="text-sm font-semibold text-slate-800">Kemungkinan lain</h4>
-                            <p class="mt-0.5 text-xs text-slate-500">Prediksi alternatif dengan gejala yang mirip.</p>
+                    <div id="resTop5AnalysisWrap" class="hidden">
+                        <div id="resAlternativesWrap" class="space-y-4 rounded-xl border border-slate-200 p-4">
+                            <div class="flex flex-wrap items-start justify-between gap-2">
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-900">Analisis 5 Kemungkinan Teratas</h4>
+                                    <p id="resCompetitionMargin" class="mt-0.5 text-xs text-slate-500">Penjelasan singkat alasan sistem memilih kelima kemungkinan penyakit.</p>
+                                </div>
+                                <span id="resCompetitionBadge" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset"></span>
+                            </div>
+
+                            <div id="resCompetitionSummaryBox" class="space-y-2.5 rounded-xl border p-3.5 text-xs leading-relaxed">
+                                <p id="resCompetitionHeadline" class="font-semibold text-slate-900"></p>
+                                <div class="space-y-1.5 text-slate-700">
+                                    <p><span class="font-semibold text-slate-800">Mengapa hasilnya seperti ini:</span> <span id="resCompetitionPairwise"></span></p>
+                                    <p><span class="font-semibold text-slate-800">Alasan lima nama ini muncul:</span> <span id="resCompetitionCluster"></span></p>
+                                    <p><span class="font-semibold text-slate-800">Pengaruh kondisi foto:</span> <span id="resCompetitionQuality"></span></p>
+                                </div>
+                                <div class="border-t border-slate-200/70 pt-2">
+                                    <p class="font-semibold text-slate-800">Hubungan antar urutan 1 sampai 5:</p>
+                                    <ul id="resCompetitionChainList" class="mt-1 list-disc space-y-1.5 pl-4 text-slate-700"></ul>
+                                </div>
+                            </div>
+
+                            <div id="resAlternativesList" class="space-y-2.5"></div>
                         </div>
-                        <div id="resAlternativesList" class="space-y-2"></div>
                     </div>
 
                     <div>
@@ -302,19 +321,28 @@
 </div>
 
 <template id="alternativeTemplate">
-    <div class="rounded-lg border border-slate-200 bg-white p-3">
+    <div class="rounded-lg border border-slate-200 bg-white p-3.5 transition-colors">
         <div class="flex items-center justify-between gap-3">
             <div class="flex min-w-0 items-center gap-2.5">
-                <span data-rank class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600"></span>
+                <span data-rank class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-700"></span>
                 <div class="min-w-0">
-                    <p data-name class="truncate text-sm font-medium text-slate-800"></p>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <p data-name class="truncate text-sm font-semibold text-slate-800"></p>
+                        <span data-role class="inline-flex items-center rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600"></span>
+                        <span data-gap-badge class="inline-flex items-center rounded-md bg-slate-50 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 ring-1 ring-inset ring-slate-200/80"></span>
+                    </div>
                     <p data-name-en class="truncate text-xs text-slate-400"></p>
                 </div>
             </div>
-            <span data-confidence class="shrink-0 text-sm font-semibold text-slate-700"></span>
+            <span data-confidence class="shrink-0 font-heading text-sm font-bold text-slate-800"></span>
         </div>
         <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
             <div data-bar class="h-full rounded-full transition-all duration-500"></div>
+        </div>
+        <div class="mt-2.5 space-y-1.5 rounded-lg bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-600">
+            <p><span class="font-semibold text-slate-700">Alasan sistem memilih ini:</span> <span data-why-predicted></span></p>
+            <p><span class="font-semibold text-slate-700">Kemiripan dengan urutan sebelumnya:</span> <span data-overlap-prev></span></p>
+            <p><span class="font-semibold text-slate-700">Cara memastikan langsung di daun:</span> <span data-differentiator></span></p>
         </div>
     </div>
 </template>
@@ -354,7 +382,16 @@ document.addEventListener('DOMContentLoaded', () => {
         gateWrap: $('resGateWrap'),
         gateTitle: $('resGateTitle'),
         gateMessage: $('resGateMessage'),
+        top5AnalysisWrap: $('resTop5AnalysisWrap'),
         alternativesWrap: $('resAlternativesWrap'),
+        competitionBadge: $('resCompetitionBadge'),
+        competitionMargin: $('resCompetitionMargin'),
+        competitionSummaryBox: $('resCompetitionSummaryBox'),
+        competitionHeadline: $('resCompetitionHeadline'),
+        competitionPairwise: $('resCompetitionPairwise'),
+        competitionCluster: $('resCompetitionCluster'),
+        competitionQuality: $('resCompetitionQuality'),
+        competitionChainList: $('resCompetitionChainList'),
         alternativesList: $('resAlternativesList'),
         tabUploadBtn: $('tabUploadBtn'),
         tabCameraBtn: $('tabCameraBtn'),
@@ -391,6 +428,25 @@ document.addEventListener('DOMContentLoaded', () => {
         too_small: 'Resolusi foto kecil',
         low_confidence: 'Model kurang yakin',
         ambiguous: 'Gejala antar penyakit mirip',
+    };
+
+    const competitionToneThemes = {
+        emerald: {
+            badge: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+            box: 'space-y-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 p-3.5 text-xs leading-relaxed',
+        },
+        indigo: {
+            badge: 'bg-indigo-50 text-indigo-700 ring-indigo-600/20',
+            box: 'space-y-2.5 rounded-xl border border-indigo-200 bg-indigo-50/60 p-3.5 text-xs leading-relaxed',
+        },
+        amber: {
+            badge: 'bg-amber-50 text-amber-800 ring-amber-600/20',
+            box: 'space-y-2.5 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 text-xs leading-relaxed',
+        },
+        rose: {
+            badge: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+            box: 'space-y-2.5 rounded-xl border border-rose-200 bg-rose-50/70 p-3.5 text-xs leading-relaxed',
+        },
     };
 
     let currentFile = null;
@@ -565,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.confidenceCategory.textContent = getConfidenceLabel(data.confidence);
 
         renderGateWarning(data);
-        renderAlternatives(data.alternatives || []);
+        renderTop5Analysis(data);
     }
 
     function getConfidenceLabel(confidence) {
@@ -606,33 +662,230 @@ document.addEventListener('DOMContentLoaded', () => {
             + threshold;
     }
 
-    function renderAlternatives(alternatives) {
-        elements.alternativesList.replaceChildren();
+    function ensureCompleteAnalysis(data) {
+        const rawCandidates = (Array.isArray(data.competition_analysis?.candidates) && data.competition_analysis.candidates.length > 0)
+            ? data.competition_analysis.candidates
+            : (Array.isArray(data.top_predictions) && data.top_predictions.length > 0
+                ? data.top_predictions.slice(0, 5)
+                : [{
+                    rank: 1,
+                    disease: data.disease,
+                    diseaseEn: data.diseaseEn,
+                    confidence: Number(data.confidence || 0),
+                    color: data.color || 'emerald',
+                    visual: data.visual || 'Ciri visual gejala pada permukaan daun.',
+                }]);
 
-        if (alternatives.length === 0) {
-            elements.alternativesWrap.classList.add('hidden');
+        const count = rawCandidates.length;
+        const p1 = Number(rawCandidates[0]?.confidence ?? data.confidence ?? 0);
+        const p2 = Number(rawCandidates[1]?.confidence ?? 0);
+        const p3 = Number(rawCandidates[2]?.confidence ?? 0);
+        const p4 = Number(rawCandidates[3]?.confidence ?? 0);
+        const pLast = Number(rawCandidates[count - 1]?.confidence ?? 0);
+
+        const m12 = count >= 2 ? Math.max(0, Number((p1 - p2).toFixed(2))) : 0;
+        const m23 = count >= 3 ? Math.max(0, Number((p2 - p3).toFixed(2))) : 0;
+        const m14 = count >= 4 ? Math.max(0, Number((p1 - p4).toFixed(2))) : m12;
+        const m15 = Math.max(0, Number((p1 - pLast).toFixed(2)));
+        const m25 = count >= 2 ? Math.max(0, Number((p2 - pLast).toFixed(2))) : 0;
+
+        let fallbackStatus = 'duel_top2';
+        let fallbackFierceRanks = [1, 2];
+        if (count < 2) {
+            fallbackStatus = 'single_only';
+            fallbackFierceRanks = [1];
+        } else if (p1 >= 85 && m12 >= 60) {
+            fallbackStatus = 'dominant';
+            fallbackFierceRanks = [1];
+        } else if (p1 >= 60 && m12 >= 20) {
+            if (count >= 3 && p2 >= 5 && (m23 < 8 || m25 < 15)) {
+                fallbackStatus = 'lead_with_fierce_tail';
+                fallbackFierceRanks = Array.from({ length: count - 1 }, (_, i) => i + 2);
+            } else {
+                fallbackStatus = 'clear_lead';
+                fallbackFierceRanks = [1, 2];
+            }
+        } else if (count >= 4 && (p1 < 35 || p4 >= 10 || m14 < 25)) {
+            fallbackStatus = 'fierce_top5';
+            fallbackFierceRanks = Array.from({ length: count }, (_, i) => i + 1);
+        } else if (count >= 3 && ((m12 < 20 && m23 < 12) || (p3 >= 15 && m12 < 25))) {
+            fallbackStatus = 'fierce_top3';
+            fallbackFierceRanks = [1, 2, 3];
+        }
+
+        const badgeByStatus = {
+            single_only: { label: 'Hanya Satu Kemungkinan', tone: 'emerald', fierce: false },
+            dominant: { label: 'Sangat Yakin dan Jelas', tone: 'emerald', fierce: false },
+            lead_with_fierce_tail: { label: 'Urutan 1 Jelas, Sisanya Mirip', tone: 'indigo', fierce: true },
+            clear_lead: { label: 'Urutan 1 Unggul Jelas', tone: 'indigo', fierce: false },
+            fierce_top5: { label: 'Banyak Tebakan Bersaing Ketat', tone: 'rose', fierce: true },
+            fierce_top3: { label: 'Tiga Tebakan Teratas Bersaing Ketat', tone: 'amber', fierce: true },
+            duel_top2: { label: 'Dua Tebakan Teratas Bersaing Ketat', tone: 'amber', fierce: true },
+        };
+
+        const shortName = (label) => {
+            const clean = String(label || 'Penyakit').replace(/\s*\([^)]*\)/g, '').trim();
+            if (clean === 'Sehat') {
+                return 'Daun Sehat';
+            }
+            return clean || String(label || 'Penyakit');
+        };
+
+        const existing = data.competition_analysis || {};
+        const effectiveStatus = existing.status || fallbackStatus;
+        const statusInfo = badgeByStatus[effectiveStatus] || badgeByStatus[fallbackStatus];
+        const fierceRanks = Array.isArray(existing.fierce_ranks) ? existing.fierce_ranks : fallbackFierceRanks;
+        const first = rawCandidates[0] || {};
+        const second = rawCandidates[1] || null;
+        const stepMargins = existing.step_margins || { m12, m23, m15, m25 };
+
+        const candidates = rawCandidates.map((candidate, index) => {
+            const rank = Number(candidate.rank || index + 1);
+            const prev = index > 0 ? rawCandidates[index - 1] : null;
+            const score = Number(candidate.confidence ?? 0);
+            const gapTop1 = Number(candidate.gap_from_top1 ?? Math.max(0, p1 - score).toFixed(2));
+            const gapPrev = Number(candidate.gap_from_prev ?? (prev ? Math.max(0, Number(prev.confidence ?? 0) - score).toFixed(2) : 0));
+            const inFierce = candidate.is_in_fierce_zone ?? fierceRanks.includes(rank);
+            const candName = shortName(candidate.disease || candidate.diseaseEn);
+            const prevName = prev ? shortName(prev.disease || prev.diseaseEn) : '-';
+
+            const defaultRole = rank === 1
+                ? (statusInfo.fierce && effectiveStatus !== 'lead_with_fierce_tail' ? 'Sementara Teratas' : 'Kemungkinan Utama')
+                : (effectiveStatus === 'lead_with_fierce_tail' && inFierce
+                    ? 'Pesaing Tambahan Mirip'
+                    : (inFierce
+                        ? (score >= 10 || rank <= 3 ? 'Pesaing Terdekat' : 'Turut Bersaing')
+                        : (score < 1 ? 'Kemungkinan Kecil' : 'Kemungkinan Lain')));
+
+            const defaultGapBadge = rank === 1
+                ? 'Posisi teratas'
+                : (rank === 2
+                    ? `Selisih ${gapPrev.toFixed(2)} poin dari urutan 1`
+                    : `Selisih ${gapPrev.toFixed(2)} poin dari urutan ${rank - 1}, atau ${gapTop1.toFixed(2)} poin di bawah urutan 1`);
+
+            const defaultOverlapPrev = rank === 1
+                ? (second
+                    ? `Unggul ${m12.toFixed(2)} poin di atas ${shortName(second.disease || second.diseaseEn)} karena gejala utama pada daun lebih mengarah ke jenis ini.`
+                    : 'Merupakan satu satunya kemungkinan yang ditampilkan untuk foto ini.')
+                : `Kemiripan dengan ${prevName} di urutan ${rank - 1}: keduanya memiliki warna atau bentuk bercak yang terlihat mirip pada foto daun.`;
+
+            return {
+                rank,
+                disease: candidate.disease || '-',
+                diseaseEn: candidate.diseaseEn || '-',
+                confidence: score,
+                color: candidate.color || 'emerald',
+                gap_badge: candidate.gap_badge || defaultGapBadge,
+                is_in_fierce_zone: inFierce,
+                role_label: candidate.role_label || defaultRole,
+                why_predicted: candidate.why_predicted || `${candName} menempati urutan ${rank} dengan skor ${score.toFixed(2)}% karena pola warna dan permukaan daun mirip dengan gejala penyakit ini.`,
+                overlap_with_prev: candidate.overlap_with_prev || defaultOverlapPrev,
+                differentiator: candidate.differentiator || candidate.key_differentiator || 'Periksa langsung bentuk bercak, warna daun, dan sisi balik daun pada tanaman Anda.',
+            };
+        });
+
+        const name1 = shortName(first.disease || first.diseaseEn);
+        const name2 = second ? shortName(second.disease || second.diseaseEn) : '';
+
+        const fallbackChain = count < 2
+            ? [`Urutan 1 jatuh pada ${name1} dengan skor ${p1.toFixed(2)}% sebagai satu satunya hasil pada pemeriksaan ini.`]
+            : [
+                `Urutan 1 ${name1} sebesar ${p1.toFixed(2)}% dibanding urutan 2 ${name2} sebesar ${p2.toFixed(2)}% berselisih ${m12.toFixed(2)} poin karena ada kemiripan tampilan daun.`,
+                ...(count >= 3 ? [`Urutan 3 ditempati ${shortName(rawCandidates[2].disease)} dengan skor ${p3.toFixed(2)}%, berjarak ${m23.toFixed(2)} poin di bawah urutan 2.`] : []),
+                ...(count >= 4 ? [`Urutan 4${count >= 5 ? ' dan 5' : ''} melengkapi lima kemungkinan teratas dengan selisih rentang total ${m15.toFixed(2)} poin dari urutan pertama.`] : []),
+            ];
+
+        return {
+            status: effectiveStatus,
+            is_fierce: existing.is_fierce ?? statusInfo.fierce,
+            tone: existing.tone || statusInfo.tone,
+            badge_label: existing.badge_label || statusInfo.label,
+            margin_top2: existing.margin_top2 ?? m12,
+            step_margins: stepMargins,
+            headline: existing.headline || (second
+                ? `${name1} meraih ${p1.toFixed(2)}% dan dibandingkan dengan ${name2} sebesar ${p2.toFixed(2)}% dengan selisih ${m12.toFixed(2)} poin.`
+                : `Sistem menampilkan ${name1} dengan tingkat keyakinan ${p1.toFixed(2)}% sebagai hasil tunggal.`),
+            pairwise_reason: existing.pairwise_reason || (second
+                ? `Sistem melihat kemiripan tampilan pada daun antara ${name1} dan ${name2}.`
+                : 'Belum ada kemungkinan kedua sebagai pembanding pada hasil ini.'),
+            cluster_reason: existing.cluster_reason || 'Kelima nama ini dipilih karena pola warna dan bercaknya paling mendekati tampilan foto daun Anda.',
+            quality_factor: existing.quality_factor || 'Kualitas pencahayaan dan ketajaman foto memengaruhi seberapa jelas sistem membedakan tiap kemungkinan penyakit.',
+            top5_chain_reasons: (Array.isArray(existing.top5_chain_reasons) && existing.top5_chain_reasons.length > 0)
+                ? existing.top5_chain_reasons
+                : fallbackChain,
+            candidates,
+        };
+    }
+
+    function renderTop5Analysis(data) {
+        elements.alternativesList.replaceChildren();
+        elements.competitionChainList.replaceChildren();
+
+        const analysis = ensureCompleteAnalysis(data);
+        if (analysis.candidates.length === 0) {
+            elements.top5AnalysisWrap.classList.add('hidden');
             return;
         }
 
+        const toneTheme = competitionToneThemes[analysis.tone] || competitionToneThemes.emerald;
+        elements.competitionBadge.className = `inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${toneTheme.badge}`;
+        elements.competitionBadge.textContent = analysis.badge_label;
+        elements.competitionSummaryBox.className = toneTheme.box;
+
+        const candCount = analysis.candidates.length;
+        if (candCount > 2) {
+            const d12 = Number(analysis.step_margins.m12 ?? analysis.margin_top2).toFixed(2);
+            const d23 = Number(analysis.step_margins.m23 ?? 0).toFixed(2);
+            const d15 = Number(analysis.step_margins.m15 ?? analysis.margin_top2).toFixed(2);
+            elements.competitionMargin.textContent = `Menampilkan ${candCount} kemungkinan teratas, selisih urutan 1 ke 2 sebesar ${d12} poin, urutan 2 ke 3 sebesar ${d23} poin, dan jarak total hingga urutan ${candCount} sebesar ${d15} poin.`;
+        } else if (candCount === 2) {
+            elements.competitionMargin.textContent = `Menampilkan 2 kemungkinan dengan selisih urutan 1 dan 2 sebesar ${Number(analysis.margin_top2).toFixed(2)} poin.`;
+        } else {
+            elements.competitionMargin.textContent = 'Menampilkan 1 kemungkinan utama.';
+        }
+
+        elements.competitionHeadline.textContent = analysis.headline;
+        elements.competitionPairwise.textContent = analysis.pairwise_reason;
+        elements.competitionCluster.textContent = analysis.cluster_reason;
+        elements.competitionQuality.textContent = analysis.quality_factor;
+
+        analysis.top5_chain_reasons.forEach((reasonText) => {
+            const li = document.createElement('li');
+            li.textContent = reasonText;
+            elements.competitionChainList.appendChild(li);
+        });
+
         const template = $('alternativeTemplate');
 
-        alternatives.slice(0, 3).forEach((alternative, index) => {
-            const theme = colorThemes[alternative.color] || colorThemes.emerald;
+        analysis.candidates.forEach((candidate) => {
+            const theme = colorThemes[candidate.color] || colorThemes.emerald;
             const item = template.content.cloneNode(true);
 
-            item.querySelector('[data-rank]').textContent = String(index + 2);
-            item.querySelector('[data-name]').textContent = alternative.disease;
-            item.querySelector('[data-name-en]').textContent = alternative.diseaseEn;
-            item.querySelector('[data-confidence]').textContent = `${alternative.confidence}%`;
+            const rankEl = item.querySelector('[data-rank]');
+            rankEl.textContent = String(candidate.rank);
+            if (candidate.rank === 1) {
+                rankEl.className = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800';
+            } else if (candidate.is_in_fierce_zone) {
+                rankEl.className = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-[11px] font-bold text-amber-800';
+            }
+
+            item.querySelector('[data-name]').textContent = candidate.disease;
+            item.querySelector('[data-name-en]').textContent = candidate.diseaseEn;
+            item.querySelector('[data-role]').textContent = candidate.role_label;
+            item.querySelector('[data-gap-badge]').textContent = candidate.gap_badge;
+            item.querySelector('[data-confidence]').textContent = `${Number(candidate.confidence).toFixed(2)}%`;
+            item.querySelector('[data-why-predicted]').textContent = candidate.why_predicted;
+            item.querySelector('[data-overlap-prev]').textContent = candidate.overlap_with_prev;
+            item.querySelector('[data-differentiator]').textContent = candidate.differentiator;
 
             const bar = item.querySelector('[data-bar]');
             bar.className = `h-full rounded-full transition-all duration-500 ${theme.bar}`;
-            bar.style.width = `${Math.max(alternative.confidence, 2)}%`;
+            bar.style.width = `${Math.max(Number(candidate.confidence), 2)}%`;
 
             elements.alternativesList.appendChild(item);
         });
 
-        elements.alternativesWrap.classList.remove('hidden');
+        elements.top5AnalysisWrap.classList.remove('hidden');
     }
 
     // ---------------------------------------------------------------------

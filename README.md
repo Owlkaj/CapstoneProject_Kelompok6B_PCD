@@ -33,7 +33,7 @@
 
 ### 1. 🧠 Transfer Learning & Fine-Tuning EfficientNet-B0
 * Bobot dasar pretrained *ImageNet-1k* dengan *fine-tuning* terkalibrasi pada lapisan atas (*unfrozen top stages*).
-* Dilatih pada kombinasi dataset laboratorium (PlantVillage) dan dataset lapangan (*YOLO-cropped field leaves*) untuk memperkaya variasi latar belakang dan sudut pencahayaan.
+* Dilatih pada kombinasi dataset laboratorium (PlantVillage) dan dataset lapangan (*bordered bounding-box leaf crops*) untuk memperkaya variasi latar belakang dan sudut pencahayaan.
 
 ### 2. 🍃 Adaptive Leaf Isolation Preprocessing
 Mengatasi kendala *domain shift* (latar tanah, bayangan, atau dedaunan lain) melalui pipeline isolasi daun bertingkat:
@@ -123,15 +123,14 @@ Sistem mengklasifikasikan 10 kelas kondisi daun tomat (9 patologi dan 1 kondisi 
 
 ## 📈 Evaluasi & Benchmark Performa
 
-Model telah dievaluasi secara komprehensif pada tiga kelompok dataset uji untuk mengukur generalisasi laboratorium maupun ketahanan lapangan:
+Model telah dievaluasi pada dua domain utama untuk mengukur performa laboratorium maupun ketahanan pada foto daun di lapangan:
 
 ### 1. Ringkasan Metrik Evaluasi
 
 | Himpunan Data Uji (*Test Set*) | Karakteristik Citra | Jumlah Sampel | Akurasi | Macro F1-Score | Keterangan |
 |---|---|:---:|:---:|:---:|---|
-| **PlantVillage Test Set** | Foto laboratorium, latar belakang netral | 2.000 citra | **97.45%** | **97.45%** | Model produksi `model_yolo3_grouped.pt` (baseline E02: 96.60%) |
+| **PlantVillage Test Set** | Foto laboratorium, latar belakang netral | 2.000 citra | **97.45%** | **97.45%** | Model produksi `final_model.pt` (baseline E02: 96.60%) |
 | **Field Group-Disjoint Test** | Foto daun tomat lapangan (8 kelas, *group-disjoint*) | 1.058 citra | **93.01%** | **93.43%** | Tanpa kebocoran daun/gambar asal antar-split (+18.62 pp vs E02) |
-| **Cross-Dataset Field Test** | Dataset independen luar (3 kelas) | 653 citra | **81.32%** | **86.01%** | Generalisasi lintas sumber (+34.61 pp vs baseline E02) |
 
 ### 2. Efisiensi Komputasi
 * **Ukuran Bobot Model**: ~16.3 MB (`final_model.pt`).

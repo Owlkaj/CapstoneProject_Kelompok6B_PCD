@@ -263,7 +263,7 @@
                         penyakit daun tomat
                     </h1>
                     <p class="mt-5 max-w-2xl text-base leading-relaxed text-slate-600">
-                        Ringkasan pengujian model produksi final (<code>model_yolo3_grouped.pt</code>) pada data laboratorium, foto lapangan <em>group-disjoint</em> (bebas kebocoran daun/gambar asal antar-split), dan dataset eksternal independen, dilengkapi <em>calibrated confidence gating</em> (<code>t = 0,60</code>).
+                        Ringkasan pengujian model produksi final (<code>final_model.pt</code>) pada data laboratorium dan foto crop daun lapangan <em>group-disjoint</em> (bebas kebocoran daun/gambar asal antar-split), dilengkapi <em>calibrated confidence gating</em> (<code>t = 0,60</code>).
                     </p>
                     <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
                         <span><span class="font-medium text-slate-700">Model</span> EfficientNet-B0 (E03 Grouped)</span>
@@ -288,13 +288,9 @@
                             <dt class="text-sm text-slate-600">Lapangan (Group-Disjoint)</dt>
                             <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">93,01%</dd>
                         </div>
-                        <div class="flex items-baseline justify-between gap-4 py-3">
-                            <dt class="text-sm text-slate-600">Dataset eksternal</dt>
-                            <dd class="font-serif text-2xl font-semibold tabular-nums text-slate-950">81,32%</dd>
-                        </div>
                     </dl>
                     <p class="mt-4 border-t border-slate-100 pt-4 text-[11px] leading-relaxed text-slate-500">
-                        2.000 citra laboratorium · 1.058 citra lapangan · 653 citra eksternal
+                        2.000 citra laboratorium · 1.058 citra lapangan
                     </p>
                 </div>
             </div>
@@ -323,14 +319,9 @@
                     <span class="tab-index font-mono text-[11px] text-slate-400">04</span>
                     Dataset
                 </button>
-                <button type="button" id="tab-generalisasi" data-tab="generalisasi" role="tab" aria-selected="false" aria-controls="panel-generalisasi" tabindex="-1"
-                        class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
-                    <span class="tab-index font-mono text-[11px] text-slate-400">05</span>
-                    Generalisasi
-                </button>
                 <button type="button" id="tab-lampiran" data-tab="lampiran" role="tab" aria-selected="false" aria-controls="panel-lampiran" tabindex="-1"
                         class="tab-btn flex shrink-0 items-center gap-2 py-4 text-sm font-medium transition-colors">
-                    <span class="tab-index font-mono text-[11px] text-slate-400">06</span>
+                    <span class="tab-index font-mono text-[11px] text-slate-400">05</span>
                     Lampiran
                 </button>
             </nav>
@@ -343,11 +334,11 @@
                     <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">01 · Ringkasan</p>
                     <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Temuan utama</h2>
                     <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
-                        Model final menunjukkan performa tinggi dan konsisten di dua domain. Pada dataset eksternal, akurasi meningkat jauh dibanding baseline, meskipun cakupan kelasnya lebih terbatas.
+                        Model final menunjukkan performa tinggi dan konsisten di dua domain utama pengujian (laboratorium dan lapangan kebun nyata).
                     </p>
                 </header>
 
-                <div class="grid gap-4 md:grid-cols-3">
+                <div class="grid gap-4 md:grid-cols-2">
                     <article class="report-card metric-card p-5" data-tone="lab">
                         <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Laboratorium</p>
                         <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">97,45%</p>
@@ -358,16 +349,11 @@
                         <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">93,01%</p>
                         <p class="mt-2 text-sm leading-relaxed text-slate-600">984 dari 1.058 citra uji tepat pada 8 kelas lapangan (+18,62 pp dari baseline 74,39%; 96,62% pasca confidence gating).</p>
                     </article>
-                    <article class="report-card metric-card p-5" data-tone="external">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Generalisasi</p>
-                        <p class="mt-2 font-serif text-3xl font-semibold tabular-nums text-slate-950">81,32%</p>
-                        <p class="mt-2 text-sm leading-relaxed text-slate-600">653 citra eksternal (Macro F1 86,01%), meningkat 34,61 poin dari baseline 46,71%.</p>
-                    </article>
                 </div>
 
                 <div class="grid gap-6 lg:grid-cols-2">
                     <article class="report-card p-5 sm:p-6">
-                        <h3 class="font-serif text-xl font-semibold text-slate-950">Arsitektur dan peran YOLO</h3>
+                        <h3 class="font-serif text-xl font-semibold text-slate-950">Arsitektur dan persiapan data</h3>
                         <dl class="mt-5 divide-y divide-slate-100">
                             <div class="py-4 first:pt-0">
                                 <dt class="text-sm font-medium text-slate-900">Classifier operasional</dt>
@@ -378,7 +364,7 @@
                             <div class="py-4">
                                 <dt class="text-sm font-medium text-slate-900">Pipeline data</dt>
                                 <dd class="mt-1 text-sm leading-relaxed text-slate-600">
-                                    YOLO tidak dipakai saat inferensi. Anotasi YOLO digunakan untuk memotong daun dari foto kebun, lalu hasil crop menjadi data latih EfficientNet-B0.
+                                    Anotasi kotak pembatas daun (<em>bordered bounding-box</em>) dipakai offline untuk memotong area helai daun dari foto kebun, lalu hasil crop menjadi data latih EfficientNet-B0.
                                 </dd>
                             </div>
                             <div class="py-4 last:pb-0">
@@ -410,7 +396,7 @@
 
                             <div>
                                 <div class="flex items-baseline justify-between text-sm">
-                                    <span class="font-medium text-slate-800">YOLO3 lapangan (Group-Disjoint)</span>
+                                    <span class="font-medium text-slate-800">Crop daun lapangan (Group-Disjoint)</span>
                                     <span class="tabular-nums text-slate-600">11.757</span>
                                 </div>
                                 <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
@@ -597,7 +583,7 @@
                             <h3 class="font-serif text-xl font-semibold text-slate-950">Confusion matrix model final</h3>
                             <p class="mt-1 text-sm text-slate-600">Perbandingan hasil pada domain laboratorium dan lapangan.</p>
                         </div>
-                        <a href="confusion_matrix_final_deployed_comparison.png" target="_blank" rel="noopener"
+                        <a href="03_comparisons/confusion_matrix_final_deployed_comparison.png" target="_blank" rel="noopener"
                            class="inline-flex items-center gap-1.5 text-xs font-medium text-brand-700 hover:text-brand-800">
                             Buka gambar penuh
                             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -606,7 +592,7 @@
                         </a>
                     </div>
                     <div class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-2">
-                        <img src="confusion_matrix_final_deployed_comparison.png"
+                        <img src="03_comparisons/confusion_matrix_final_deployed_comparison.png"
                              alt="Confusion matrix model final pada data laboratorium dan lapangan"
                              class="h-auto w-full rounded"
                              loading="lazy">
@@ -651,7 +637,7 @@
                                 <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan (Group-Disjoint)</h3>
                                 <span class="text-xs tabular-nums text-slate-500">1.058 citra</span>
                             </div>
-                            <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 8 kelas · StratifiedGroupKFold</p>
+                            <p class="mt-1 text-xs text-slate-500">Bordered leaf crop · 8 kelas · StratifiedGroupKFold</p>
                         </div>
                         <div id="cardsField" class="divide-y divide-slate-100 sm:hidden"></div>
                         <div class="hidden overflow-x-auto sm:block">
@@ -710,7 +696,7 @@
                                     <td class="hidden px-5 py-4 text-xs leading-relaxed text-slate-500 lg:table-cell">Daun tunggal terisolasi, latar polos, pencahayaan studio.</td>
                                 </tr>
                                 <tr class="hover:bg-slate-50/70">
-                                    <td class="px-4 py-4 font-medium text-slate-900 sm:px-5">YOLO3 lapangan (Group-Disjoint)</td>
+                                    <td class="px-4 py-4 font-medium text-slate-900 sm:px-5">Crop daun lapangan (Group-Disjoint)</td>
                                     <td class="hidden px-4 py-4 text-slate-600 sm:table-cell">Kebun nyata · 8 kelas</td>
                                     <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">9.600</td>
                                     <td class="px-2 py-4 text-right tabular-nums text-slate-700 sm:px-4">1.099</td>
@@ -751,101 +737,10 @@
                 </div>
             </section>
 
-            <!-- 05 — GENERALISASI -->
-            <section id="panel-generalisasi" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-generalisasi" hidden>
-                <header class="max-w-3xl">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">05 · Generalisasi</p>
-                    <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Uji lintas dataset</h2>
-                    <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
-                        Model diuji pada Dataset 2 yang tidak digunakan saat pelatihan. Dataset ini hanya memuat tiga kelas: Healthy, Leaf Mold, dan TYLCV.
-                    </p>
-                </header>
-
-                <div class="grid gap-4 md:grid-cols-3">
-                    <article class="report-card p-5">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Baseline E02</p>
-                        <p class="mt-1 text-xs text-slate-500">Hanya data laboratorium</p>
-                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">46,71%</p>
-                        <p class="mt-1 text-xs text-slate-500">Macro F1 52,48% · 653 citra</p>
-                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Akurasi menurun saat diuji pada citra eksternal.</p>
-                    </article>
-
-                    <article class="report-card p-5">
-                        <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">FieldMixed v1</p>
-                        <p class="mt-1 text-xs text-slate-500">Fine-tuning lapangan tahap pertama</p>
-                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">37,98%</p>
-                        <p class="mt-1 text-xs text-slate-500">Macro F1 47,20% · 653 citra</p>
-                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Akurasi lebih rendah dari baseline pada Dataset 2.</p>
-                    </article>
-
-                    <article class="report-card report-card-accent p-5">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-800">Model final (Group-Disjoint)</p>
-                                <p class="mt-1 text-xs text-brand-700">Crop YOLO3 + fine-tuning E03</p>
-                            </div>
-                            <span class="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-medium text-brand-800">Terbaik</span>
-                        </div>
-                        <p class="mt-4 font-serif text-3xl font-semibold tabular-nums text-slate-950">81,32%</p>
-                        <p class="mt-1 text-xs text-slate-500">Macro F1 86,01% · 653 citra</p>
-                        <p class="mt-3 text-sm leading-relaxed text-slate-600">Meningkat 34,61 poin dari baseline.</p>
-                    </article>
-                </div>
-
-                <article class="report-card p-5 sm:p-6">
-                    <div class="flex items-baseline justify-between gap-4">
-                        <div>
-                            <h3 class="font-serif text-xl font-semibold text-slate-950">Akurasi keseluruhan</h3>
-                            <p class="mt-1 text-sm text-slate-600">Diukur pada 653 citra uji Dataset 2.</p>
-                        </div>
-                        <span class="text-xs text-slate-500">3 kelas</span>
-                    </div>
-
-                    <div class="mt-6 space-y-5">
-                        <div>
-                            <div class="flex items-baseline justify-between gap-3 text-sm">
-                                <span class="font-medium text-slate-800">Baseline E02</span>
-                                <span class="tabular-nums text-slate-600">46,71%</span>
-                            </div>
-                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                                <div class="h-full rounded-full bg-slate-400" style="width: 46.71%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-baseline justify-between gap-3 text-sm">
-                                <span class="font-medium text-slate-800">FieldMixed v1</span>
-                                <span class="tabular-nums text-slate-600">37,98%</span>
-                            </div>
-                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                                <div class="h-full rounded-full bg-slate-400" style="width: 37.98%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-baseline justify-between gap-3 text-sm">
-                                <span class="font-medium text-slate-800">Model final (Group-Disjoint)</span>
-                                <span class="font-medium tabular-nums text-brand-800">81,32%</span>
-                            </div>
-                            <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                                <div class="h-full rounded-full bg-brand-700" style="width: 81.32%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-
-                <aside class="rounded-xl border border-slate-200 bg-white p-5">
-                    <h3 class="text-sm font-semibold text-slate-900">Catatan metodologis</h3>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">
-                        Akurasi dihitung dari seluruh 653 citra uji, termasuk prediksi ke kelas di luar tiga kelas yang tersedia. Matriks tiga kelas hanya menghitung prediksi yang masuk ke tiga kelas tersebut, sehingga akurasi subset tidak dapat dibandingkan langsung dengan akurasi keseluruhan.
-                    </p>
-                </aside>
-            </section>
-
-            <!-- 06 — LAMPIRAN -->
+            <!-- 05 — LAMPIRAN -->
             <section id="panel-lampiran" class="tab-panel space-y-8" role="tabpanel" aria-labelledby="tab-lampiran" hidden>
                 <header class="max-w-3xl">
-                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">06 · Lampiran</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-700">05 · Lampiran</p>
                     <h2 class="mt-2 font-serif text-3xl font-semibold tracking-tight text-slate-950">Dokumentasi visual</h2>
                     <p class="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
                         Confusion matrix model final dan berkas pendukung untuk verifikasi hasil.
@@ -861,8 +756,8 @@
                             </div>
                             <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">97,45%</span>
                         </div>
-                        <a href="confusion_matrix_final_yolo3_grouped_pv.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
-                            <img src="confusion_matrix_final_yolo3_grouped_pv.png"
+                        <a href="02_final_model/confusion_matrix_final_pv.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
+                            <img src="02_final_model/confusion_matrix_final_pv.png"
                                  alt="Confusion matrix model final pada data laboratorium PlantVillage"
                                  class="h-auto w-full rounded border border-slate-200"
                                  loading="lazy">
@@ -873,13 +768,13 @@
                         <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
                             <div>
                                 <h3 class="font-serif text-lg font-semibold text-slate-950">Lapangan (Group-Disjoint) · 8 kelas</h3>
-                                <p class="mt-1 text-xs text-slate-500">YOLO3 crop · 1.058 citra</p>
+                                <p class="mt-1 text-xs text-slate-500">Bordered leaf crop · 1.058 citra</p>
                             </div>
                             <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium tabular-nums text-brand-800">93,01%</span>
                         </div>
-                        <a href="confusion_matrix_final_yolo3_grouped_field.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
-                            <img src="confusion_matrix_final_yolo3_grouped_field.png"
-                                 alt="Confusion matrix model final pada data lapangan YOLO3 group-disjoint"
+                        <a href="02_final_model/confusion_matrix_final_field.png" target="_blank" rel="noopener" class="block bg-slate-50 p-3">
+                            <img src="02_final_model/confusion_matrix_final_field.png"
+                                 alt="Confusion matrix model final pada data crop daun lapangan group-disjoint"
                                  class="h-auto w-full rounded border border-slate-200"
                                  loading="lazy">
                         </a>
@@ -888,35 +783,30 @@
 
                 <div class="report-card p-5 sm:p-6">
                     <h3 class="font-serif text-xl font-semibold text-slate-950">Berkas pendukung</h3>
-                    <p class="mt-1 text-sm text-slate-600">Data mentah dan metrik lengkap untuk verifikasi (Model Produksi Final <code>model_yolo3_grouped.pt</code>).</p>
+                    <p class="mt-1 text-sm text-slate-600">Data mentah dan metrik lengkap untuk verifikasi (Model Produksi Final <code>final_model.pt</code>).</p>
 
                     <div class="mt-4 grid gap-2 sm:grid-cols-2">
-                        <a href="evaluation_metrics_final_yolo3_grouped_pv.json" target="_blank" rel="noopener"
+                        <a href="02_final_model/evaluation_metrics_final_pv.json" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
                             <span>Metrik laboratorium (2.000 citra · 97,45%)</span>
                             <span class="text-xs text-slate-400">JSON</span>
                         </a>
-                        <a href="evaluation_metrics_final_yolo3_grouped_field.json" target="_blank" rel="noopener"
+                        <a href="02_final_model/evaluation_metrics_final_field.json" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
                             <span>Metrik lapangan group-disjoint (1.058 citra · 93,01%)</span>
                             <span class="text-xs text-slate-400">JSON</span>
                         </a>
-                        <a href="evaluation_metrics_cross_yolo3_grouped_on_ds2.json" target="_blank" rel="noopener"
-                           class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
-                            <span>Metrik generalisasi lintas-dataset DS2 (653 citra · 81,32%)</span>
-                            <span class="text-xs text-slate-400">JSON</span>
-                        </a>
-                        <a href="confusion_matrix_final_yolo3_grouped_pv.csv" target="_blank" rel="noopener"
+                        <a href="02_final_model/confusion_matrix_final_pv.csv" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
                             <span>Confusion matrix laboratorium</span>
                             <span class="text-xs text-slate-400">CSV</span>
                         </a>
-                        <a href="confusion_matrix_final_yolo3_grouped_field.csv" target="_blank" rel="noopener"
+                        <a href="02_final_model/confusion_matrix_final_field.csv" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
                             <span>Confusion matrix lapangan group-disjoint</span>
                             <span class="text-xs text-slate-400">CSV</span>
                         </a>
-                        <a href="gating_calibration.json" target="_blank" rel="noopener"
+                        <a href="02_final_model/gating_calibration.json" target="_blank" rel="noopener"
                            class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700 transition-colors hover:border-brand-300 hover:bg-brand-50/40">
                             <span>Kalibrasi confidence gating (val n=1.099 · t=0,60)</span>
                             <span class="text-xs text-slate-400">JSON</span>
@@ -934,7 +824,7 @@
                 </div>
                 <p class="sm:text-right">
                     EfficientNet-B0 · 31.757 citra · 10 kelas<br>
-                    Sumber: hasil evaluasi model <code>model_yolo3_grouped.pt</code>, 8 November 2026.
+                    Sumber: hasil evaluasi model <code>final_model.pt</code>, 8 November 2026.
                 </p>
             </div>
         </footer>
@@ -942,7 +832,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Sumber angka: ml/results/evaluation_metrics_final_yolo3_grouped_*.json (evaluasi 8 November 2026).
+        // Sumber angka: ml/results/02_final_model/evaluation_metrics_final_*.json (evaluasi 8 November 2026).
         const labData = [
             { name: 'Bercak bakteri', en: 'Bacterial Spot', short: 'Bercak bakteri', prec: 95.57, rec: 97.00, f1: 96.28, n: 200 },
             { name: 'Bercak kering', en: 'Early Blight', short: 'Bercak kering', prec: 95.07, rec: 96.50, f1: 95.78, n: 200 },

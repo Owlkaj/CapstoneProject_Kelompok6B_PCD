@@ -249,84 +249,79 @@ def plot_benchmark_comparison(pv_json: Path, field_baseline_json: Path, field_ft
 
 def main():
     setup_matplotlib()
+
+    baseline_dir = RESULTS_DIR / "01_baseline_e02"
+    final_dir = RESULTS_DIR / "02_final_model"
+    comparison_dir = RESULTS_DIR / "03_comparisons"
+    for folder in (baseline_dir, final_dir, comparison_dir):
+        folder.mkdir(parents=True, exist_ok=True)
     
     # 1. Heatmap Baseline PlantVillage (E02)
-    pv_cm = RESULTS_DIR / "confusion_matrix_baseline_pv.csv"
+    pv_cm = baseline_dir / "confusion_matrix_baseline_pv.csv"
     if pv_cm.exists():
         plot_single_cm(
             pv_cm, 
             "Confusion Matrix — Model Baseline E02 (Dataset Laboratorium PlantVillage)",
             "Himpunan Uji Test Set: 2.000 Citra (200 Citra / Kelas)",
-            RESULTS_DIR / "confusion_matrix_baseline_pv.png",
+            baseline_dir / "confusion_matrix_baseline_pv.png",
             cmap="Blues"
         )
 
-    # 2. Heatmap Model Produksi Final (model_yolo3_grouped) - PlantVillage
-    final_pv_cm = RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_pv.csv"
+    # 2. Heatmap Model Produksi Final - PlantVillage
+    final_pv_cm = final_dir / "confusion_matrix_final_pv.csv"
     if final_pv_cm.exists():
         plot_single_cm(
             final_pv_cm,
             "Confusion Matrix — Model Produksi Final (Laboratorium PlantVillage)",
-            "model_yolo3_grouped.pt · Himpunan Uji: 2.000 Citra (10 Kelas)",
-            RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_pv.png",
+            "final_model.pt · Himpunan Uji: 2.000 Citra (10 Kelas)",
+            final_dir / "confusion_matrix_final_pv.png",
             cmap="Blues"
         )
 
-    # 3. Heatmap Model Produksi Final (model_yolo3_grouped) - Field Group-Disjoint
-    final_field_cm = RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_field.csv"
+    # 3. Heatmap Model Produksi Final - Field Group-Disjoint
+    final_field_cm = final_dir / "confusion_matrix_final_field.csv"
     if final_field_cm.exists():
         plot_single_cm(
             final_field_cm,
-            "Confusion Matrix — Model Produksi Final (Lapangan Group-Disjoint)",
-            "model_yolo3_grouped.pt · Himpunan Uji: 1.058 Citra (8 Kelas Lapangan)",
-            RESULTS_DIR / "confusion_matrix_final_yolo3_grouped_field.png",
+            "Confusion Matrix — Model Produksi Final (Crop Daun Lapangan Group-Disjoint)",
+            "final_model.pt · Himpunan Uji: 1.058 Citra (8 Kelas Lapangan)",
+            final_dir / "confusion_matrix_final_field.png",
             cmap="Greens"
         )
 
-    # 4. Heatmap Model Produksi Final (model_yolo3_grouped) - Cross-Dataset DS2
-    cross_cm = RESULTS_DIR / "confusion_matrix_cross_yolo3_grouped_on_ds2.csv"
-    if cross_cm.exists():
-        plot_single_cm(
-            cross_cm,
-            "Confusion Matrix Subset 3 Kelas — Uji Lintas-Dataset (Dataset 2 Independen)",
-            "model_yolo3_grouped.pt · Akurasi Keseluruhan 653 Citra: 81.32% (Macro F1: 86.01%)",
-            RESULTS_DIR / "confusion_matrix_cross_yolo3_grouped_on_ds2.png",
-            cmap="Purples"
-        )
-
-    # 5. Side-by-side Confusion Matrix comparison for Deployed Final Model (Lab vs Field Group-Disjoint)
+    # 4. Side-by-side Confusion Matrix comparison for Deployed Final Model (Lab vs Field Group-Disjoint)
     if final_pv_cm.exists() and final_field_cm.exists():
         plot_cm_comparison(
             final_pv_cm,
             final_field_cm,
-            RESULTS_DIR / "confusion_matrix_final_deployed_comparison.png",
-            title_main="CONFUSION MATRIX MODEL PRODUKSI FINAL (model_yolo3_grouped.pt)\nPerbandingan Performa pada Domain Laboratorium (10 Kelas) vs Lapangan Group-Disjoint (8 Kelas)",
+            comparison_dir / "confusion_matrix_final_deployed_comparison.png",
+            title_main="CONFUSION MATRIX MODEL PRODUKSI FINAL (final_model.pt)\nPerbandingan Performa pada Domain Laboratorium (10 Kelas) vs Crop Daun Lapangan (8 Kelas)",
             subtitle_left="1. Domain Laboratorium (PlantVillage Test Set)",
-            subtitle_right="2. Domain Lapangan (YOLO3 Group-Disjoint Test Set)",
+            subtitle_right="2. Domain Lapangan (Bordered Crop Group-Disjoint)",
             cmap_right="Greens"
         )
 
-    # 6. Baseline PV metrics chart (Precision, Recall, F1)
-    pv_json = RESULTS_DIR / "evaluation_metrics_baseline_pv.json"
+    # 5. Baseline PV metrics chart (Precision, Recall, F1)
+    pv_json = baseline_dir / "evaluation_metrics_baseline_pv.json"
     if pv_json.exists():
         plot_baseline_pv_metrics(
             pv_json, 
-            RESULTS_DIR / "baseline_pv_metrics_chart.png"
+            baseline_dir / "baseline_pv_metrics_chart.png"
         )
 
-    # 7. Benchmark Comparison: Lab Final vs Field Baseline (Group-Disjoint) vs Field Final (Group-Disjoint)
-    final_pv_json = RESULTS_DIR / "evaluation_metrics_final_yolo3_grouped_pv.json"
-    field_base_grouped_json = RESULTS_DIR / "evaluation_metrics_baseline_grouped_field.json"
-    field_final_grouped_json = RESULTS_DIR / "evaluation_metrics_final_yolo3_grouped_field.json"
+    # 6. Benchmark Comparison: Lab Final vs Field Baseline (Group-Disjoint) vs Field Final (Group-Disjoint)
+    final_pv_json = final_dir / "evaluation_metrics_final_pv.json"
+    field_base_grouped_json = baseline_dir / "evaluation_metrics_baseline_grouped_field.json"
+    field_final_grouped_json = final_dir / "evaluation_metrics_final_field.json"
     if final_pv_json.exists() and field_base_grouped_json.exists() and field_final_grouped_json.exists():
         plot_benchmark_comparison(
             final_pv_json,
             field_base_grouped_json,
             field_final_grouped_json,
-            RESULTS_DIR / "domain_comparison_barchart.png"
+            comparison_dir / "domain_comparison_barchart.png"
         )
 
-    print("\n[SUCCESS] Semua grafik visual berhasil dibuat di folder ml/results/!")
+    print("\n[SUCCESS] Semua grafik visual berhasil dibuat di subfolder ml/results/!")
 
 if __name__ == "__main__":
     main()

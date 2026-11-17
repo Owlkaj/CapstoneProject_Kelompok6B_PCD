@@ -179,7 +179,7 @@ def main() -> None:
             "acc_of_accepted": round(acc_acc, 4),
         })
 
-    out_dir = ML_ROOT / "results"
+    out_dir = ML_ROOT / "results" / "02_final_model"
     out_dir.mkdir(parents=True, exist_ok=True)
     payload = {
         "model": model_path.name,

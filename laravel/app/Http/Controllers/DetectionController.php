@@ -71,6 +71,7 @@ class DetectionController extends Controller
             $gate = is_array($prediction['confidence_gate'] ?? null)
                 ? $prediction['confidence_gate']
                 : [];
+            $competitionAnalysis = DiseaseCatalog::analyzeTopPredictions($topPredictions, $gate);
 
             return response()->json([
                 'success' => true,
@@ -88,6 +89,7 @@ class DetectionController extends Controller
                     'date' => now()->format('Y-m-d H:i'),
                     'top_predictions' => $topPredictions,
                     'alternatives' => array_slice($topPredictions, 1),
+                    'competition_analysis' => $competitionAnalysis,
                     'accepted' => (bool) ($gate['passed'] ?? true),
                     'gate_action' => $gate['action'] ?? 'accept',
                     'gate_reasons' => $gate['reasons'] ?? [],
@@ -172,20 +174,14 @@ class DetectionController extends Controller
     private function buildTopPredictions(array $prediction, array $primaryInfo): array
     {
         if (! empty($prediction['top_predictions']) && is_array($prediction['top_predictions'])) {
-            return array_map(function (array $item): array {
-                $info = DiseaseCatalog::getInfo($item['class']);
-                $confidence = (float) $item['confidence'];
-
-                return [
-                    'disease' => $info['name_id'],
-                    'diseaseEn' => $item['class'],
-                    'class_id' => $item['class_id'] ?? null,
-                    'confidence' => round($confidence * 100, 2),
-                    'confidence_raw' => $confidence,
-                    'color' => $info['color'] ?? 'emerald',
-                    'description' => $info['description'] ?? '',
-                ];
-            }, $prediction['top_predictions']);
+            return array_map(
+                fn (array $item): array => $this->formatPredictionCandidate(
+                    (string) $item['class'],
+                    (float) $item['confidence'],
+                    isset($item['class_id']) ? (int) $item['class_id'] : null,
+                ),
+                $prediction['top_predictions'],
+            );
         }
 
         if (! empty($prediction['probabilities']) && is_array($prediction['probabilities'])) {
@@ -193,34 +189,53 @@ class DetectionController extends Controller
             arsort($probabilities);
 
             $predictions = [];
-
             foreach (array_slice($probabilities, 0, 5, true) as $className => $probability) {
-                $info = DiseaseCatalog::getInfo($className);
-                $confidence = (float) $probability;
-
-                $predictions[] = [
-                    'disease' => $info['name_id'],
-                    'diseaseEn' => $className,
-                    'confidence' => round($confidence * 100, 2),
-                    'confidence_raw' => $confidence,
-                    'color' => $info['color'] ?? 'emerald',
-                    'description' => $info['description'] ?? '',
-                ];
+                $predictions[] = $this->formatPredictionCandidate(
+                    (string) $className,
+                    (float) $probability,
+                );
             }
 
             return $predictions;
         }
 
-        $confidence = (float) $prediction['confidence'];
+        return [
+            $this->formatPredictionCandidate(
+                (string) $prediction['class'],
+                (float) $prediction['confidence'],
+                isset($prediction['class_id']) ? (int) $prediction['class_id'] : null,
+                $primaryInfo,
+            ),
+        ];
+    }
 
-        return [[
-            'disease' => $primaryInfo['name_id'],
-            'diseaseEn' => $prediction['class'],
-            'class_id' => $prediction['class_id'] ?? null,
+    /**
+     * Format satu kandidat prediksi lengkap dengan metadata katalog visual.
+     *
+     * @param  array<string, mixed>|null  $resolvedInfo
+     * @return array<string, mixed>
+     */
+    private function formatPredictionCandidate(
+        string $className,
+        float $confidence,
+        ?int $classId = null,
+        ?array $resolvedInfo = null,
+    ): array {
+        $info = $resolvedInfo ?? DiseaseCatalog::getInfo($className);
+
+        return [
+            'disease' => $info['name_id'],
+            'diseaseEn' => $className,
+            'class_id' => $classId,
             'confidence' => round($confidence * 100, 2),
             'confidence_raw' => $confidence,
-            'color' => $primaryInfo['color'],
-            'description' => $primaryInfo['description'],
-        ]];
+            'color' => $info['color'] ?? 'emerald',
+            'description' => $info['description'] ?? '',
+            'visual' => $info['visual'] ?? '',
+            'pathogen' => $info['pathogen'] ?? '',
+            'symptom_group' => $info['symptom_group'] ?? 'unknown',
+            'model_cue' => $info['model_cue'] ?? '',
+            'key_differentiator' => $info['key_differentiator'] ?? '',
+        ];
     }
 }
